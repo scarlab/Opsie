@@ -1,4 +1,4 @@
-package metrics
+package system
 
 import (
 	"fmt"
@@ -17,20 +17,20 @@ import (
 )
 
 // -------------------- Structs --------------------
-type CPUInfo struct {
+type cpuInfo struct {
 	Model   string    `json:"model"`
 	Average float64   `json:"average"`
 	Cores   []float64 `json:"cores"`
 }
 
-type GPUInfo struct {
+type gpuInfo struct {
 	Name       string  `json:"name"`
 	Utilization int     `json:"utilization_pct"`
 	MemTotal   int     `json:"mem_total_mb"`
 	MemUsed    int     `json:"mem_used_mb"`
 }
 
-type MemoryInfo struct {
+type memoryInfo struct {
 	Total     uint64  `json:"total"`
 	Used      uint64  `json:"used"`
 	Free      uint64  `json:"free"`
@@ -40,7 +40,7 @@ type MemoryInfo struct {
 	SwapPct   float64 `json:"swap_pct"`
 }
 
-type DiskInfo struct {
+type diskInfo struct {
 	Mountpoint string  `json:"mountpoint"`
 	Device     string  `json:"device"`
 	Fstype     string  `json:"fstype"`
@@ -49,38 +49,39 @@ type DiskInfo struct {
 	UsedPct    float64 `json:"used_pct"`
 }
 
-type TempInfo struct {
+type tempInfo struct {
 	Sensor string  `json:"sensor"`
 	Temp   float64 `json:"temp"`
 }
 
-type NetInfo struct {
+type netInfo struct {
 	Interface string `json:"interface"`
 	Addr      string `json:"addr"`
 	Flags     string `json:"flags"`
 }
 
-type SystemStats struct {
+type systemStats struct {
 	Timestamp 	string      `json:"timestamp"`
 	Hostname  	string      `json:"hostname"`
 	OS        	string      `json:"os"`
 	Kernel    	string      `json:"kernel"`
+	PrimaryIP   string      `json:"primary_ip"`
 	Uptime    	string      `json:"uptime"`
 	Load1     	float64     `json:"load1"`
 	Load5     	float64     `json:"load5"`
 	Load15    	float64     `json:"load15"`
-	CPU       	CPUInfo     `json:"cpu"`
-	Memory    	MemoryInfo  `json:"memory"`
-	Disks     	[]DiskInfo  `json:"disks"`
-	GPUs		[]GPUInfo 	`json:"gpus"`
-	Temps     	[]TempInfo  `json:"temps"`
-	Networks  	[]NetInfo   `json:"networks"`
+	CPU       	cpuInfo     `json:"cpu"`
+	Memory    	memoryInfo  `json:"memory"`
+	Disks     	[]diskInfo  `json:"disks"`
+	GPUs		[]gpuInfo 	`json:"gpus"`
+	Temps     	[]tempInfo  `json:"temps"`
+	Networks  	[]netInfo   `json:"networks"`
 	ProcCount 	int         `json:"proc_count"`
 }
 
 // -------------------- Collectors --------------------
-func collectCPU() CPUInfo {
-	info := CPUInfo{}
+func collectCPU() cpuInfo {
+	info := cpuInfo{}
 	perCore, _ := cpu.Percent(0, true)
 	avg, _ := cpu.Percent(0, false)
 	cpuInfo, _ := cpu.Info()
@@ -94,7 +95,7 @@ func collectCPU() CPUInfo {
 	return info
 }
 
-func collectNvidiaGPU() ([]GPUInfo, error) {
+func collectNvidiaGPU() ([]gpuInfo, error) {
 	// Query: name, util, mem.total, mem.used
 	cmd := exec.Command("nvidia-smi",
 		"--query-gpu=name,utilization.gpu,memory.total,memory.used",
@@ -105,14 +106,14 @@ func collectNvidiaGPU() ([]GPUInfo, error) {
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	gpus := []GPUInfo{}
+	gpus := []gpuInfo{}
 
 	for _, line := range lines {
 		parts := strings.Split(line, ", ")
 		if len(parts) != 4 {
 			continue
 		}
-		var g GPUInfo
+		var g gpuInfo
 		g.Name = parts[0]
 		fmt.Sscanf(parts[1], "%d", &g.Utilization)
 		fmt.Sscanf(parts[2], "%d", &g.MemTotal)
@@ -123,10 +124,10 @@ func collectNvidiaGPU() ([]GPUInfo, error) {
 	return gpus, nil
 }
 
-func collectMemory() MemoryInfo {
+func collectMemory() memoryInfo {
 	vm, _ := mem.VirtualMemory()
 	sm, _ := mem.SwapMemory()
-	return MemoryInfo{
+	return memoryInfo{
 		Total:     vm.Total,
 		Used:      vm.Used,
 		Free:      vm.Free,
@@ -137,15 +138,15 @@ func collectMemory() MemoryInfo {
 	}
 }
 
-func collectDisks() []DiskInfo {
-	result := []DiskInfo{}
+func collectDisks() []diskInfo {
+	result := []diskInfo{}
 	parts, _ := disk.Partitions(true)
 	for _, p := range parts {
 		usage, err := disk.Usage(p.Mountpoint)
 		if err != nil {
 			continue
 		}
-		result = append(result, DiskInfo{
+		result = append(result, diskInfo{
 			Mountpoint: p.Mountpoint,
 			Device:     p.Device,
 			Fstype:     p.Fstype,
@@ -157,11 +158,11 @@ func collectDisks() []DiskInfo {
 	return result
 }
 
-func collectTemps() []TempInfo {
-	result := []TempInfo{}
+func collectTemps() []tempInfo {
+	result := []tempInfo{}
 	temps, _ := host.SensorsTemperatures()
 	for _, t := range temps {
-		result = append(result, TempInfo{
+		result = append(result, tempInfo{
 			Sensor: t.SensorKey,
 			Temp:   t.Temperature,
 		})
@@ -169,8 +170,8 @@ func collectTemps() []TempInfo {
 	return result
 }
 
-func collectNet() []NetInfo {
-	out := []NetInfo{}
+func collectNet() []netInfo {
+	out := []netInfo{}
 	ifaces, _ := net.Interfaces()
 	for _, iface := range ifaces {
 		addrs, _ := iface.Addrs()
@@ -179,7 +180,7 @@ func collectNet() []NetInfo {
 		}
 		flags := iface.Flags.String()
 		for _, a := range addrs {
-			out = append(out, NetInfo{
+			out = append(out, netInfo{
 				Interface: iface.Name,
 				Addr:      a.String(),
 				Flags:     flags,
@@ -190,22 +191,51 @@ func collectNet() []NetInfo {
 	return out
 }
 
+func getPrimaryIP() (string, error) {
+    addrs, err := net.InterfaceAddrs()
+    if err != nil {
+        return "", err
+    }
+
+    for _, addr := range addrs {
+        var ip net.IP
+        switch v := addr.(type) {
+        case *net.IPNet:
+            ip = v.IP
+        case *net.IPAddr:
+            ip = v.IP
+        }
+
+        if ip == nil || ip.IsLoopback() {
+            continue
+        }
+
+        // Only want IPv4 for agents
+        if ipv4 := ip.To4(); ipv4 != nil {
+            return ipv4.String(), nil
+        }
+    }
+    return "", fmt.Errorf("no valid IP found")
+}
+
 // -------------------- Master Collector --------------------
-func Pull() SystemStats {
+func Info() systemStats {
 	h, _ := host.Info()
 	ld, _ := load.Avg()
 	pids, _ := process.Pids()
 	gpus, _ := collectNvidiaGPU()
+	primaryIP, _ := getPrimaryIP()
 
 	if gpus == nil {
-    	gpus = []GPUInfo{} // ensures JSON is []
+    	gpus = []gpuInfo{} // ensures JSON is []
 	}
 
-	return SystemStats{
+	return systemStats{
 		Timestamp: time.Now().Format(time.RFC3339),
 		Hostname:  h.Hostname,
 		OS:        h.Platform + " " + h.PlatformVersion,
 		Kernel:    h.KernelVersion,
+		PrimaryIP: primaryIP,
 		Uptime:    (time.Duration(h.Uptime) * time.Second).String(),
 		Load1:     ld.Load1,
 		Load5:     ld.Load5,
@@ -214,7 +244,7 @@ func Pull() SystemStats {
 		Memory:    collectMemory(),
 		Disks:     collectDisks(),
 		Temps:     collectTemps(),
-		GPUs: 		gpus,
+		GPUs: 	   gpus,
 		Networks:  collectNet(),
 		ProcCount: len(pids),
 	}

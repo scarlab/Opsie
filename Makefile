@@ -4,6 +4,9 @@ server:
 agent:
 	@go run ./cmd/agent/main.go
 
+web:
+	@cd ui && npm run dev && cd .. 
+
 build-server:
 	@go build -o bin/server/watchtower cmd/server/main.go
 
