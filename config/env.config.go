@@ -6,9 +6,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// EnvConfig holds all environment configuration variables
+// envConfig holds all environment configuration variables
 // that your application needs to run.
-type EnvConfig struct {
+type envConfig struct {
 	GoEnv      	string
 	Addr      	string
 	JwtSecret 	string
@@ -20,18 +20,17 @@ type EnvConfig struct {
 
 // ENV (singleton) is a globally accessible variable
 var ENV = loadEnv()
-var GoEnv = loadEnv().GoEnv
 var IsDev = loadEnv().GoEnv == "development"
 
 
 
 // loadEnv loads environment variables into an EnvConfig struct.
 // If an environment variable is not found, it uses the provided default value.
-func loadEnv() *EnvConfig {
+func loadEnv() *envConfig {
 	// Load the env variables.
 	godotenv.Load()
 	
-	return &EnvConfig{
+	return &envConfig{
 		GoEnv:      	getEnv("GO_ENV", "development"),
 		Addr:      		getEnv("ADDR", ":3905"),
 		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d86$a87das89nd89asd7as+6da9snd9asd"),
