@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"database/sql"
+	"io/fs"
 	"log"
 	"net/http"
 	"time"
@@ -13,14 +14,16 @@ import (
 type ApiServer struct {
 	addr string   // Address where the server will listen (e.g. ":8080")
 	db   *sql.DB  // Database connection pool
+	uiFS fs.FS
 }
 
 
 // Constructor: NewApiServer creates and returns a new ApiServer instance.
-func NewApiServer(addr string, db *sql.DB) *ApiServer {
+func NewApiServer(addr string, db *sql.DB, uiFS fs.FS) *ApiServer {
 	return &ApiServer{
 		addr: addr,
 		db:   db,
+		uiFS: uiFS,
 	}
 }
 

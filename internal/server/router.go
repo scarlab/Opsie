@@ -3,27 +3,52 @@ package server
 
 import (
 	"encoding/json"
+	"io/fs"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"watchtower/config"
 
 	"github.com/gorilla/mux"
 )
 
+
+
+
+
 func (s *ApiServer) setupRouter() *mux.Router {
-	// Create a new router
 	router := mux.NewRouter()
 
-	// Versioned API sub-router or base-router
-	baseRouter := router.PathPrefix("/api/v1").Subrouter()
+	// API routes
+	api := router.PathPrefix("/api/v1").Subrouter()
+	api.HandleFunc("/health", healthHandler).Methods("GET")
 
-	// Health check endpoint
-	baseRouter.HandleFunc("/health", healthHandler).Methods("GET")
+	if config.IsDev {
+		// fmt.Println(metrics.Pull().Networks)
+		// viteURL, _ := url.Parse("http://192.168.0.202:5173")
+		viteURL, _ := url.Parse("http://localhost:5173")
+		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
+		router.PathPrefix("/").Handler(viteProxy)
+	} else{
+		// Static assets
+		staticHandler := http.FileServer(http.FS(s.uiFS))
+		router.PathPrefix("/assets/").Handler(staticHandler)
 
-	// Register domain routes ------------------------------------------------
-	// auth.Init(baseRouter, s.db)
-	
+		// SPA fallback → index.html
+		router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			data, err := fs.ReadFile(s.uiFS, "index.html")
+			if err != nil {
+				http.Error(w, "index.html not found", http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(data)
+		})
+	}
 
 	return router
 }
+
 
 
 

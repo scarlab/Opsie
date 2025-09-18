@@ -94,7 +94,7 @@ func collectCPU() CPUInfo {
 	return info
 }
 
-func CollectNvidiaGPU() ([]GPUInfo, error) {
+func collectNvidiaGPU() ([]GPUInfo, error) {
 	// Query: name, util, mem.total, mem.used
 	cmd := exec.Command("nvidia-smi",
 		"--query-gpu=name,utilization.gpu,memory.total,memory.used",
@@ -195,7 +195,7 @@ func Pull() SystemStats {
 	h, _ := host.Info()
 	ld, _ := load.Avg()
 	pids, _ := process.Pids()
-	gpus, _ := CollectNvidiaGPU()
+	gpus, _ := collectNvidiaGPU()
 
 	if gpus == nil {
     	gpus = []GPUInfo{} // ensures JSON is []

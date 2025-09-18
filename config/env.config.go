@@ -10,7 +10,7 @@ import (
 // that your application needs to run.
 type EnvConfig struct {
 	GoEnv      	string
-	Port      	string
+	Addr      	string
 	JwtSecret 	string
 
 	MainDBPath 	string
@@ -19,19 +19,21 @@ type EnvConfig struct {
 
 
 // ENV (singleton) is a globally accessible variable
-var ENV = LoadEnv()
+var ENV = loadEnv()
+var GoEnv = loadEnv().GoEnv
+var IsDev = loadEnv().GoEnv == "development"
 
 
 
-// LoadEnv loads environment variables into an EnvConfig struct.
+// loadEnv loads environment variables into an EnvConfig struct.
 // If an environment variable is not found, it uses the provided default value.
-func LoadEnv() *EnvConfig {
+func loadEnv() *EnvConfig {
 	// Load the env variables.
 	godotenv.Load()
 	
 	return &EnvConfig{
-		GoEnv:      	getEnv("GO_ENV", "production"),
-		Port:      		getEnv("PORT", ":3905"),
+		GoEnv:      	getEnv("GO_ENV", "development"),
+		Addr:      		getEnv("ADDR", ":3905"),
 		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d86$a87das89nd89asd7as+6da9snd9asd"),
 
 		MainDBPath:  	getEnv("MAIN_DB_PATH", "/var/lib/watchtower/database.sqlite"),
