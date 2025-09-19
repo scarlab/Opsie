@@ -99,13 +99,13 @@ func createDomain(name, author string) error {
 
 func getGitAuthor() string {
 	name, _ := exec.Command("git", "config", "user.name").Output()
-	email, _ := exec.Command("git", "config", "user.email").Output()
+	// email, _ := exec.Command("git", "config", "user.email").Output()
 
 	n := strings.TrimSpace(string(name))
-	e := strings.TrimSpace(string(email))
+	// e := strings.TrimSpace(string(email))
 
-	if n != "" && e != "" {
-		return fmt.Sprintf("%s <%s>", n, e)
+	if n != "" {
+		return fmt.Sprint(n)
 	}
 
 	

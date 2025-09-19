@@ -20,12 +20,12 @@ func (s *ApiServer) setupRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	// API routes
-	api := router.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/health", healthHandler).Methods("GET")
+	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+	apiRouter.HandleFunc("/health", healthHandler).Methods("GET")
 
+
+	// Web UI Proxy
 	if config.IsDev {
-		// fmt.Println(metrics.Pull().Networks)
-		// viteURL, _ := url.Parse("http://192.168.0.202:5173")
 		viteURL, _ := url.Parse("http://localhost:5173")
 		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
 		router.PathPrefix("/").Handler(viteProxy)

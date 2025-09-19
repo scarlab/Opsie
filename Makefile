@@ -11,11 +11,11 @@ build-server:
 	@go build -o bin/server/watchtower cmd/server/main.go
 
 build-agent:
-	@go build -o bin/agent/wt-agent cmd/agent/main.go
+	@go build -o bin/agent/watchtower-agent cmd/agent/main.go
 
 build:
 	@go build -o bin/server/watchtower cmd/server/main.go
-	@go build -o bin/agent/wt-agent cmd/agent/main.go
+	@go build -o bin/agent/watchtower-agent cmd/agent/main.go
 
 
 domain:

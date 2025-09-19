@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"watchtower/utils/system"
 )
 
 // ApiServer represents the main HTTP server for the application.
@@ -42,7 +43,7 @@ func (s *ApiServer) Run(ctx context.Context) error {
 
 	// Run the server in a separate goroutine
 	go func() {
-		log.Printf("✔️  Server is listening on http://localhost%s", s.addr)
+		log.Printf("✔️  Server is listening on http://%s%s", system.Info().PrimaryIP,s.addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("[CRASH]: %v", err)
 		}
