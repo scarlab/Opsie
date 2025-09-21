@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 
 func main() {
 	nodeID := "node-4"
-	url := "ws://localhost:3905/api/v1/ws/agent"
+	url := "ws://192.168.0.202:3905/api/v1/ws/agent"
 
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
@@ -18,7 +19,10 @@ func main() {
 	defer conn.Close()
 
 	// First message = register
-	conn.WriteMessage(websocket.TextMessage, []byte(nodeID))
+	regMsg, _ := json.Marshal(map[string]string{
+		"node_id": nodeID,
+	})
+	conn.WriteMessage(websocket.TextMessage, regMsg)
 
 	// Send metrics every 5s
 	ticker := time.NewTicker(1 * time.Second)
@@ -26,7 +30,11 @@ func main() {
 
 	for {
 		<-ticker.C
-		metrics := `{"cpu":44,"mem":444}`
-		conn.WriteMessage(websocket.TextMessage, []byte(metrics))
+		metrics := map[string]interface{}{
+			"cpu": 44,
+			"mem": 444,
+		}
+		msg, _ := json.Marshal(metrics)
+		conn.WriteMessage(websocket.TextMessage, msg)
 	}
 }
