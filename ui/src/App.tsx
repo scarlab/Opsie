@@ -1,31 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+// src/App.tsx
+
+import { useMetrics } from "./useMetrics";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const metrics = useMetrics();
 
   return (
-    <>
-      <div>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="p-6">
+      <h1 className="text-xl font-bold">Agent Metrics ({metrics.length})</h1>
+      <div className="mt-4 space-y-2 flex gap-3 flex-wrap">
+        {metrics.map((m, i) => (
+          <div key={i} className="bg-violet-50 font-bold text-violet-900 border border-via-violet-200 rounded p-2 w-10 h-10 grid place-items-center">
+            {m.cpu}
+          </div>
+        ))}
       </div>
-      <h1>Vite + React + Go</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

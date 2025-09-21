@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 func main() {
-	nodeID := "node-4"
+	nodeID := "node-1"
 	url := "ws://192.168.0.202:3905/api/v1/ws/agent"
 
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -31,8 +32,8 @@ func main() {
 	for {
 		<-ticker.C
 		metrics := map[string]interface{}{
-			"cpu": 44,
-			"mem": 444,
+			"cpu": rand.Intn(100),          // 0–99%
+			"mem": rand.Intn(16000) + 500,  // 500–16500 MB
 		}
 		msg, _ := json.Marshal(metrics)
 		conn.WriteMessage(websocket.TextMessage, msg)
