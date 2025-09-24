@@ -10,6 +10,7 @@ import (
 	embedui "watchtower"
 	"watchtower/config"
 	"watchtower/db"
+
 	"watchtower/internal/server"
 )
 
@@ -23,7 +24,7 @@ func main() {
 	}
 
 	// DB connection
-	var db, err = db.SQLite()
+	var database, err = db.Postgres()
 	if err != nil {log.Fatal(err)}
 
 
@@ -31,7 +32,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	server := server.NewApiServer(config.ENV.Addr, db, uiFS)
+	server := server.NewApiServer(config.ENV.Addr, database, uiFS)
 	if err := server.Run(ctx); err != nil {
 		log.Fatal(err)
 	}

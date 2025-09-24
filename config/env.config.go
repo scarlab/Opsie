@@ -13,8 +13,15 @@ type envConfig struct {
 	Addr      	string
 	JwtSecret 	string
 
-	MainDBPath 	string
-	AgentDBPath string
+	// Database [PostgreSQL]
+	PG_USER string
+	PG_PASSWD string
+	PG_HOST string
+	PG_PORT string
+	PG_DB string
+
+	// --------------------------------------- Agent ---------------------------------------
+	ServerHost 	string
 }
 
 
@@ -35,8 +42,16 @@ func loadEnv() *envConfig {
 		Addr:      		getEnv("ADDR", ":3905"),
 		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d86$a87das89nd89asd7as+6da9snd9asd"),
 
-		MainDBPath:  	getEnv("MAIN_DB_PATH", "/var/lib/watchtower/database.sqlite"),
-		AgentDBPath:  	getEnv("AGENT_DB_PATH", "/var/lib/watchtower/wtagent.db"),
+		// Database [PostgreSQL]
+		PG_USER:   getEnv("PG_USER", "postgres"),
+		PG_PASSWD: getEnv("PG_PASSWD", "postgres_password"),
+		PG_HOST:   getEnv("PG_HOST", "127.0.0.1"),
+		PG_PORT:   getEnv("PG_PORT", "5432"),
+		PG_DB:     getEnv("PG_DB", "watchtower"),
+
+		// --------------------------------------- Agent ---------------------------------------
+		ServerHost: 	getEnv("SERVER_HOST", "localhost:3905"),
+
 	}
 }
 

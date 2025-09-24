@@ -31,20 +31,20 @@ func (h *Handler) Connect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &socket.Client{
-		ID:   "ui-client",
+		ID:   "ID_333",
 		Type: socket.ClientUI,
 		Conn: conn,
 		Send: make(chan []byte, 256),
 	}
-	h.hub.RegisterUI(client)
+	h.hub.RegisterUI("ID_333", client)
 
 	go h.writePump(client)
-	go h.readPump(client)
+	go h.readPump("ID_333",client)
 }
 
-func (h *Handler) readPump(c *socket.Client) {
+func (h *Handler) readPump(id string, c *socket.Client) {
 	defer func() {
-		h.hub.UnregisterUI(c)
+		h.hub.UnregisterUI(id)
 		c.Conn.Close()
 	}()
 	for {

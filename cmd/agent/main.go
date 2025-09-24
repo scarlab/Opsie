@@ -1,17 +1,18 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"math/rand"
 	"time"
+	"watchtower/config"
+	"watchtower/internal/socket"
+	"watchtower/utils/system"
 
 	"github.com/gorilla/websocket"
 )
 
 func main() {
-	nodeID := "node-1"
-	url := "ws://192.168.0.202:3905/api/v1/ws/agent"
+
+	url := "ws://"+config.ENV.ServerHost+"/api/v1/ws/agent"
 
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
@@ -19,11 +20,28 @@ func main() {
 	}
 	defer conn.Close()
 
-	// First message = register
-	regMsg, _ := json.Marshal(map[string]string{
-		"node_id": nodeID,
-	})
-	conn.WriteMessage(websocket.TextMessage, regMsg)
+	// Get the system info
+	systemInfo := system.Info()
+	payload := socket.RegisterAgentPayload{
+		Hostname:  systemInfo.Hostname,
+		OS:        systemInfo.OS,
+		Kernel:    systemInfo.Kernel,
+		Arch:      systemInfo.Arch,
+		IPAddress: systemInfo.IPAddress,
+		Cores:     systemInfo.Cores,
+		Threads:   systemInfo.Threads,
+		Memory:    systemInfo.Memory,
+	}
+
+	regMsg, err := socket.MarshalEnvelope("register", payload)
+	if err != nil { log.Println(err) }
+
+
+	// Send over WebSocket
+	if err := conn.WriteMessage(websocket.TextMessage, regMsg); err != nil {
+		log.Fatal("failed to send register message:", err)
+	}
+
 
 	// Send metrics every 5s
 	ticker := time.NewTicker(1 * time.Second)
@@ -31,11 +49,19 @@ func main() {
 
 	for {
 		<-ticker.C
-		metrics := map[string]interface{}{
-			"cpu": rand.Intn(100),          // 0–99%
-			"mem": rand.Intn(16000) + 500,  // 500–16500 MB
+
+		// Collect real system metrics
+		metrics := system.Metrics()
+
+		msg, err := socket.MarshalEnvelope("metrics", metrics)
+		if err != nil {
+			log.Println(err)
+			continue
 		}
-		msg, _ := json.Marshal(metrics)
-		conn.WriteMessage(websocket.TextMessage, msg)
+
+		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			log.Println("failed to send metrics:", err)
+			return
+		}
 	}
 }

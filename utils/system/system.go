@@ -3,31 +3,25 @@ package system
 import (
 	"fmt"
 	"net"
-	"os/exec"
 	"sort"
-	"strings"
 	"time"
 
-	"github.com/shirou/gopsutil/process"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	host "github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/load"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/process"
 )
 
 // -------------------- Structs --------------------
-type cpuInfo struct {
-	Model   string    `json:"model"`
-	Average float64   `json:"average"`
-	Cores   []float64 `json:"cores"`
-}
 
-type gpuInfo struct {
-	Name       string  `json:"name"`
-	Utilization int     `json:"utilization_pct"`
-	MemTotal   int     `json:"mem_total_mb"`
-	MemUsed    int     `json:"mem_used_mb"`
+type cpuInfo struct {
+	Model          string    `json:"model"`
+	Cores          uint16    `json:"cores"`
+	Threads        uint16    `json:"threads"`
+	Average        float64   `json:"average"`
+	AveragePerCore []float64 `json:"average_per_core"`
 }
 
 type memoryInfo struct {
@@ -56,84 +50,72 @@ type tempInfo struct {
 
 type netInfo struct {
 	Interface string `json:"interface"`
-	Addr      string `json:"addr"`
-	Flags     string `json:"flags"`
+	Addr      string `json:"addr,omitempty"`
+	Flags     string `json:"flags,omitempty"`
+	RxBytes   uint64 `json:"rx_bytes"`
+	TxBytes   uint64 `json:"tx_bytes"`
 }
 
-type systemStats struct {
-	Timestamp 	string      `json:"timestamp"`
-	Hostname  	string      `json:"hostname"`
-	OS        	string      `json:"os"`
-	Kernel    	string      `json:"kernel"`
-	PrimaryIP   string      `json:"primary_ip"`
-	Uptime    	string      `json:"uptime"`
-	Load1     	float64     `json:"load1"`
-	Load5     	float64     `json:"load5"`
-	Load15    	float64     `json:"load15"`
-	CPU       	cpuInfo     `json:"cpu"`
-	Memory    	memoryInfo  `json:"memory"`
-	Disks     	[]diskInfo  `json:"disks"`
-	GPUs		[]gpuInfo 	`json:"gpus"`
-	Temps     	[]tempInfo  `json:"temps"`
-	Networks  	[]netInfo   `json:"networks"`
-	ProcCount 	int         `json:"proc_count"`
+type SystemInfo struct {
+	Hostname  string `json:"hostname"`
+	OS        string `json:"os"`
+	Kernel    string `json:"kernel"`
+	Arch      string `json:"arch"`
+	IPAddress string `json:"ip_address"`
+	Cores     uint16 `json:"cores"`
+	Threads   uint16 `json:"threads"`
+	Memory    uint64 `json:"memory"`
+}
+
+type SystemMetrics struct {
+	Timestamp  	int64       	`json:"timestamp"`
+	Uptime     	uint64      	`json:"uptime"`
+	Load1      	float64     	`json:"load1"`
+	Load5      	float64     	`json:"load5"`
+	Load15     	float64     	`json:"load15"`
+	CPU        	cpuInfo     	`json:"cpu"`
+	Memory 		memoryInfo		`json:"memory"`
+	Disk       	[]diskInfo  	`json:"disk"`
+	NetIO      	[]netInfo   	`json:"net_io"`
+	ProcCount  	int         	`json:"proc_count"`
+	Temps      	[]tempInfo  	`json:"temps,omitempty"`
 }
 
 // -------------------- Collectors --------------------
+
 func collectCPU() cpuInfo {
 	info := cpuInfo{}
 	perCore, _ := cpu.Percent(0, true)
 	avg, _ := cpu.Percent(0, false)
-	cpuInfo, _ := cpu.Info()
-	if len(cpuInfo) > 0 {
-		info.Model = cpuInfo[0].ModelName
+	cpuInfoList, _ := cpu.Info()
+	cores, _ := cpu.Counts(false)
+	threads, _ := cpu.Counts(true)
+
+	if len(cpuInfoList) > 0 {
+		info.Model = cpuInfoList[0].ModelName
 	}
 	if len(avg) > 0 {
 		info.Average = avg[0]
 	}
-	info.Cores = perCore
+	info.AveragePerCore = perCore
+	info.Cores = uint16(cores)
+	info.Threads = uint16(threads)
+
 	return info
-}
-
-func collectNvidiaGPU() ([]gpuInfo, error) {
-	// Query: name, util, mem.total, mem.used
-	cmd := exec.Command("nvidia-smi",
-		"--query-gpu=name,utilization.gpu,memory.total,memory.used",
-		"--format=csv,noheader,nounits")
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
-
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	gpus := []gpuInfo{}
-
-	for _, line := range lines {
-		parts := strings.Split(line, ", ")
-		if len(parts) != 4 {
-			continue
-		}
-		var g gpuInfo
-		g.Name = parts[0]
-		fmt.Sscanf(parts[1], "%d", &g.Utilization)
-		fmt.Sscanf(parts[2], "%d", &g.MemTotal)
-		fmt.Sscanf(parts[3], "%d", &g.MemUsed)
-		gpus = append(gpus, g)
-	}
-
-	return gpus, nil
 }
 
 func collectMemory() memoryInfo {
 	vm, _ := mem.VirtualMemory()
 	sm, _ := mem.SwapMemory()
+	toMB := func(b uint64) uint64 { return b / 1024 / 1024 }
+
 	return memoryInfo{
-		Total:     vm.Total,
-		Used:      vm.Used,
-		Free:      vm.Free,
+		Total:     toMB(vm.Total),
+		Used:      toMB(vm.Used),
+		Free:      toMB(vm.Free),
 		UsedPct:   vm.UsedPercent,
-		SwapTotal: sm.Total,
-		SwapUsed:  sm.Used,
+		SwapTotal: toMB(sm.Total),
+		SwapUsed:  toMB(sm.Used),
 		SwapPct:   sm.UsedPercent,
 	}
 }
@@ -141,6 +123,8 @@ func collectMemory() memoryInfo {
 func collectDisks() []diskInfo {
 	result := []diskInfo{}
 	parts, _ := disk.Partitions(true)
+	toMB := func(b uint64) uint64 { return b / 1024 / 1024 }
+
 	for _, p := range parts {
 		usage, err := disk.Usage(p.Mountpoint)
 		if err != nil {
@@ -150,8 +134,8 @@ func collectDisks() []diskInfo {
 			Mountpoint: p.Mountpoint,
 			Device:     p.Device,
 			Fstype:     p.Fstype,
-			Total:      usage.Total,
-			Used:       usage.Used,
+			Total:      toMB(usage.Total),
+			Used:       toMB(usage.Used),
 			UsedPct:    usage.UsedPercent,
 		})
 	}
@@ -192,62 +176,77 @@ func collectNet() []netInfo {
 }
 
 func getPrimaryIP() (string, error) {
-    addrs, err := net.InterfaceAddrs()
-    if err != nil {
-        return "", err
-    }
-
-    for _, addr := range addrs {
-        var ip net.IP
-        switch v := addr.(type) {
-        case *net.IPNet:
-            ip = v.IP
-        case *net.IPAddr:
-            ip = v.IP
-        }
-
-        if ip == nil || ip.IsLoopback() {
-            continue
-        }
-
-        // Only want IPv4 for agents
-        if ipv4 := ip.To4(); ipv4 != nil {
-            return ipv4.String(), nil
-        }
-    }
-    return "", fmt.Errorf("no valid IP found")
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range addrs {
+		var ip net.IP
+		switch v := addr.(type) {
+		case *net.IPNet:
+			ip = v.IP
+		case *net.IPAddr:
+			ip = v.IP
+		}
+		if ip == nil || ip.IsLoopback() {
+			continue
+		}
+		if ipv4 := ip.To4(); ipv4 != nil {
+			return ipv4.String(), nil
+		}
+	}
+	return "", fmt.Errorf("no valid IP found")
 }
 
-// -------------------- Master Collector --------------------
-func Info() systemStats {
+// -------------------- System Info --------------------
+
+func Info() SystemInfo {
 	h, _ := host.Info()
-	ld, _ := load.Avg()
-	pids, _ := process.Pids()
-	gpus, _ := collectNvidiaGPU()
-	primaryIP, _ := getPrimaryIP()
+	IPAddress, _ := getPrimaryIP()
+	cpu := collectCPU()
+	memory := collectMemory()
 
-	if gpus == nil {
-    	gpus = []gpuInfo{} // ensures JSON is []
-	}
-
-	return systemStats{
-		Timestamp: time.Now().Format(time.RFC3339),
+	return SystemInfo{
 		Hostname:  h.Hostname,
 		OS:        h.Platform + " " + h.PlatformVersion,
 		Kernel:    h.KernelVersion,
-		PrimaryIP: primaryIP,
-		Uptime:    (time.Duration(h.Uptime) * time.Second).String(),
-		Load1:     ld.Load1,
-		Load5:     ld.Load5,
-		Load15:    ld.Load15,
-		CPU:       collectCPU(),
-		Memory:    collectMemory(),
-		Disks:     collectDisks(),
-		Temps:     collectTemps(),
-		GPUs: 	   gpus,
-		Networks:  collectNet(),
-		ProcCount: len(pids),
+		Arch:      h.KernelArch,
+		IPAddress: IPAddress,
+		Cores:     cpu.Cores,
+		Threads:   cpu.Threads,
+		Memory:    memory.Total,
 	}
 }
 
+// -------------------- System Metrics --------------------
 
+func Metrics() SystemMetrics {
+	cpu := collectCPU()
+	mem := collectMemory()
+	disks := collectDisks()
+	netio := collectNet()
+	temps := collectTemps()
+
+	// Process count
+	procs, _ := process.Processes()
+	procCount := len(procs)
+
+	// Load averages
+	loadStat, _ := load.Avg()
+
+	h, _ := host.Info()
+
+	return SystemMetrics{
+		Timestamp:  time.Now().Unix(),
+		Uptime:     uint64(h.Uptime),
+		Load1:      loadStat.Load1,
+		Load5:      loadStat.Load5,
+		Load15:     loadStat.Load15,
+		Memory:    	mem,
+		CPU:        cpu,
+		Disk:       disks,
+		NetIO:      netio,
+		ProcCount:  procCount,
+		Temps:      temps,
+	}
+}
