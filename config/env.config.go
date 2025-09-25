@@ -40,7 +40,7 @@ func loadEnv() *envConfig {
 	return &envConfig{
 		GoEnv:      	getEnv("GO_ENV", "development"),
 		Addr:      		getEnv("ADDR", ":3905"),
-		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d86$a87das89nd89asd7as+6da9snd9asd"),
+		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d8a9snd9asd"),
 
 		// Database [PostgreSQL]
 		PG_USER:   getEnv("PG_USER", "postgres"),

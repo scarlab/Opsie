@@ -18,5 +18,18 @@ build:
 	@go build -o bin/agent/watchtower-agent cmd/agent/main.go
 
 
+
 domain:
-	@go run ./cmd/cli/main.go new-domain $(n)
+	@go run cmd/cli/main.go create-domain $(filter-out $@,$(MAKECMDGOALS))
+
+migration:
+	@migrate create -ext sql -dir db/migrations $(filter-out $@,$(MAKECMDGOALS))
+
+mg-force:
+	@go run cmd/cli/main.go migrate force $(filter-out $@,$(MAKECMDGOALS))
+
+mg-up:
+	@go run cmd/cli/main.go migrate up
+
+mg-down:
+	@go run cmd/cli/main.go migrate down
