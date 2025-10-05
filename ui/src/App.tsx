@@ -1,24 +1,34 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import DashboardView from "@/views/DashboardView";
+import DashboardView from "@/views/workspace/dashboard/DashboardView";
 import AuthLayout from "@/layouts/AuthLayout";
 import LoginView from "@/views/auth/login/LoginView";
-import DashboardLayout from "@/layouts/DashboardLayout";
+import WorkspaceLayout from "@/layouts/WorkspaceLayout";
+import RootLayout from "./layouts/RootLayout";
+import OnboardingView from "@/views/onboarding/OnboardingView";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<LoginView />} />
-        </Route>
+        <Route element={<RootLayout />}>
 
-        {/* Dashboard routes */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<DashboardView />} />
+          {/* Onboarding routes */}
+          <Route path="onboarding" element={<OnboardingView />} />
+
+
+          {/* Auth routes */}
+          <Route path="auth" element={<AuthLayout />}>
+            <Route index element={<LoginView />} /> {/* /login */}
+            <Route path="login" element={<LoginView />} /> {/* /login */}
+          </Route>
+
+          {/* Workspace routes */}
+          <Route element={<WorkspaceLayout />}>
+            <Route path="dashboard" element={<DashboardView />} /> {/* /dashboard */}
+          </Route>
+
         </Route>
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
-

@@ -1,6 +1,6 @@
 import { Outlet, Link } from "react-router-dom";
 
-export default function DashboardLayout() {
+export default function WorkspaceLayout() {
     return (
         <div className="flex min-h-screen">
             {/* Sidebar */}
