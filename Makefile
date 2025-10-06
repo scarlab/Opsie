@@ -8,14 +8,14 @@ web:
 	@cd ui && npm run dev && cd .. 
 
 build-server:
-	@go build -o bin/server/watchtower cmd/server/main.go
+	@go build -o bin/server/opsie cmd/server/main.go
 
 build-agent:
-	@go build -o bin/agent/watchtower-agent cmd/agent/main.go
+	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
 build:
-	@go build -o bin/server/watchtower cmd/server/main.go
-	@go build -o bin/agent/watchtower-agent cmd/agent/main.go
+	@go build -o bin/server/opsie cmd/server/main.go
+	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
 
 

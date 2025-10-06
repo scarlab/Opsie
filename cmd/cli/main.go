@@ -11,7 +11,7 @@ import (
 	"text/template"
 	"time"
 
-	"watchtower/config"
+	"opsie/config"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgMigrate "github.com/golang-migrate/migrate/v4/database/postgres"

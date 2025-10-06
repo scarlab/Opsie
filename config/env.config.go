@@ -47,7 +47,7 @@ func loadEnv() *envConfig {
 		PG_PASSWD: getEnv("PG_PASSWD", "postgres_password"),
 		PG_HOST:   getEnv("PG_HOST", "127.0.0.1"),
 		PG_PORT:   getEnv("PG_PORT", "5432"),
-		PG_DB:     getEnv("PG_DB", "watchtower"),
+		PG_DB:     getEnv("PG_DB", "opsie"),
 
 		// --------------------------------------- Agent ---------------------------------------
 		ServerHost: 	getEnv("SERVER_HOST", "localhost:3905"),

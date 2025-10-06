@@ -7,11 +7,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	embedui "watchtower"
-	"watchtower/config"
-	"watchtower/db"
+	embedui "opsie"
+	"opsie/config"
+	"opsie/db"
 
-	"watchtower/internal/server"
+	"opsie/internal/server"
 )
 
 func main() {

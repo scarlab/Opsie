@@ -7,7 +7,7 @@ package ws_ui
 
 import (
 	"database/sql"
-	"watchtower/internal/socket"
+	"opsie/internal/socket"
 
 	"github.com/gorilla/mux"
 )

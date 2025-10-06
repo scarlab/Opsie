@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"watchtower/config"
+	"opsie/config"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )

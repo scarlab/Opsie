@@ -2,7 +2,7 @@ package ws_ui
 
 import (
 	"net/http"
-	"watchtower/internal/socket"
+	"opsie/internal/socket"
 
 	"github.com/gorilla/websocket"
 )

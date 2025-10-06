@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 	"time"
-	"watchtower/config"
-	"watchtower/internal/socket"
-	"watchtower/utils/system"
+	"opsie/config"
+	"opsie/internal/socket"
+	"opsie/utils/system"
 
 	"github.com/gorilla/websocket"
 )

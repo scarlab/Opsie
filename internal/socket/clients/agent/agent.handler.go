@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"watchtower/internal/socket"
-	"watchtower/utils/system"
+	"opsie/internal/socket"
+	"opsie/utils/system"
 
 	"github.com/gorilla/websocket"
 )

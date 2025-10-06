@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"watchtower/config"
-	"watchtower/internal/socket"
-	ws_agent "watchtower/internal/socket/clients/agent"
-	ws_ui "watchtower/internal/socket/clients/ui"
+	"opsie/config"
+	"opsie/internal/socket"
+	ws_agent "opsie/internal/socket/clients/agent"
+	ws_ui "opsie/internal/socket/clients/ui"
 
 	"github.com/gorilla/mux"
 )

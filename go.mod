@@ -1,4 +1,4 @@
-module watchtower
+module opsie
 
 go 1.25.1
 

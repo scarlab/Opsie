@@ -7,7 +7,7 @@ package ws_agent
 
 import (
 	"database/sql"
-	"watchtower/internal/socket"
+	"opsie/internal/socket"
 
 	"github.com/gorilla/mux"
 )
