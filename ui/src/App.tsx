@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DashboardView from "@/views/workspace/dashboard/DashboardView";
 import AuthLayout from "@/layouts/AuthLayout";
-import LoginView from "@/views/auth/login/LoginView";
+import LoginView from "@/views/auth/LoginView";
 import WorkspaceLayout from "@/layouts/WorkspaceLayout";
 import RootLayout from "./layouts/RootLayout";
 import OnboardingView from "@/views/onboarding/OnboardingView";
+import NotFoundView from "./views/NotFoundView";
 
 export default function App() {
   return (
@@ -26,6 +27,9 @@ export default function App() {
           <Route element={<WorkspaceLayout />}>
             <Route path="dashboard" element={<DashboardView />} /> {/* /dashboard */}
           </Route>
+
+          {/* 404 - Not Found */}
+          <Route path="*" element={<NotFoundView />} />
 
         </Route>
       </Routes>
