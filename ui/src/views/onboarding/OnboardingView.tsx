@@ -1,13 +1,16 @@
+import { Theme } from "@/components/theme";
+import Config from "@/config";
+
 
 export default function OnboardingView() {
     return (
         <div className="grid place-items-center bg-secondary h-svh w-vw">
             <div className="px-5 pb-3 fixed bottom-0 left-0 w-full flex items-end justify-between">
                 <div>
-                    <small className="text-muted-foreground">&copy; scarlab.in / opsie - v0.1.0</small>
+                    <small className="text-muted-foreground">&copy; scarlab.in / opsie - {Config.version}</small>
                 </div>
                 <div>
-                    Theme - Light | Dark
+                    <Theme />
                 </div>
             </div>
             <main className="shadow rounded-lg bg-background px-3 py-2 max-w-5xl w-full aspect-video ">

@@ -1,3 +1,7 @@
+VERSION := $(shell cat VERSION)
+v:
+	@echo $(VERSION)
+	
 server:
 	@go run ./cmd/server/main.go
 
@@ -5,15 +9,19 @@ agent:
 	@go run ./cmd/agent/main.go
 
 web:
-	@cd ui && npm run dev && cd .. 
+	@cd ui && VITE_APP_VERSION=$(VERSION) npm run dev && cd .. 
 
 build-server:
+	@echo "Building server $(VERSION)"
 	@go build -o bin/server/opsie cmd/server/main.go
 
 build-agent:
+	@echo "Building agent $(VERSION)"
 	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
 build:
+	@echo "Building Opsie $(VERSION)"
+	@cd ui && VITE_APP_VERSION=$(VERSION) npm run build && cd ..
 	@go build -o bin/server/opsie cmd/server/main.go
 	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
