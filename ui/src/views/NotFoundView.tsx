@@ -2,7 +2,7 @@ import Image from "@/constants/image";
 
 export default function NotFoundView() {
     return (
-        <div className="grid place-items-center min-h-svh">
+        <div className="grid place-items-center h-[calc(100vh-var(--header-height))]">
             <div className="text-center">
                 <img
                     className="mb-20"

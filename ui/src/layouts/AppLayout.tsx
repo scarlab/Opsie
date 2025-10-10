@@ -13,7 +13,7 @@ export default function AppLayout() {
             <section className="flex">
                 <AppSidebar collapsed={isCollapsed} setCollapsed={setIsCollapsed} />
                 <main
-                    className="transition-all duration-300"
+                    className="transition-all duration-300 grow"
                     style={{
                         paddingLeft: isCollapsed
                             ? "var(--sidebar-collapse-width)"

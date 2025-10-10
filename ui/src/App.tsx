@@ -7,6 +7,7 @@ import OverviewView from "@/views/workspace/overview/OverviewView";
 import OnboardingView from "@/views/onboarding/OnboardingView";
 import LoginView from "@/views/auth/LoginView";
 import NotFoundView from "@/views/NotFoundView";
+import NodeView from "./views/workspace/nodes/NodeView";
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
           ====================== */}
           <Route path="auth/*" element={<AuthLayout />}>
             <Route path="login" element={<LoginView />} />
+
+
             {/* fallback for /auth or /auth/anything */}
             <Route path="*" element={<NotFoundView />} />
           </Route>
@@ -34,8 +37,11 @@ export default function App() {
           ====================== */}
           <Route path="/*" element={<AppLayout />}>
             <Route index element={<OverviewView />} />
+            <Route path="nodes" element={<NodeView />} />
+
+
             {/* Add more nested routes later */}
-            <Route path="*" element={<NotFoundView />} />
+            <Route path="*" element={<div className=""><NotFoundView /></div>} />
           </Route>
 
           {/* =====================

@@ -42,7 +42,7 @@ export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps)
                                 to={section.link}
                                 className={cn(
                                     "flex items-center hover:bg-muted/30 py-1.5 px-3 rounded transition-all duration-200 gap-3",
-                                    section.link === location.pathname ? "bg-muted/20 font-medium" : "font-normal"
+                                    section.link === location.pathname ? "bg-muted/20" : ""
                                 )}
                             >
                                 <section.icon size={18} className="shrink-0" />
