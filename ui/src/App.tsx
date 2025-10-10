@@ -1,34 +1,46 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import DashboardView from "@/views/workspace/dashboard/DashboardView";
+import RootLayout from "@/layouts/RootLayout";
+import AppLayout from "@/layouts/AppLayout";
 import AuthLayout from "@/layouts/AuthLayout";
-import LoginView from "@/views/auth/LoginView";
-import WorkspaceLayout from "@/layouts/WorkspaceLayout";
-import RootLayout from "./layouts/RootLayout";
+
+import OverviewView from "@/views/workspace/overview/OverviewView";
 import OnboardingView from "@/views/onboarding/OnboardingView";
-import NotFoundView from "./views/NotFoundView";
+import LoginView from "@/views/auth/LoginView";
+import NotFoundView from "@/views/NotFoundView";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Root shell (common wrappers, providers, etc.) */}
         <Route element={<RootLayout />}>
 
-          {/* Onboarding routes */}
+          {/* =====================
+              Onboarding routes
+          ====================== */}
           <Route path="onboarding" element={<OnboardingView />} />
 
-
-          {/* Auth routes */}
-          <Route path="auth" element={<AuthLayout />}>
-            <Route index element={<LoginView />} /> {/* /login */}
-            <Route path="login" element={<LoginView />} /> {/* /login */}
+          {/* =====================
+              Auth routes
+          ====================== */}
+          <Route path="auth/*" element={<AuthLayout />}>
+            <Route path="login" element={<LoginView />} />
+            {/* fallback for /auth or /auth/anything */}
+            <Route path="*" element={<NotFoundView />} />
           </Route>
 
-          {/* Workspace routes */}
-          <Route element={<WorkspaceLayout />}>
-            <Route path="dashboard" element={<DashboardView />} /> {/* /dashboard */}
+          {/* =====================
+              App routes (protected)
+          ====================== */}
+          <Route path="/*" element={<AppLayout />}>
+            <Route index element={<OverviewView />} />
+            {/* Add more nested routes later */}
+            <Route path="*" element={<NotFoundView />} />
           </Route>
 
-          {/* 404 - Not Found */}
+          {/* =====================
+              Global 404 (outside layouts)
+          ====================== */}
           <Route path="*" element={<NotFoundView />} />
 
         </Route>
