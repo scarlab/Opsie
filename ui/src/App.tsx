@@ -7,7 +7,11 @@ import OverviewView from "@/views/workspace/overview/OverviewView";
 import OnboardingView from "@/views/onboarding/OnboardingView";
 import LoginView from "@/views/auth/LoginView";
 import NotFoundView from "@/views/NotFoundView";
-import NodeView from "./views/workspace/nodes/NodeView";
+import NodesView from "./views/workspace/nodes/NodesView";
+import AppsView from "./views/workspace/apps/AppsView";
+import ResourcesView from "./views/workspace/resources/ResourcesView";
+import ProjectsView from "./views/workspace/projects/ProjectsView";
+import UsersView from "./views/workspace/users/UsersView";
 
 export default function App() {
   return (
@@ -37,7 +41,11 @@ export default function App() {
           ====================== */}
           <Route path="/*" element={<AppLayout />}>
             <Route index element={<OverviewView />} />
-            <Route path="nodes" element={<NodeView />} />
+            <Route path="nodes" element={<NodesView />} />
+            <Route path="users" element={<UsersView />} />
+            <Route path="projects" element={<ProjectsView />} />
+            <Route path="resources" element={<ResourcesView />} />
+            <Route path="apps" element={<AppsView />} />
 
 
             {/* Add more nested routes later */}

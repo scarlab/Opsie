@@ -1,7 +1,7 @@
 import Config from '@/config'
 import Image from '@/constants/image'
 import { Button } from '../cn/button'
-import { Bell, HelpingHand, User } from 'lucide-react'
+import { Bell, HelpingHand, Plus, User } from 'lucide-react'
 
 export default function AppHeader() {
     return (
@@ -14,6 +14,7 @@ export default function AppHeader() {
                 <h3 className='text-lg font-black text-primary'>Opsie</h3>
             </div>
             <div className='flex gap-2 items-center'>
+                <Button variant={'outline'} size={'sm'}>Add New <Plus /></Button>
                 <Button variant={'outline'} size={'icon'}><HelpingHand /></Button>
                 <Button variant={'outline'} size={'icon'}><Bell /></Button>
                 <Button variant={'outline'} size={'icon'}><User /></Button>

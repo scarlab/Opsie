@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, LayoutDashboard, Server } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Blocks, Box, LayoutDashboard, Server, Shapes, User } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 
 type AppSidebarProps = {
@@ -10,21 +10,54 @@ type AppSidebarProps = {
 
 const data = [
     {
-        label: "Overview",
-        icon: LayoutDashboard,
-        link: "/",
-        items: []
+        label: "",
+        items: [
+            {
+                label: "Overview",
+                icon: LayoutDashboard,
+                link: "/",
+            },
+            {
+                label: "Nodes",
+                icon: Server,
+                link: "/nodes",
+            },
+            {
+                label: "Users",
+                icon: User,
+                link: "/users",
+            },
+            // {
+            //     label: "Monitor",
+            //     icon: ScanHeart,
+            //     link: "/monitor",
+            // },
+        ]
     },
     {
-        label: "Nodes",
-        icon: Server,
-        link: "/nodes",
-        items: []
-    },
+        label: "Workspace",
+        items: [
+            {
+                label: "Projects",
+                icon: Shapes,
+                link: "/projects",
+            },
+            {
+                label: "Resources",
+                icon: Box,
+                link: "/resources",
+            },
+            {
+                label: "Apps",
+                icon: Blocks,
+                link: "/apps",
+            },
+        ]
+    }
 ]
 
 export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps) {
-
+    const location = useLocation();
     return (
         <aside
             className={`transition-all duration-300 h-[calc(100vh-var(--header-height))] bg-secondary border-r fixed top-[var(--header-height)] left-0 p-3 flex flex-col gap-3`}
@@ -36,27 +69,60 @@ export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps)
         >
             <div className="grow">
                 {
-                    data.map((section, i) => (
-                        <div key={`s-b_x_item_${i}`} className="mb-1.5">
-                            <Link
-                                to={section.link}
-                                className={cn(
-                                    "flex items-center hover:bg-muted/30 py-1.5 px-3 rounded transition-all duration-200 gap-3",
-                                    section.link === location.pathname ? "bg-muted/20" : ""
-                                )}
-                            >
-                                <section.icon size={18} className="shrink-0" />
-
-                                <span
-                                    className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-                                        }`}
+                    data.map((group, i) => (
+                        <div key={`s-b_x_item_group_${i}`}>
+                            {group.label && (
+                                <div
+                                    className={cn(
+                                        "mt-5 px-3 transition-all duration-300",
+                                        collapsed ? "px-0" : "px-3"
+                                    )}
                                 >
-                                    {section.label}
-                                </span>
-                            </Link>
+                                    {collapsed ? (
+                                        <div className="h-5 flex flex-col justify-end">
+                                            <div className="h-1 bg-muted/40  " />
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground overflow-hidden whitespace-nowrap">
+                                            {group.label}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
 
+
+                            {
+                                group.items.map((section, j) => {
+                                    const isActive =
+                                        location.pathname === section.link ||
+                                        location.pathname.startsWith(section.link + "/");
+
+                                    return (
+                                        <div key={`s-b_x_group_${i}item_${j}`} className="mb-1.5">
+                                            <Link
+                                                to={section.link}
+                                                className={cn(
+                                                    "flex items-center hover:bg-muted/30 py-1.5 px-3 rounded transition-all duration-200 gap-3",
+                                                    isActive && "bg-muted/20"
+                                                )}
+                                            >
+                                                <section.icon size={18} className="shrink-0" />
+
+                                                <span
+                                                    className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                                                        }`}
+                                                >
+                                                    {section.label}
+                                                </span>
+                                            </Link>
+
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
-                    ))}
+                    ))
+                }
             </div>
 
             <div>
