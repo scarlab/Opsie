@@ -15,7 +15,7 @@ export default function AddNew() {
         <div>
             <DropdownMenu >
                 <DropdownMenuTrigger asChild >
-                    <Button variant={'outline'} size={'sm'}>Add New <Plus /></Button>
+                    <Button variant={'outline'} >Add New <Plus /></Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-44" onCloseAutoFocus={e => e.preventDefault()}>
                     <DropdownMenuItem><PanelTop /> Static Site</DropdownMenuItem>

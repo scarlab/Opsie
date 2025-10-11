@@ -1,24 +1,32 @@
 import Config from '@/config'
 import CsImage from '@/constants/image'
 import { Button } from '../cn/button'
-import { Bell, HelpingHand } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import NavUser from './NavUser'
 import AddNew from './AddNew'
+import { Link } from 'react-router-dom'
+import TeamSwitcher from './TeamSwitcher'
 
 export default function AppHeader() {
     return (
         <nav className="bg-secondary border-b px-3 gap-3 flex items-center py-2 h-[var(--header-height)] sticky top-0 z-50">
-            <div className="w-9 aspect-square rounded-full overflow-hidden ">
+            <Link to={'/'} className="w-8 aspect-square rounded-full overflow-hidden ">
                 <img width={200} height={200} src={CsImage.logo} alt={Config.projectName} />
-            </div>
+            </Link>
+
+            <div className="mx-2 h-7 w-0.5 bg-accent rotate-12"></div>
 
             <div className="grow flex gap-2 items-center">
-                <h3 className='text-lg font-black text-primary'>Opsie</h3>
+                <TeamSwitcher />
             </div>
-            <div className='flex gap-2 items-center'>
-                <AddNew />
-                <Button variant={'outline'} size={'icon'}><HelpingHand /></Button>
+
+            <div className='flex gap-3 items-center'>
+                <div className='flex items-center gap-2 border rounded-2xl px-2.5 py-0.5 bg-accent/60'>
+                    <div className='w-2 rounded-full aspect-square bg-green-500' />
+                    <span className='text-xs'>All Ok</span>
+                </div>
                 <Button variant={'outline'} size={'icon'}><Bell /></Button>
+                <AddNew />
                 <NavUser />
             </div>
         </nav>
