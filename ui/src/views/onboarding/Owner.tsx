@@ -2,7 +2,7 @@ import { Button } from "@/components/cn/button";
 import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
 import { PasswordInput } from "@/components/cn/password-input";
-import Image from "@/constants/image";
+import CsImage from "@/constants/image";
 import type { NewOwnerPayload } from "@/types/user";
 import { useState } from "react";
 import { motion } from "framer-motion"
@@ -58,7 +58,7 @@ export default function Owner({ next }: { next?: () => void }) {
                         className=""
                         width={400}
                         height={400}
-                        src={Image.workspace}
+                        src={CsImage.onboarding.workspace}
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.3 }}

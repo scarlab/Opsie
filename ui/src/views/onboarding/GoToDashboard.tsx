@@ -1,5 +1,5 @@
 import { Button } from "@/components/cn/button";
-import Image from "@/constants/image";
+import CsImage from "@/constants/image";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
@@ -27,7 +27,7 @@ export default function GoToDashboard() {
 
             <motion.img
                 className="max-w-sm aspect-auto"
-                src={Image.allDone}
+                src={CsImage.onboarding.allDone}
                 width={300}
                 height={300}
                 initial={{ scale: 0.8, opacity: 0 }}

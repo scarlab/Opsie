@@ -1,4 +1,4 @@
-import Image from "@/constants/image";
+import CsImage from "@/constants/image";
 
 export default function NotFoundView() {
     return (
@@ -8,7 +8,7 @@ export default function NotFoundView() {
                     className="mb-20"
                     width={400}
                     height={400}
-                    src={Image.pageNotFound}
+                    src={CsImage.pageNotFound}
                     alt=""
                 />
                 <h1 className="text-primary text-3xl font-black">404 - Not Found!</h1>

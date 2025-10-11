@@ -1,6 +1,6 @@
 import { Button } from "@/components/cn/button"
 import Config from "@/config"
-import Image from "@/constants/image"
+import CsImage from "@/constants/image"
 import { motion } from "framer-motion"
 
 export default function Welcome({ next }: { next?: () => void }) {
@@ -8,7 +8,7 @@ export default function Welcome({ next }: { next?: () => void }) {
         <div className="flex flex-col items-center justify-center h-full ">
             <motion.img
                 className=" "
-                src={Image.hello}
+                src={CsImage.onboarding.hello}
                 width={300}
                 height={300}
                 initial={{ scale: 0.8, opacity: 0 }}
