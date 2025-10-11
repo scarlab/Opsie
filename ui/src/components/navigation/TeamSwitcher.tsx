@@ -31,7 +31,7 @@ export default function TeamSwitcher() {
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <div className="hover:bg-accent/40 cursor-pointer flex items-center gap-2 transition-all rounded ps-1 pe-2 py-">
+                    <div className="hover:bg-accent dark:hover:bg-accent/40 cursor-pointer flex items-center gap-2 transition-all rounded ps-1 pe-2 py-">
                         <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
                             <activeTeam.logo className="size-4" />
                         </div>

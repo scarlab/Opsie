@@ -6,6 +6,7 @@ import NavUser from './NavUser'
 import AddNew from './AddNew'
 import { Link } from 'react-router-dom'
 import TeamSwitcher from './TeamSwitcher'
+import { Theme } from '../theme'
 
 export default function AppHeader() {
     return (
@@ -21,7 +22,8 @@ export default function AppHeader() {
             </div>
 
             <div className='flex gap-3 items-center'>
-                <div className='flex items-center gap-2 border rounded-2xl px-2.5 py-0.5 bg-accent/60'>
+                {Config.isDev && <Theme />}
+                <div className='flex items-center gap-2 border rounded-2xl px-2.5 py-0.5 bg-accent/60 cursor-pointer'>
                     <div className='w-2 rounded-full aspect-square bg-green-500' />
                     <span className='text-xs'>All Ok</span>
                 </div>

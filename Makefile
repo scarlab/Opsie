@@ -9,7 +9,7 @@ agent:
 	@go run ./cmd/agent/main.go
 
 web:
-	@cd ui && VITE_APP_VERSION=$(VERSION) npm run dev && cd .. 
+	@cd ui && VITE_APP_VERSION=$(VERSION) VITE_APP_ENV=development npm run dev && cd .. 
 
 build-server:
 	@echo "Building server $(VERSION)"
@@ -21,7 +21,7 @@ build-agent:
 
 build:
 	@echo "Building Opsie $(VERSION)"
-	@cd ui && VITE_APP_VERSION=$(VERSION) npm run build && cd ..
+	@cd ui && VITE_APP_VERSION=$(VERSION) VITE_APP_ENV=production npm run build && cd ..
 	@go build -o bin/server/opsie cmd/server/main.go
 	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
