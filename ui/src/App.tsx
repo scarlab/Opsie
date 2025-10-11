@@ -12,6 +12,9 @@ import AppsView from "./views/workspace/apps/AppsView";
 import ResourcesView from "./views/workspace/resources/ResourcesView";
 import ProjectsView from "./views/workspace/projects/ProjectsView";
 import UsersView from "./views/workspace/users/UsersView";
+import SettingsLayout from "./layouts/SettingsLayout";
+import GeneralSettingsView from "./views/settings/general/GeneralSettingsView";
+import ProfileSettingsView from "./views/settings/profile/ProfileSettingsView";
 
 export default function App() {
   return (
@@ -36,6 +39,9 @@ export default function App() {
             <Route path="*" element={<NotFoundView />} />
           </Route>
 
+
+
+
           {/* =====================
               App routes (protected)
           ====================== */}
@@ -51,6 +57,21 @@ export default function App() {
             {/* Add more nested routes later */}
             <Route path="*" element={<div className=""><NotFoundView /></div>} />
           </Route>
+
+          {/* =====================
+              App routes (protected)
+          ====================== */}
+          <Route path="settings/*" element={<SettingsLayout />}>
+            <Route index element={<GeneralSettingsView />} />
+            <Route path="profile" element={<ProfileSettingsView />} />
+
+
+            {/* Add more nested routes later */}
+            <Route path="*" element={<div className=""><NotFoundView /></div>} />
+          </Route>
+
+
+
 
           {/* =====================
               Global 404 (outside layouts)
