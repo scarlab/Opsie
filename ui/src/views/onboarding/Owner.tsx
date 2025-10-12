@@ -1,7 +1,7 @@
 import { Button } from "@/components/cn/button";
 import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
-import { PasswordInput } from "@/components/cn/password-input";
+import { InputPassword } from "@/components/cn/input-password";
 import CsImage from "@/constants/image";
 import type { NewOwnerPayload } from "@/types/user";
 import { useState } from "react";
@@ -84,11 +84,11 @@ export default function Owner({ next }: { next?: () => void }) {
 
                         <div className="space-y-2">
                             <Label>Password</Label>
-                            <PasswordInput name="password" value={payload.password} onChange={handleChange} placeholder="Password" />
+                            <InputPassword name="password" value={payload.password} onChange={handleChange} placeholder="Password" />
                         </div>
                         <div className="space-y-2">
                             <Label>Confirm Password</Label>
-                            <PasswordInput name="confirmPassword" value={payload.confirmPassword} onChange={handleChange} placeholder="Re-enter Password" />
+                            <InputPassword name="confirmPassword" value={payload.confirmPassword} onChange={handleChange} placeholder="Re-enter Password" />
                         </div>
                     </motion.div>
                 </div>

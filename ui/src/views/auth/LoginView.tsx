@@ -1,7 +1,7 @@
 import { Button } from "@/components/cn/button";
 import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
-import { PasswordInput } from "@/components/cn/password-input";
+import { InputPassword } from "@/components/cn/input-password";
 import Config from "@/config";
 import type { LoginPayload } from "@/types/user";
 import { Lock } from "lucide-react";
@@ -49,7 +49,7 @@ export default function LoginView() {
                     <div>
                         <div className="space-y-2">
                             <Label>Password</Label>
-                            <PasswordInput name="password" value={payload.password} onChange={handleChange} placeholder="Password" />
+                            <InputPassword name="password" value={payload.password} onChange={handleChange} placeholder="Password" />
                         </div>
                         <div className="text-right mt-1">
                             <Link className="text-sm text-blue-500 font-bold text" to={'/auth/forgot-password'}>Forgot Password</Link>

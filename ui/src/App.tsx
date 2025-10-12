@@ -13,8 +13,8 @@ import ResourcesView from "./views/workspace/resources/ResourcesView";
 import ProjectsView from "./views/workspace/projects/ProjectsView";
 import UsersView from "./views/workspace/users/UsersView";
 import SettingsLayout from "./layouts/SettingsLayout";
-import GeneralSettingsView from "./views/settings/general/GeneralSettingsView";
-import ProfileSettingsView from "./views/settings/profile/ProfileSettingsView";
+import OrganizationSettingsView from "./views/settings/organization/OrganizationSettingsView";
+import AccountSettingsView from "./views/settings/account/AccountSettingsView";
 
 export default function App() {
   return (
@@ -62,8 +62,8 @@ export default function App() {
               App routes (protected)
           ====================== */}
           <Route path="settings/*" element={<SettingsLayout />}>
-            <Route index element={<GeneralSettingsView />} />
-            <Route path="profile" element={<ProfileSettingsView />} />
+            <Route index element={<OrganizationSettingsView />} />
+            <Route path="account" element={<AccountSettingsView />} />
 
 
             {/* Add more nested routes later */}

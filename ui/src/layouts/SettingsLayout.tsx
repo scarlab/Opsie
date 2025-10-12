@@ -8,7 +8,7 @@ export default function SettingsLayout() {
     return (
         <div>
             <AppHeader />
-            <main className="mx-auto max-w-5xl">
+            <main className="mx-auto max-w-3xl  px-3">
                 <Outlet />
             </main>
         </div>

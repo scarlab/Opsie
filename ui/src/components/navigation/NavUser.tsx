@@ -1,6 +1,6 @@
 
 
-import { LayoutDashboardIcon, LogOut, Settings, User } from 'lucide-react'
+import { LayoutDashboardIcon, LogOut, UserCog } from 'lucide-react'
 import { Button } from "@/components/cn/button"
 import {
     Command,
@@ -54,18 +54,18 @@ export default function NavUserMenu() {
                                     <CommandShortcut><LayoutDashboardIcon /></CommandShortcut>
                                 </CommandItem>
                             </Link>
-                            <Link to={`/settings/profile`} onClick={() => setOpen(false)}>
+                            <Link to={`/settings/account`} onClick={() => setOpen(false)}>
                                 <CommandItem className='cursor-pointer'>
-                                    Profile
-                                    <CommandShortcut><User /></CommandShortcut>
+                                    Account Settings
+                                    <CommandShortcut><UserCog /></CommandShortcut>
                                 </CommandItem>
                             </Link>
-                            <Link to={`/settings`} onClick={() => setOpen(false)}>
+                            {/* <Link to={`/settings`} onClick={() => setOpen(false)}>
                                 <CommandItem className='cursor-pointer'>
                                     Settings
                                     <CommandShortcut><Settings /></CommandShortcut>
                                 </CommandItem>
-                            </Link>
+                            </Link> */}
 
                             <CommandSeparator className='my-2' />
 

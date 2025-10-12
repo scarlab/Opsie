@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Blocks, Box, LayoutDashboard, Server, Settings, Shapes, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, Blocks, BookOpen, Box, LayoutDashboard, Server, Settings, Shapes, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 
@@ -60,14 +60,14 @@ export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps)
     const location = useLocation();
     return (
         <aside
-            className={`transition-all duration-300 h-[calc(100vh-var(--header-height))] bg-secondary text-secondary-foreground border-r fixed top-[var(--header-height)] left-0 p-3 flex flex-col gap-3`}
+            className={`transition-all duration-300 h-[calc(100vh-var(--header-height))] bg-secondary text-secondary-foreground border-r fixed top-[var(--header-height)] left-0  flex flex-col gap-3`}
             style={{
                 width: collapsed
                     ? "var(--sidebar-collapse-width)"
                     : "var(--sidebar-width)",
             }}
         >
-            <div className="grow">
+            <div className="grow p-3">
                 {
                     data.map((group, i) => (
                         <div key={`s-b_x_item_group_${i}`}>
@@ -125,27 +125,44 @@ export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps)
                 }
             </div>
 
-            <div className="space-y-1.5">
-                <div className={cn("cursor-pointer", "flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")}>
-                    <Settings className="shrink-0" size={18} />
-                    <span className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"}`}>
-                        Settings
-                    </span>
-                </div>
-                <div className={cn("cursor-pointer", "flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")} onClick={() => setCollapsed(!collapsed)}>
-                    {
-                        collapsed ?
-                            <ArrowRight className="shrink-0" size={18} />
-                            :
-                            <ArrowLeft className="shrink-0" size={18} />
-                    }
+            {/* FOOTER */}
+            <div className="space-y-1.5 ">
+                <div className="px-3 pb-2">
+                    <Link to={'#'} className={cn("cursor-pointer flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")}>
+                        <BookOpen className="shrink-0" size={18} />
+                        <span className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"}`}>
+                            Documentations
+                        </span>
+                    </Link>
 
-                    <span
-                        className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-                            }`}
-                    >
-                        Collapse Menu
-                    </span>
+                    <Link to={'/settings'} className={cn("cursor-pointer flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")}>
+                        <Settings className="shrink-0" size={18} />
+                        <span className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"}`}>
+                            Settings
+                        </span>
+                    </Link>
+                </div>
+
+
+                <hr />
+
+
+                <div className="px-3 pb-3 pt-2">
+                    <div className={cn("cursor-pointer flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")} onClick={() => setCollapsed(!collapsed)}>
+                        {
+                            collapsed ?
+                                <ArrowRight className="shrink-0" size={18} />
+                                :
+                                <ArrowLeft className="shrink-0" size={18} />
+                        }
+
+                        <span
+                            className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+                                }`}
+                        >
+                            Collapse Menu
+                        </span>
+                    </div>
                 </div>
             </div>
         </aside>
