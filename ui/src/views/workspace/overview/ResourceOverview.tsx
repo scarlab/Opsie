@@ -1,11 +1,11 @@
 import { Button } from "@/components/cn/button";
-import { Ellipsis, Globe } from "lucide-react";
+import { Box, Ellipsis, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function ResourceOverview() {
     return (
         <div className="px-3 mt-14">
-            <h1 className="text-2xl font-bold mb-2"> Resources</h1>
+            <h1 className="text-2xl font-bold mb-2 flex items-center gap-3"><Box size={20} />  Resources</h1>
             <div className="h-0.5 bg-muted" />
 
             <div className="mt-3">

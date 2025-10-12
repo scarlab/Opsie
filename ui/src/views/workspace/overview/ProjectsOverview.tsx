@@ -1,9 +1,9 @@
-import { Plus } from "lucide-react";
+import { Plus, Shapes } from "lucide-react";
 
 export default function ProjectsOverview() {
     return (
         <div className="px-3 mt-14">
-            <h1 className="text-2xl font-bold mb-2"> Projects</h1>
+            <h1 className="text-2xl font-bold mb-2 flex items-center gap-3"><Shapes size={20} />  Projects</h1>
             <div className="h-0.5 bg-muted" />
 
             <div className="grid grid-cols-5 gap-x-3 gap-y-5 mt-3">
@@ -32,7 +32,7 @@ export default function ProjectsOverview() {
 
                 <div className="hover:bg-accent/20 transition-all cursor-pointer border border-dashed rounded flex items-center justify-center h-24">
                     <Plus />
-                    <span>Create New Projeect</span>
+                    <span>Create New Project</span>
                 </div>
             </div>
         </div>
