@@ -5,7 +5,7 @@ import { Bell } from 'lucide-react'
 import NavUser from './NavUser'
 import AddNew from './AddNew'
 import { Link } from 'react-router-dom'
-import TeamSwitcher from './TeamSwitcher'
+import OrganizationSwitcher from './OrganizationSwitcher'
 import { Theme } from '../theme'
 
 export default function AppHeader() {
@@ -18,7 +18,7 @@ export default function AppHeader() {
             <div className="mx-2 h-7 w-0.5 bg-accent rotate-12"></div>
 
             <div className="grow flex gap-2 items-center">
-                <TeamSwitcher />
+                <OrganizationSwitcher />
             </div>
 
             <div className='flex gap-3 items-center'>

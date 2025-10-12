@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight, Blocks, Box, LayoutDashboard, Server, Shapes, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, Blocks, Box, LayoutDashboard, Server, Settings, Shapes, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 
@@ -125,7 +125,13 @@ export default function AppSidebar({ collapsed, setCollapsed }: AppSidebarProps)
                 }
             </div>
 
-            <div>
+            <div className="space-y-1.5">
+                <div className={cn("cursor-pointer", "flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")}>
+                    <Settings className="shrink-0" size={18} />
+                    <span className={`block overflow-hidden whitespace-nowrap transition-[opacity,width] duration-300  ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"}`}>
+                        Settings
+                    </span>
+                </div>
                 <div className={cn("cursor-pointer", "flex items-center dark:hover:bg-accent/60 hover:bg-accent/90 py-1.5 px-3 rounded transition-all duration-200 gap-3")} onClick={() => setCollapsed(!collapsed)}>
                     {
                         collapsed ?

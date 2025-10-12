@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../cn/dropdown-menu";
 import { AudioWaveform, ChevronsUpDown, Command, GalleryVerticalEnd, Plus } from "lucide-react";
 
-const teams = [
+const organizations = [
     {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
@@ -20,10 +20,10 @@ const teams = [
     },
 ]
 
-export default function TeamSwitcher() {
+export default function OrganizationSwitcher() {
 
-    const [activeTeam, setActiveTeam] = useState(teams[0])
-    if (!activeTeam) {
+    const [activeOrganization, setActiveOrganization] = useState(organizations[0])
+    if (!activeOrganization) {
         return null
     }
     return (
@@ -31,13 +31,10 @@ export default function TeamSwitcher() {
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <div className="hover:bg-accent dark:hover:bg-accent/40 cursor-pointer flex items-center gap-2 transition-all rounded ps-1 pe-2 py-">
-                        <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                            <activeTeam.logo className="size-4" />
-                        </div>
+                    <div className="hover:bg-accent dark:hover:bg-accent/40 cursor-pointer flex items-center gap-2 transition-all rounded px-2 py-">
                         <div className="space-x-3">
-                            <span className="truncate font-medium">{activeTeam.name}</span>
-                            <span className="truncate text-xs border rounded-2xl px-2.5 bg-accent/60">{activeTeam.plan}</span>
+                            <span className="truncate font-medium">{activeOrganization.name}</span>
+                            <span className="truncate text-xs border rounded-2xl px-2.5 bg-accent/60">{activeOrganization.plan}</span>
                         </div>
                         <ChevronsUpDown size={17} />
                     </div>
@@ -49,18 +46,15 @@ export default function TeamSwitcher() {
                     sideOffset={4}
                 >
                     <DropdownMenuLabel className="text-muted-foreground text-xs">
-                        Teams
+                        Organizations
                     </DropdownMenuLabel>
-                    {teams.map((team, i) => (
+                    {organizations.map((organization, i) => (
                         <DropdownMenuItem
-                            key={team.name + i}
-                            onClick={() => setActiveTeam(team)}
+                            key={organization.name + i}
+                            onClick={() => setActiveOrganization(organization)}
                             className="gap-2 p-2"
                         >
-                            <div className="flex size-6 items-center justify-center rounded-md border">
-                                <team.logo className="size-3.5 shrink-0" />
-                            </div>
-                            {team.name}
+                            {organization.name}
 
                         </DropdownMenuItem>
                     ))}
@@ -69,7 +63,7 @@ export default function TeamSwitcher() {
                         <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                             <Plus className="size-4" />
                         </div>
-                        <div className="text-muted-foreground font-medium">Add team</div>
+                        <div className="text-muted-foreground font-medium">Add organization</div>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
