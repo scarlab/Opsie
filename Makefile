@@ -1,6 +1,8 @@
-VERSION := $(shell cat VERSION)
+PROJECT_NAME := $(shell grep '^name:' app.config.yaml | awk '{print $$2}')
+VERSION := $(shell grep '^version:' app.config.yaml | awk '{print $$2}')
+
 v:
-	@echo $(VERSION)
+	@echo ${PROJECT_NAME} $(VERSION)
 	
 server:
 	@go run ./cmd/server/main.go
