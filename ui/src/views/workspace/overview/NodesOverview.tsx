@@ -25,8 +25,6 @@ export default function NodesOverview() {
                     </div>
                 </div>
 
-
-
                 <div className="hover:bg-accent/20 transition-all cursor-pointer border border-dashed rounded flex items-center justify-center h-24">
                     <Plus />
                     <span>Add New Node</span>
