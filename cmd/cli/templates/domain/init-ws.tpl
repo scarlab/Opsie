@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Init - Entry point for initializing domain - {{.PackageName}}
+// Init - Entry point for initializing domain - {{.PackageName}} with socket hub
 //
 // Responsibilities:
 // 1. Create repository, service, and handler instances.

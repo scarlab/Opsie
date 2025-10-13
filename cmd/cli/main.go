@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
 	"log"
@@ -32,16 +33,26 @@ func main() {
 	// ------------------------
 	newDomainCmd := &cobra.Command{
 		Use:   "create-domain [name]",
-		Short: "Scaffold a new domain",
+		Short: "Scaffold a new domain inside internal/domain/",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := strings.ToLower(args[0])
-			if err := createDomain(name); err != nil {
-				log.Fatal(err)
+
+			// Read the flag
+			withWS, _ := cmd.Flags().GetBool("ws")
+
+			fmt.Printf("🧱 Creating domain '%s' (WebSocket: %v)\n", name, withWS)
+
+			// Generate domain files
+			if err := createDomain(name, withWS); err != nil {
+				log.Fatalf("❌ Failed to create domain '%s': %v\n", name, err)
 			}
-			fmt.Printf("✅ Domain '%s' created successfully\n", name)
 		},
 	}
+
+	// Add flag
+	newDomainCmd.Flags().BoolP("ws", "w", false, "Include WebSocket-enabled templates")
+
 
 	rootCmd.AddCommand(newDomainCmd)
 
@@ -99,22 +110,49 @@ func main() {
 // ------------------------
 // Domain scaffolding
 // ------------------------
-func createDomain(name string) error {
+func createDomain(name string, withWS bool) error {
 	basePath := filepath.Join("internal", "domain", name)
+
+	// --- Check if the domain already exists ---
+	if _, err := os.Stat(basePath); err == nil {
+		fmt.Printf("⚠️  Domain '%s' already exists. Override? [y/N]: ", name)
+		reader := bufio.NewReader(os.Stdin)
+		resp, _ := reader.ReadString('\n')
+		resp = strings.TrimSpace(strings.ToLower(resp))
+
+		if resp != "y" && resp != "yes" {
+			fmt.Println("❌ Aborted — existing domain left untouched.")
+			return nil
+		}
+		fmt.Println("🔁 Overriding existing domain...")
+	}
+
+	// --- Create base directory ---
 	if err := os.MkdirAll(basePath, 0755); err != nil {
-		return err
+		return fmt.Errorf("failed to create domain dir: %w", err)
 	}
 
+	// --- Template list ---
 	templates := []string{
-		"init.go.tpl",
-		"handler.go.tpl",
-		"service.go.tpl",
-		"repository.go.tpl",
-		"route.go.tpl",
-		"type.go.tpl",
+		"init.tpl",
+		"handler.tpl",
+		"service.tpl",
+		"repository.tpl",
+		"route.tpl",
+		"type.tpl",
 	}
-	tplDir := filepath.Join("cmd", "cli", "templates", "domain")
 
+	// if --ws flag is passed, use -ws.tpl versions where available
+	if withWS {
+		for i, name := range templates {
+			wsPath := filepath.Join("cmd", "cli", "templates", "domain", strings.Replace(name, ".tpl", "-ws.tpl", 1))
+			if _, err := os.Stat(wsPath); err == nil {
+				templates[i] = strings.Replace(name, ".tpl", "-ws.tpl", 1)
+			}
+		}
+	}
+
+	tplDir := filepath.Join("cmd", "cli", "templates", "domain")
 	data := struct {
 		PackageName string
 		CreatedAt   string
@@ -123,24 +161,30 @@ func createDomain(name string) error {
 		CreatedAt:   time.Now().Format("2006/01/02 15:04:05"),
 	}
 
+	// --- Generate files from templates ---
 	for _, tplFile := range templates {
 		tplPath := filepath.Join(tplDir, tplFile)
 		tpl, err := template.ParseFiles(tplPath)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to parse template %s: %w", tplFile, err)
 		}
 
-		outFile := filepath.Join(basePath, fmt.Sprintf("%s.%s", name, strings.TrimSuffix(tplFile, ".tpl")))
+		outFile := filepath.Join(basePath, fmt.Sprintf("%s.%s.go",
+			name, strings.TrimSuffix(strings.TrimSuffix(tplFile, "-ws.tpl"), ".tpl")))
+
 		f, err := os.Create(outFile)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to create file %s: %w", outFile, err)
 		}
 		defer f.Close()
 
 		if err := tpl.Execute(f, data); err != nil {
-			return err
+			return fmt.Errorf("failed to execute template %s: %w", tplFile, err)
 		}
+		fmt.Printf("✅ Created %s\n", outFile)
 	}
+
+	fmt.Printf("🎉 Domain '%s' created successfully.\n", name)
 	return nil
 }
 

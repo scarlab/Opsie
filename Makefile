@@ -30,6 +30,10 @@ build:
 domain:
 	@go run cmd/cli/main.go create-domain $(filter-out $@,$(MAKECMDGOALS))
 
+domain-ws:
+	@go run cmd/cli/main.go create-domain $(filter-out $@,$(MAKECMDGOALS)) --ws
+
+
 migration:
 	@migrate create -ext sql -dir db/migrations $(filter-out $@,$(MAKECMDGOALS))
 
