@@ -4,6 +4,7 @@ package {{.PackageName}}
 
 import (
 	"database/sql"
+	"opsie/internal/socket"
 
 	"github.com/gorilla/mux"
 )
@@ -17,7 +18,7 @@ import (
 //
 // Usage:
 //   packagename.Register(router, db)
-func Register(r *mux.Router, db *sql.DB) {
+func Register(r *mux.Router, db *sql.DB, socketHub *socket.Hub) {
 	// Step 1: Create repository (DB layer)
 	repository := NewRepository(db)
 
@@ -25,7 +26,7 @@ func Register(r *mux.Router, db *sql.DB) {
 	service := NewService(repository)
 
 	// Step 3: Create handler (HTTP layer)
-	handler := NewHandler(service)
+	handler := NewHandler(service, socketHub)
 
 	// Step 4: Create the sub-router for this domain (modify if required)
 	router := r.PathPrefix("/{{.PackageName}}").Subrouter()
