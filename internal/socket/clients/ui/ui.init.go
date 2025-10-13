@@ -13,7 +13,7 @@ import (
 )
 
 // Init - Entry point for initializing socket connection with agent
-func Init(r *mux.Router, db *sql.DB, socketHub *socket.Hub) {
+func Register(r *mux.Router, db *sql.DB, socketHub *socket.Hub) {
 
 	// Agent
 	repository := NewRepository(db)

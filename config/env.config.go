@@ -6,48 +6,42 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// envConfig holds all environment configuration variables
+// TEnvConfig holds all environment configuration variables
 // that your application needs to run.
-type envConfig struct {
+type TEnvConfig struct {
 	GoEnv      	string
 	Addr      	string
 	JwtSecret 	string
 
 	// Database [PostgreSQL]
-	PG_USER string
-	PG_PASSWD string
-	PG_HOST string
-	PG_PORT string
-	PG_DB string
+	PG_User string
+	PG_Password string
+	PG_Host string
+	PG_Port string
+	PG_Database string
 
 	// --------------------------------------- Agent ---------------------------------------
 	ServerHost 	string
 }
 
 
-// ENV (singleton) is a globally accessible variable
-var ENV = loadEnv()
-var IsDev = loadEnv().GoEnv == "development"
-
-
-
 // loadEnv loads environment variables into an EnvConfig struct.
 // If an environment variable is not found, it uses the provided default value.
-func loadEnv() *envConfig {
+func loadEnv() *TEnvConfig {
 	// Load the env variables.
 	godotenv.Load()
 	
-	return &envConfig{
+	return &TEnvConfig{
 		GoEnv:      	getEnv("GO_ENV", "development"),
 		Addr:      		getEnv("ADDR", ":3905"),
 		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d8a9snd9asd"),
 
 		// Database [PostgreSQL]
-		PG_USER:   getEnv("PG_USER", "postgres"),
-		PG_PASSWD: getEnv("PG_PASSWD", "postgres_password"),
-		PG_HOST:   getEnv("PG_HOST", "127.0.0.1"),
-		PG_PORT:   getEnv("PG_PORT", "5432"),
-		PG_DB:     getEnv("PG_DB", "opsie"),
+		PG_User:   getEnv("PG_USER", "postgres"),
+		PG_Password: getEnv("PG_PASSWD", "postgres_password"),
+		PG_Host:   getEnv("PG_HOST", "127.0.0.1"),
+		PG_Port:   getEnv("PG_PORT", "5432"),
+		PG_Database:     getEnv("PG_DB", "opsie"),
 
 		// --------------------------------------- Agent ---------------------------------------
 		ServerHost: 	getEnv("SERVER_HOST", "localhost:3905"),

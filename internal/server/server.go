@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"opsie/internal/socket"
 	"time"
-	"opsie/utils/system"
 )
 
 // ApiServer represents the main HTTP server for the application.
@@ -16,15 +16,17 @@ type ApiServer struct {
 	addr string   // Address where the server will listen (e.g. ":8080")
 	db   *sql.DB  // Database connection pool
 	uiFS fs.FS
+	socketHub *socket.Hub
 }
 
 
 // Constructor: NewApiServer creates and returns a new ApiServer instance.
-func NewApiServer(addr string, db *sql.DB, uiFS fs.FS) *ApiServer {
+func NewApiServer(addr string, db *sql.DB, uiFS fs.FS, socketHub *socket.Hub) *ApiServer {
 	return &ApiServer{
 		addr: addr,
 		db:   db,
 		uiFS: uiFS,
+		socketHub: socketHub,
 	}
 }
 
@@ -43,7 +45,6 @@ func (s *ApiServer) Run(ctx context.Context) error {
 
 	// Run the server in a separate goroutine
 	go func() {
-		log.Printf("✔️  Server is listening on http://%s%s", system.Info().IPAddress,s.addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("[CRASH]: %v", err)
 		}

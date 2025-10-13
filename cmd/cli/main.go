@@ -150,11 +150,11 @@ func createDomain(name string) error {
 func runMigrate(cmd string, version int) {
 	dbURL := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		config.ENV.PG_USER,
-		config.ENV.PG_PASSWD,
-		config.ENV.PG_HOST,
-		config.ENV.PG_PORT,
-		config.ENV.PG_DB,
+		config.ENV.PG_User,
+		config.ENV.PG_Password,
+		config.ENV.PG_Host,
+		config.ENV.PG_Port,
+		config.ENV.PG_Database,
 	)
 	
 

@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"time"
 	"opsie/config"
 	"opsie/internal/socket"
 	"opsie/utils/system"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -22,7 +22,7 @@ func main() {
 
 	// Get the system info
 	systemInfo := system.Info()
-	payload := socket.RegisterAgentPayload{
+	payload := socket.TRegisterAgentPayload{
 		Hostname:  systemInfo.Hostname,
 		OS:        systemInfo.OS,
 		Kernel:    systemInfo.Kernel,

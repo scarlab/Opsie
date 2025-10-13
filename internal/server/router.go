@@ -7,7 +7,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"opsie/config"
-	"opsie/internal/socket"
 	ws_agent "opsie/internal/socket/clients/agent"
 	ws_ui "opsie/internal/socket/clients/ui"
 
@@ -19,26 +18,36 @@ import (
 
 
 func (s *ApiServer) setupRouter() *mux.Router {
+	// -------------------------------------------------------------------
+	// Root Router
+	// -------------------------------------------------------------------
 	router := mux.NewRouter()
-	socketHub := socket.NewHub()
 
-	// ------------------------------------ Root API routes ------------------------------------ //
+	
+	// -------------------------------------------------------------------
+	// Gateway of API routes
+	// -------------------------------------------------------------------
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
 	apiRouter.HandleFunc("/health", healthHandler).Methods("GET")
 
 
-	// ----------------------------------- Web Socket Routes ----------------------------------- //
+	// -------------------------------------------------------------------
+	// Web Socket Routes
+	// -------------------------------------------------------------------
 	wsRouter := apiRouter.PathPrefix("/ws").Subrouter()
-	ws_agent.Init(wsRouter, s.db, socketHub)
-	ws_ui.Init(wsRouter, s.db, socketHub)
+	ws_agent.Register(wsRouter, s.db, s.socketHub)
+	ws_ui.Register(wsRouter, s.db, s.socketHub)
 
 
-	// ---------------------------------------- Domains ---------------------------------------- //
-	// ws.Init(apiRouter, s.db, socketHub) // Web Socket Communication
+	// -------------------------------------------------------------------
+	// Register Domains
+	// -------------------------------------------------------------------
+	// ws.Register(apiRouter, s.db, socketHub) // Web Socket Communication
 
 
-
-	// ------------------------------------- Web UI Proxy ------------------------------------- //
+	// -------------------------------------------------------------------
+	// Web UI - Proxy(dev) / Embed (prod)
+	// -------------------------------------------------------------------
 	if config.IsDev {
 		viteURL, _ := url.Parse("http://localhost:5173")
 		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)

@@ -16,8 +16,8 @@ import (
 // 3. Register domain-specific routes.
 //
 // Usage:
-//   packagename.Init(router, db)
-func Init(r *mux.Router, db *sql.DB) {
+//   packagename.Register(router, db)
+func Register(r *mux.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
 	repository := NewRepository(db)
 
