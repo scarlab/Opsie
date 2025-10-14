@@ -3,7 +3,10 @@ VERSION := $(shell grep '^version:' app.config.yaml | awk '{print $$2}')
 
 v:
 	@echo ${PROJECT_NAME} $(VERSION)
-	
+
+dev:
+	@docker compose up
+
 server:
 	@go run ./cmd/server/main.go
 

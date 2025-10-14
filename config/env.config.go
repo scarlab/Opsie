@@ -20,6 +20,8 @@ type TEnvConfig struct {
 	PG_Port string
 	PG_Database string
 
+	DevUIHost string
+
 	// --------------------------------------- Agent ---------------------------------------
 	ServerHost 	string
 }
@@ -37,11 +39,13 @@ func loadEnv() *TEnvConfig {
 		JwtSecret: 		getEnv("JWT_SECRET", "9as879das7d8a9snd9asd"),
 
 		// Database [PostgreSQL]
-		PG_User:   getEnv("PG_USER", "postgres"),
-		PG_Password: getEnv("PG_PASSWD", "postgres_password"),
-		PG_Host:   getEnv("PG_HOST", "127.0.0.1"),
-		PG_Port:   getEnv("PG_PORT", "5432"),
-		PG_Database:     getEnv("PG_DB", "opsie"),
+		PG_User:   getEnv("POSTGRES_USER", "postgres"),
+		PG_Password: getEnv("POSTGRES_PASSWORD", "postgres_password"),
+		PG_Host:   getEnv("POSTGRES_HOST", "127.0.0.1"),
+		PG_Port:   getEnv("POSTGRES_PORT", "5432"),
+		PG_Database:     getEnv("POSTGRES_DB", "opsie"),
+
+		DevUIHost: getEnv("DEV_UI_HOST", "opsie-ui-1"),
 
 		// --------------------------------------- Agent ---------------------------------------
 		ServerHost: 	getEnv("SERVER_HOST", "localhost:3905"),

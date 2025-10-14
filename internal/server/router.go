@@ -49,7 +49,7 @@ func (s *ApiServer) setupRouter() *mux.Router {
 	// Web UI - Proxy(dev) / Embed (prod)
 	// -------------------------------------------------------------------
 	if config.IsDev {
-		viteURL, _ := url.Parse("http://localhost:5173")
+		viteURL, _ := url.Parse("http://"+config.ENV.DevUIHost+":5173/")
 		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
 		router.PathPrefix("/").Handler(viteProxy)
 	} else{
@@ -73,9 +73,6 @@ func (s *ApiServer) setupRouter() *mux.Router {
 
 	return router
 }
-
-
-
 
 
 // healthHandler returns a simple health status as JSON.
