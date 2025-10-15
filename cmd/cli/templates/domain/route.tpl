@@ -10,5 +10,5 @@ func RegisterRoutes(r *mux.Router, h *Handler) {
 	// Example:
 	// r.HandleFunc("/get/something", h.GetSomething).Methods("GET")
 	
-	r.HandleFunc("/health", h.health).Methods("GET") // Health checkup route
+	r.HandleFunc("/health", h.Health).Methods("GET") // Health checkup route
 }

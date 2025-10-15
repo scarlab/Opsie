@@ -6,28 +6,19 @@ v:
 
 dev:
 	@docker compose up
+	
+log-server:
+	@docker logs opsie-server-1 -f
 
-server:
-	@go run ./cmd/server/main.go
+log-ui:
+	@docker logs opsie-ui-1 -f
+
 
 agent:
 	@go run ./cmd/agent/main.go
 
-web:
-	@cd ui && VITE_APP_VERSION=$(VERSION) VITE_APP_ENV=development npm run dev && cd .. 
-
-build-server:
-	@echo "Building server $(VERSION)"
-	@go build -o bin/server/opsie cmd/server/main.go
-
 build-agent:
 	@echo "Building agent $(VERSION)"
-	@go build -o bin/agent/opsie-agent cmd/agent/main.go
-
-build:
-	@echo "Building Opsie $(VERSION)"
-	@cd ui && VITE_APP_VERSION=$(VERSION) VITE_APP_ENV=production npm run build && cd ..
-	@go build -o bin/server/opsie cmd/server/main.go
 	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
 

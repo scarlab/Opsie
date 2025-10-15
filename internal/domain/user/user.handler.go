@@ -1,8 +1,10 @@
-package {{.PackageName}}
+package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"opsie/utils"
 	"time"
 )
 
@@ -11,7 +13,7 @@ import (
 type Handler struct {
 	service *Service
 }
-
+ 
 // NewHandler - Constructor for Handler
 func NewHandler(service *Service) *Handler {
 	return &Handler{
@@ -19,22 +21,32 @@ func NewHandler(service *Service) *Handler {
 	}
 }
 
-// Example method:
-// func (h *Handler) getSomething(w http.ResponseWriter, r *http.Request) {
-//     result, err := h.service.getSomething()
-//     if err != nil {
-//         http.Error(w, err.Error(), http.StatusInternalServerError)
-//         return
-//     }
-//     json.NewEncoder(w).Encode(result)
-// }
+func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
+    // Processing Request Body
+	var payload TNewOwnerPayload
+	if err := utils.ParseBody(r, &payload); err != nil {
+		utils.HandleErrorResponse(w, http.StatusBadRequest, fmt.Errorf("invalid request payload"))
+		return 
+	}
+
+	// Handling Business Logics
+	// user, err := h.service.RegisterNewUser(payload)
+	// if utils.HandleBusinessError(w, err) { return }
+
+
+	// Send the final response 
+	utils.HandleResponse(w, http.StatusOK, map[string]any{
+		"message": "Owner account created!",
+		"user":    "user",
+	})
+}
 
 
 
 // Health checkup handler...
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
    payload := map[string]any{
-		"name":"{{.PackageName}}", 
+		"name":"user", 
 		"status-code":200, 
 		"success": true, 
 		"time": time.Now().Format(time.RFC3339),

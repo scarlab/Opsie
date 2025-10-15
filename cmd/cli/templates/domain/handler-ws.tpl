@@ -35,7 +35,7 @@ func NewHandler(service *Service, socketHub *socket.Hub) *Handler {
 
 
 // Health checkup handler...
-func (h *Handler) health(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
    payload := map[string]any{
 		"name":"{{.PackageName}}", 
 		"status-code":200, 
