@@ -35,7 +35,8 @@ func NewApiServer(addr string, db *sql.DB, uiFS fs.FS, socketHub *socket.Hub) *A
 // It also listens for context cancellation to gracefully shut down the server.
 func (s *ApiServer) Run(ctx context.Context) error {
 
-	router := s.setupRouter()
+	router := s.Router()
+
 
 	// Configure HTTP server
 	server := &http.Server{

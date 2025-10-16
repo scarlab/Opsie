@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"opsie/internal/socket"
-	"opsie/utils/system"
+	"opsie/pkg/system"
 
 	"github.com/gorilla/websocket"
 )

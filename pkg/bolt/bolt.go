@@ -1,10 +1,46 @@
-package utils
+package bolt
 
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
+
+type HTTPMethod string
+
+const (
+	GET     HTTPMethod = "GET"
+	POST    HTTPMethod = "POST"
+	PUT     HTTPMethod = "PUT"
+	PATCH   HTTPMethod = "PATCH"
+	DELETE  HTTPMethod = "DELETE"
+	OPTIONS HTTPMethod = "OPTIONS"
+	HEAD    HTTPMethod = "HEAD"
+)
+
+
+
+
+func  Api(router *mux.Router, method HTTPMethod, path string, handler THandlerFunc, middlewares ...TMiddleware) *mux.Router {
+	// Apply user middlewares + bolt logger
+	final := Middleware(handler, middlewares...)
+	
+	if path == "/" {
+    	path = ""
+	}
+
+	router.HandleFunc(path, func(w http.ResponseWriter, req *http.Request) {
+		final(w, req)
+	}).Methods(string(method))
+
+	return router
+}
+
+
+
 
 // ParseBody reads the JSON body of an HTTP request into the given payload.
 // It returns an error if the body is missing, contains invalid JSON,
@@ -16,15 +52,16 @@ import (
 //       utils.HandleErrorResponse(w, 400, err)
 //       return
 //   }
-func ParseBody(r *http.Request, payload any) error {
+func ParseBody(w http.ResponseWriter, r *http.Request, payload any) {
 	if r.Body == nil {
-		return fmt.Errorf("missing request body")
+		HandleErrorResponse(w, http.StatusBadRequest, fmt.Errorf("missing request body"))
+		return 
 	}
 	defer r.Body.Close()
 
 	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields() // reject unknown JSON fields
-	return decoder.Decode(payload)
+	decoder.DisallowUnknownFields()
+	decoder.Decode(payload)
 }
 
 
@@ -32,7 +69,7 @@ func ParseBody(r *http.Request, payload any) error {
 // It automatically sets the "Content-Type" header to "application/json".
 // Returns an error if JSON encoding fails (e.g., unsupported types).
 //
-// Example:
+// Example: 
 //   utils.HandleResponse(w, 200, map[string]string{"status": "ok"})
 func HandleResponse(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -49,27 +86,23 @@ func HandleResponse(w http.ResponseWriter, status int, v any) error {
 // HandleErrorResponse writes a JSON error response with the given HTTP status code.
 // The response body has a consistent structure:
 //
-//   {
-//     "error": {
-//       "code": <status>,
-//       "error": "<message>"
-//     }
-//   }
+// {
+// 	  "code": <status>,
+// 	  "error": "<message>"
+// }
 //
 // Example:
 //   utils.HandleErrorResponse(w, 404, fmt.Errorf("user not found"))
 func HandleErrorResponse(w http.ResponseWriter, status int, err error) {
 	resp := map[string]any{
-		"error": map[string]any{
-			"code":  status,
-			"error": err.Error(),
-		},
+		"code":  status,
+		"error": err.Error(),
 	}
-	_ = HandleResponse(w, status, resp)
+	HandleResponse(w, status, resp)
 }
 
 
-// HandleBusinessError processes an error returned from the service layer.
+// HandleServiceError processes an error returned from the service layer.
 // If the error is a *CsError, it responds with its specific HTTP code and message.
 // Otherwise, it logs the internal error and responds with a generic 500 error.
 //
@@ -77,21 +110,21 @@ func HandleErrorResponse(w http.ResponseWriter, status int, err error) {
 //
 // Example:
 //   user, err := service.RegisterUser(req)
-//   if utils.HandleBusinessError(w, err) {
+//   if utils.HandleServiceError(w, err) {
 //       return
 //   }
-func HandleBusinessError(w http.ResponseWriter, err error) bool {
+func HandleServiceError(w http.ResponseWriter, err error) bool {
 	if err == nil {
 		return false
 	}
 
-	if cerr, ok := err.(*CsError); ok {
+	if cerr, ok := err.(*Error); ok {
 		HandleErrorResponse(w, cerr.Code, fmt.Errorf("%s", cerr.Message))
 		return true
 	}
 
 	// unexpected error
-	fmt.Println("internal error:", err)
 	HandleErrorResponse(w, http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	log.Panic("internal error:", err)
 	return true
 }

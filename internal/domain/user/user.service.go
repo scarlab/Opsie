@@ -1,5 +1,11 @@
 package user
 
+import (
+	"net/http"
+	"opsie/pkg/bolt"
+	"opsie/pkg/utils"
+)
+
 // Service - Contains all business logic for this domain.
 // Talks to the Repository, but never to HTTP directly.
 type Service struct {
@@ -13,7 +19,29 @@ func NewService(repo *Repository) *Service {
 	}
 }
 
-// Example method:
-// func (s *Service) getSomething() ([]Item, error) {
-//     return s.repo.fetchSomething()
-// }
+// CreateOwnerAccount handles business logic for creating the first owner
+func (s *Service) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, error) {
+	// Basic validation
+	if payload.Email == "" || payload.Password == "" {
+		return TUser{}, bolt.NewError(http.StatusBadRequest, "email and password required")
+	}
+
+	// Check if user already exists
+	exists, err := s.repo.IsUserEmailExists(payload.Email)
+	if err != nil {
+		return TUser{}, err
+	}
+	if exists {
+		return TUser{}, bolt.NewError(http.StatusConflict, "user already exists")
+	}
+
+	hashedPassword, _ := utils.Hash.Generate( payload.Password)
+	payload.Password = hashedPassword
+
+	createdUser, err := s.repo.CreateOwnerAccount(payload)
+	if err != nil {
+		return TUser{}, err
+	}
+
+	return createdUser, nil
+}

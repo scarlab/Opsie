@@ -2,9 +2,9 @@ package user
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"opsie/utils"
+	"opsie/pkg/bolt"
+
 	"time"
 )
 
@@ -24,20 +24,17 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
     // Processing Request Body
 	var payload TNewOwnerPayload
-	if err := utils.ParseBody(r, &payload); err != nil {
-		utils.HandleErrorResponse(w, http.StatusBadRequest, fmt.Errorf("invalid request payload"))
-		return 
-	}
+	bolt.ParseBody(w, r, &payload)
 
 	// Handling Business Logics
-	// user, err := h.service.RegisterNewUser(payload)
-	// if utils.HandleBusinessError(w, err) { return }
+	user, err := h.service.CreateOwnerAccount(payload)
+	if bolt.HandleServiceError(w, err) { return }
 
 
 	// Send the final response 
-	utils.HandleResponse(w, http.StatusOK, map[string]any{
+	bolt.HandleResponse(w, http.StatusOK, map[string]any{
 		"message": "Owner account created!",
-		"user":    "user",
+		"user":    user,
 	})
 }
 

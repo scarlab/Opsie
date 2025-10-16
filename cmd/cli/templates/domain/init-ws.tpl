@@ -32,5 +32,5 @@ func Register(r *mux.Router, db *sql.DB, socketHub *socket.Hub) {
 	router := r.PathPrefix("/{{.PackageName}}").Subrouter()
 
 	// Step 5: Register routes for this domain
-	RegisterRoutes(router, handler)
+	HandleRoutes(router, handler)
 }

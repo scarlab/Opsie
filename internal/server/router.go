@@ -10,6 +10,8 @@ import (
 	"opsie/internal/domain/user"
 	ws_agent "opsie/internal/socket/clients/agent"
 	ws_ui "opsie/internal/socket/clients/ui"
+	"opsie/pkg/bolt"
+	"opsie/pkg/utils"
 
 	"github.com/gorilla/mux"
 )
@@ -18,19 +20,20 @@ import (
 
 
 
-func (s *ApiServer) setupRouter() *mux.Router {
+
+func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
 	// Root Router
 	// -------------------------------------------------------------------
-	router := mux.NewRouter()
+	var router = mux.NewRouter()
 
-	
+
 	// -------------------------------------------------------------------
 	// Gateway of API routes
 	// -------------------------------------------------------------------
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
-	apiRouter.HandleFunc("/health", healthHandler).Methods("GET")
-
+	bolt.Api(apiRouter, "GET", "/", apiHome)
+	
 
 	// -------------------------------------------------------------------
 	// Web Socket Routes
@@ -44,6 +47,13 @@ func (s *ApiServer) setupRouter() *mux.Router {
 	// Register Domains
 	// -------------------------------------------------------------------
 	user.Register(apiRouter, s.db)
+
+
+	// -------------------------------------------------------------------
+	// Handle Unknown API endpoint 404
+	// -------------------------------------------------------------------
+	router.PathPrefix("/api/").HandlerFunc(bolt.Middleware(notFound))
+
 
 
 	// -------------------------------------------------------------------
@@ -70,15 +80,27 @@ func (s *ApiServer) setupRouter() *mux.Router {
 		})
 	}
 
-
-
 	return router
 }
 
 
-// healthHandler returns a simple health status as JSON.
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	status := map[string]string{"status": "ok"}
+// healthHandler returns a simple apiHome status as JSON.
+func apiHome(w http.ResponseWriter, r *http.Request) {
+	msg := map[string]interface{}{"status": "ok", "id":utils.GenerateID()}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(status)
+	json.NewEncoder(w).Encode(msg)
+}
+
+func notFound(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusNotFound)
+
+	resp := map[string]interface{}{
+		"error": "API endpoint not found",
+		"code":    http.StatusNotFound,
+		"path":    r.URL.Path,
+		"method":  r.Method,
+	}
+
+	_ = json.NewEncoder(w).Encode(resp)
 }
