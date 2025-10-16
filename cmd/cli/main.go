@@ -200,15 +200,19 @@ func runMigrate(cmd string, version int) {
 		config.ENV.PG_Port,
 		config.ENV.PG_Database,
 	)
-	
+
 
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("DB connection error: ", err)
 	}
 	defer dbConn.Close()
+	
 
-	driver, err := pgMigrate.WithInstance(dbConn, &pgMigrate.Config{})
+	driver, err := pgMigrate.WithInstance(dbConn, &pgMigrate.Config{
+		MigrationsTable: "schema_migrations",
+    	DatabaseName:    config.ENV.PG_Database,
+	})
 	if err != nil {
 		log.Fatal("Migration driver error: ", err)
 	}
