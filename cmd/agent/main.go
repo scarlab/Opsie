@@ -4,7 +4,7 @@ import (
 	"log"
 	"opsie/config"
 	"opsie/internal/socket"
-	"opsie/utils/system"
+	"opsie/pkg/system"
 	"time"
 
 	"github.com/gorilla/websocket"

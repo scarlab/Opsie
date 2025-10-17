@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"opsie/pkg/errors"
 
 	"github.com/gorilla/mux"
 )
@@ -28,10 +29,6 @@ func  Api(router *mux.Router, method HTTPMethod, path string, handler THandlerFu
 	// Apply user middlewares + bolt logger
 	final := Middleware(handler, middlewares...)
 	
-	if path == "/" {
-    	path = ""
-	}
-
 	router.HandleFunc(path, func(w http.ResponseWriter, req *http.Request) {
 		final(w, req)
 	}).Methods(string(method))
@@ -45,16 +42,9 @@ func  Api(router *mux.Router, method HTTPMethod, path string, handler THandlerFu
 // ParseBody reads the JSON body of an HTTP request into the given payload.
 // It returns an error if the body is missing, contains invalid JSON,
 // or includes unexpected fields (due to DisallowUnknownFields).
-//
-// Example:
-//   var req CreateUserRequest
-//   if err := utils.ParseBody(r, &req); err != nil {
-//       utils.HandleErrorResponse(w, 400, err)
-//       return
-//   }
 func ParseBody(w http.ResponseWriter, r *http.Request, payload any) {
 	if r.Body == nil {
-		HandleErrorResponse(w, http.StatusBadRequest, fmt.Errorf("missing request body"))
+		WriteErrorResponse(w, http.StatusBadRequest, "missing request body")
 		return 
 	}
 	defer r.Body.Close()
@@ -65,13 +55,10 @@ func ParseBody(w http.ResponseWriter, r *http.Request, payload any) {
 }
 
 
-// HandleResponse writes a JSON response with the given status code and payload.
+// WriteResponse writes a JSON response with the given status code and payload.
 // It automatically sets the "Content-Type" header to "application/json".
 // Returns an error if JSON encoding fails (e.g., unsupported types).
-//
-// Example: 
-//   utils.HandleResponse(w, 200, map[string]string{"status": "ok"})
-func HandleResponse(w http.ResponseWriter, status int, v any) error {
+func WriteResponse(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -83,48 +70,45 @@ func HandleResponse(w http.ResponseWriter, status int, v any) error {
 }
 
 
-// HandleErrorResponse writes a JSON error response with the given HTTP status code.
+// WriteErrorResponse writes a JSON error response with the given HTTP status code.
 // The response body has a consistent structure:
-//
-// {
-// 	  "code": <status>,
-// 	  "error": "<message>"
-// }
-//
-// Example:
-//   utils.HandleErrorResponse(w, 404, fmt.Errorf("user not found"))
-func HandleErrorResponse(w http.ResponseWriter, status int, err error) {
-	resp := map[string]any{
-		"code":  status,
-		"error": err.Error(),
+func WriteErrorResponse(w http.ResponseWriter, status int, message string, err ...error) {
+	var underlying error
+	if len(err) > 0 {
+		underlying = err[0]
 	}
-	HandleResponse(w, status, resp)
+
+	resp := map[string]any{
+		"code":    status,
+		"message": message,
+	}
+
+	if underlying != nil {
+		resp["error"] = underlying.Error()
+	}
+
+	WriteResponse(w, status, resp)
 }
 
 
-// HandleServiceError processes an error returned from the service layer.
+
+// ErrorHandler processes an error returned from the service layer.
 // If the error is a *CsError, it responds with its specific HTTP code and message.
 // Otherwise, it logs the internal error and responds with a generic 500 error.
 //
 // Returns true if a response was written (so the handler should return immediately).
-//
-// Example:
-//   user, err := service.RegisterUser(req)
-//   if utils.HandleServiceError(w, err) {
-//       return
-//   }
-func HandleServiceError(w http.ResponseWriter, err error) bool {
+func ErrorHandler(w http.ResponseWriter, err error) bool {
 	if err == nil {
 		return false
 	}
 
-	if cerr, ok := err.(*Error); ok {
-		HandleErrorResponse(w, cerr.Code, fmt.Errorf("%s", cerr.Message))
+	if cerr, ok := err.(*errors.Error); ok {
+		WriteErrorResponse(w, cerr.Code, cerr.Message, cerr.Err)
 		return true
 	}
 
 	// unexpected error
-	HandleErrorResponse(w, http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	WriteErrorResponse(w, http.StatusInternalServerError, "internal server error")
 	log.Panic("internal error:", err)
 	return true
 }

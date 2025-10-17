@@ -32,7 +32,7 @@ func (s *ApiServer) Router() *mux.Router {
 	// Gateway of API routes
 	// -------------------------------------------------------------------
 	apiRouter := router.PathPrefix("/api/v1").Subrouter()
-	bolt.Api(apiRouter, "GET", "/", apiHome)
+	bolt.Api(apiRouter, "GET", "", apiHome)
 	
 
 	// -------------------------------------------------------------------

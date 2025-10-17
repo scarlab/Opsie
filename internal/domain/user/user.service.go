@@ -1,8 +1,7 @@
 package user
 
 import (
-	"net/http"
-	"opsie/pkg/bolt"
+	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 )
 
@@ -20,19 +19,10 @@ func NewService(repo *Repository) *Service {
 }
 
 // CreateOwnerAccount handles business logic for creating the first owner
-func (s *Service) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, error) {
+func (s *Service) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.Error) {
 	// Basic validation
 	if payload.Email == "" || payload.Password == "" {
-		return TUser{}, bolt.NewError(http.StatusBadRequest, "email and password required")
-	}
-
-	// Check if user already exists
-	exists, err := s.repo.IsUserEmailExists(payload.Email)
-	if err != nil {
-		return TUser{}, err
-	}
-	if exists {
-		return TUser{}, bolt.NewError(http.StatusConflict, "user already exists")
+		return TUser{}, errors.BadRequest("email and password required")
 	}
 
 	hashedPassword, _ := utils.Hash.Generate( payload.Password)

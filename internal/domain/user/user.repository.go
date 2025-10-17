@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"opsie/constant"
-	"opsie/pkg/bolt"
+	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 
 	"github.com/lib/pq"
@@ -25,18 +25,18 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 
-func (r *Repository) IsUserEmailExists(email string) (bool, error) {
+func (r *Repository) IsUserExistsByEmail(email string) (bool, error) {
 	var exists bool
 	err := r.db.QueryRow("SELECT EXISTS (SELECT 1 FROM users WHERE email=$1)", email).Scan(&exists)
 	if err != nil {
-		return false, bolt.NewError(http.StatusInternalServerError, "failed to check user existence")
+		return false, errors.New(http.StatusInternalServerError, "failed to check user existence")
 	}
 	return exists, nil
 }
 
 
 
-func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, error) {
+func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.Error) {
 	query := `
 		INSERT INTO users (id, display_name, email, password, system_role)
 		VALUES ($1, $2, $3, $4, $5)
@@ -63,10 +63,10 @@ func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, error)
 	if err != nil {
 		// Detect duplicate email constraint
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
-			return TUser{}, bolt.NewError(http.StatusConflict, "email already in use")
+			return TUser{}, errors.New(409, "email already in use")
 		}
 		
-		return TUser{}, bolt.NewError(http.StatusInternalServerError, "failed to create user")
+		return TUser{}, errors.Internal(err)
 	}
 
 	// Decode preference JSONB

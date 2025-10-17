@@ -28,11 +28,11 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
 
 	// Handling Business Logics
 	user, err := h.service.CreateOwnerAccount(payload)
-	if bolt.HandleServiceError(w, err) { return }
+	if bolt.ErrorHandler(w, err) { return }
 
 
 	// Send the final response 
-	bolt.HandleResponse(w, http.StatusOK, map[string]any{
+	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message": "Owner account created!",
 		"user":    user,
 	})
