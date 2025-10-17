@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"opsie/config"
 	"opsie/pkg/bolt"
+	"opsie/pkg/errors"
 )
 
 // Handler - Handles HTTP requests & responses.
@@ -20,7 +21,7 @@ func NewHandler(service *Service) *Handler {
 }
 
 
-func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
     // Processing Request Body
 	var payload TLoginPayload
 	bolt.ParseBody(w, r, &payload)
@@ -28,12 +29,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	
 	// Handling Business Logics
 	authUser, err := h.service.AuthenticateUser(payload)
-	if bolt.ErrorHandler(w, err) { return }
+	if err != nil { return err }
 
-	
+
 	// Create Session
 	session, err := h.service.CreateSession(authUser.ID)
-	if bolt.ErrorHandler(w, err) { return }
+	if err != nil { return err }
 	
 
 	// Set Headers/Cookies
@@ -54,10 +55,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		"auth_user":    authUser,
 		"session_key":    session.Key,
 	})
+	return nil
 }
 
 
-func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error{
     // Processing Request Body
 	// var payload TNewOwnerPayload
 	// bolt.ParseBody(w, r, &payload)
@@ -71,4 +73,5 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message": "Successfully logged out",
 	})
+	return nil
 }

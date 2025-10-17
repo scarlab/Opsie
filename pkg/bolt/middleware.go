@@ -4,12 +4,14 @@ import (
 	"log"
 	"net/http"
 	"opsie/config"
+	"opsie/pkg/errors"
+	"reflect"
 	"time"
 )
 
 // HandlerFunc is a function that handles HTTP requests.
 // This is a simple shorthand to define easier to read functions.
-type THandlerFunc func(w http.ResponseWriter, r *http.Request)
+type THandlerFunc func(w http.ResponseWriter, r *http.Request) *errors.Error
 
 // Middleware is a special type that handles HandleFuncs.
 type TMiddleware func(THandlerFunc) THandlerFunc
@@ -26,8 +28,12 @@ func Middleware(final THandlerFunc, middlewares ...TMiddleware) THandlerFunc {
 	}
 	
 	if config.IsDev {
-		middlewares = append(middlewares, logger)
+		middlewares = append(middlewares, loggerMiddleware)
 	}
+
+	// Add Error Handler to the chain
+	middlewares = append(middlewares, errorHandlerMiddleware)
+	
 
 	// Execute the middleware in the same order and return the final func.
 	// This is a confusing and tricky construct :)
@@ -40,10 +46,54 @@ func Middleware(final THandlerFunc, middlewares ...TMiddleware) THandlerFunc {
 
 
 
+func NormalizedMiddleware(handler THandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_ = handler(w, r) 
+	}
+}
+
+
+
+
+func errorHandlerMiddleware(next THandlerFunc) THandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) *errors.Error {
+		defer func() {
+			if rec := recover(); rec != nil {
+				log.Println("Panic Recovered:", rec)
+				WriteErrorResponse(w, http.StatusInternalServerError, "internal server error")
+			}
+		}()
+
+		err := next(w, r)
+		
+		if err == nil || (reflect.ValueOf(err).Kind() == reflect.Ptr && reflect.ValueOf(err).IsNil()) {
+			return nil
+		}
+
+		// Custom error handling
+		msg := err.Message
+		if msg == "" {
+			msg = http.StatusText(err.Code)
+		}
+
+		if err.Err != nil {
+			WriteErrorResponse(w, err.Code, msg, err.Err)
+		} else {
+			WriteErrorResponse(w, err.Code, msg)
+		}
+
+		return err
+	}
+}
+
+
+
+
+
 
 // logger measures request time, status, and response size.
-func logger(next THandlerFunc) THandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func loggerMiddleware(next THandlerFunc) THandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) *errors.Error{
 		start := time.Now()
 
 		// Wrap the ResponseWriter
@@ -53,6 +103,8 @@ func logger(next THandlerFunc) THandlerFunc {
 
 		duration := time.Since(start)
 		log.Printf("%s %s %d %v %d", r.Method, r.RequestURI, lrw.status, duration, lrw.size)
+
+		return nil
 	}
 }
 

@@ -3,6 +3,7 @@ package user
 import (
 	"net/http"
 	"opsie/pkg/bolt"
+	"opsie/pkg/errors"
 )
 
 // Handler - Handles HTTP requests & responses.
@@ -18,14 +19,14 @@ func NewHandler(service *Service) *Handler {
 	}
 }
 
-func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *errors.Error {
     // Processing Request Body
 	var payload TNewOwnerPayload
 	bolt.ParseBody(w, r, &payload)
 
 	// Handling Business Logics
 	user, err := h.service.CreateOwnerAccount(payload)
-	if bolt.ErrorHandler(w, err) { return }
+	if err != nil { return err}
 
 
 	// Send the final response 
@@ -33,6 +34,8 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
 		"message": "Owner account created!",
 		"user":    user,
 	})
+
+	return nil
 }
 
 

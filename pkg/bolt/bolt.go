@@ -3,10 +3,7 @@ package bolt
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"opsie/pkg/errors"
-	"reflect"
 
 	"github.com/gorilla/mux"
 )
@@ -14,18 +11,18 @@ import (
 type HTTPMethod string
 
 const (
-	GET     HTTPMethod = "GET"
-	POST    HTTPMethod = "POST"
-	PUT     HTTPMethod = "PUT"
-	PATCH   HTTPMethod = "PATCH"
-	DELETE  HTTPMethod = "DELETE"
-	OPTIONS HTTPMethod = "OPTIONS"
-	HEAD    HTTPMethod = "HEAD"
+	MethodGet     HTTPMethod = "GET"
+	MethodPost    HTTPMethod = "POST"
+	MethodPut     HTTPMethod = "PUT"
+	MethodPatch   HTTPMethod = "PATCH"
+	MethodDelete  HTTPMethod = "DELETE"
+	MethodOptions HTTPMethod = "OPTIONS"
+	MethodHead    HTTPMethod = "HEAD"
 )
 
 
 
-
+ 
 func  Api(router *mux.Router, method HTTPMethod, path string, handler THandlerFunc, middlewares ...TMiddleware) *mux.Router {
 	// Apply user middlewares + bolt logger
 	final := Middleware(handler, middlewares...)
@@ -98,32 +95,33 @@ func WriteErrorResponse(w http.ResponseWriter, status int, message string, err .
 // Otherwise, it logs the internal error and responds with a generic 500 error.
 //
 // Returns true if a response was written (so the handler should return immediately).
-func ErrorHandler(w http.ResponseWriter, err error) bool {
-	// Skip if no error or typed nil error
-	if err == nil || (reflect.ValueOf(err).Kind() == reflect.Ptr && reflect.ValueOf(err).IsNil()) {
-		return false
-	}
+//
+// func ErrorHandler(w http.ResponseWriter, err error) bool {
+// 	// Skip if no error or typed nil error
+// 	if err == nil || (reflect.ValueOf(err).Kind() == reflect.Ptr && reflect.ValueOf(err).IsNil()) {
+// 		return false
+// 	}
 
-	// Handle our custom errors
-	if cerr, ok := err.(*errors.Error); ok {
-		msg := cerr.Message
-		if msg == "" {
-			msg = http.StatusText(cerr.Code)
-		}
+// 	// Handle our custom errors
+// 	if cerr, ok := err.(*errors.Error); ok {
+// 		msg := cerr.Message
+// 		if msg == "" {
+// 			msg = http.StatusText(cerr.Code)
+// 		}
 
-		// Include underlying error only if available
-		if cerr.Err != nil {
-			WriteErrorResponse(w, cerr.Code, msg, cerr.Err)
-		} else {
-			WriteErrorResponse(w, cerr.Code, msg)
-		}
-		return true
-	}
+// 		// Include underlying error only if available
+// 		if cerr.Err != nil {
+// 			WriteErrorResponse(w, cerr.Code, msg, cerr.Err)
+// 		} else {
+// 			WriteErrorResponse(w, cerr.Code, msg)
+// 		}
+// 		return true
+// 	}
 
-	// Handle unexpected errors
-	WriteErrorResponse(w, http.StatusInternalServerError, "internal server error", err)
-	log.Printf("⚠️ Internal error: %+v\n", err)
+// 	// Handle unexpected errors
+// 	WriteErrorResponse(w, http.StatusInternalServerError, "internal server error", err)
+// 	log.Printf("⚠️ Internal error: %+v\n", err)
 
-	return true
-}
+// 	return true
+// }
 

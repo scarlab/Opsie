@@ -12,6 +12,7 @@ import (
 	ws_agent "opsie/internal/socket/clients/agent"
 	ws_ui "opsie/internal/socket/clients/ui"
 	"opsie/pkg/bolt"
+	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 
 	"github.com/gorilla/mux"
@@ -54,7 +55,7 @@ func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
 	// Handle Unknown API endpoint 404
 	// -------------------------------------------------------------------
-	router.PathPrefix("/api/").HandlerFunc(bolt.Middleware(notFound))
+	router.PathPrefix("/api/").HandlerFunc(bolt.NormalizedMiddleware(bolt.Middleware(notFound)))
 
 
 
@@ -87,13 +88,15 @@ func (s *ApiServer) Router() *mux.Router {
 
 
 // healthHandler returns a simple apiHome status as JSON.
-func apiHome(w http.ResponseWriter, r *http.Request) {
+func apiHome(w http.ResponseWriter, r *http.Request) *errors.Error{
 	msg := map[string]interface{}{"status": "ok", "id":utils.GenerateID()}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(msg)
+
+	return nil
 }
 
-func notFound(w http.ResponseWriter, r *http.Request) {
+func notFound(w http.ResponseWriter, r *http.Request) *errors.Error{
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
 
@@ -105,4 +108,6 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(resp)
+
+	return nil
 }

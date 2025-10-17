@@ -13,7 +13,7 @@ func HandleRoutes(r *mux.Router, h *Handler) {
 	// PUBLIC...
 	// ---------------------------------------------------------
 	// Onboarding
-	bolt.Api(r, bolt.POST, "/create/owner", h.CreateOwnerAccount)
+	bolt.Api(r, bolt.MethodPost, "/create/owner", h.CreateOwnerAccount)
 
 	// Auth
 

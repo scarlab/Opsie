@@ -15,6 +15,6 @@ func HandleRoutes(r *mux.Router, h *Handler) {
 	// r.HandleFunc("/get/something", h.GetSomething).Methods("GET")
 	
 	
-	bolt.Api(r, bolt.POST, "/login", h.Login)
-	bolt.Api(r, bolt.POST, "/logout", h.Logout)
+	bolt.Api(r, bolt.MethodPost, "/login", h.Login)
+	bolt.Api(r, bolt.MethodPost, "/create", h.Logout)
 }
