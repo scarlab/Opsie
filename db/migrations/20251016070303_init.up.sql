@@ -60,7 +60,7 @@ CREATE TABLE sessions (
     device          TEXT,
     browser         TEXT,
     is_valid        BOOLEAN DEFAULT true,
-    expiry          TIMESTAMP WITH TIME ZONE,
+    expiry          TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 

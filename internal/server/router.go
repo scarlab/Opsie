@@ -7,6 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"opsie/config"
+	"opsie/internal/domain/auth"
 	"opsie/internal/domain/user"
 	ws_agent "opsie/internal/socket/clients/agent"
 	ws_ui "opsie/internal/socket/clients/ui"
@@ -47,6 +48,7 @@ func (s *ApiServer) Router() *mux.Router {
 	// Register Domains
 	// -------------------------------------------------------------------
 	user.Register(apiRouter, s.db)
+	auth.Register(apiRouter, s.db)
 
 
 	// -------------------------------------------------------------------

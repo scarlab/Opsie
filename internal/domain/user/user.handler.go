@@ -1,11 +1,8 @@
 package user
 
 import (
-	"encoding/json"
 	"net/http"
 	"opsie/pkg/bolt"
-
-	"time"
 )
 
 // Handler - Handles HTTP requests & responses.
@@ -32,7 +29,7 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
 
 
 	// Send the final response 
-	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+	bolt.WriteResponse(w, 200, map[string]any{
 		"message": "Owner account created!",
 		"user":    user,
 	})
@@ -40,17 +37,3 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) {
 
 
 
-// Health checkup handler...
-func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
-   payload := map[string]any{
-		"name":"user", 
-		"status-code":200, 
-		"success": true, 
-		"time": time.Now().Format(time.RFC3339),
-	}
-	
-
-   // Return the response to the client 
-   w.Header().Set("Content-Type", "application/json")
-   json.NewEncoder(w).Encode(payload)
-}

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"opsie/pkg/errors"
+	"reflect"
 
 	"github.com/gorilla/mux"
 )
@@ -70,21 +71,21 @@ func WriteResponse(w http.ResponseWriter, status int, v any) error {
 }
 
 
+
 // WriteErrorResponse writes a JSON error response with the given HTTP status code.
 // The response body has a consistent structure:
 func WriteErrorResponse(w http.ResponseWriter, status int, message string, err ...error) {
-	var underlying error
-	if len(err) > 0 {
-		underlying = err[0]
+	var errMsg string
+	if len(err) > 0 && err[0] != nil {
+		errMsg = err[0].Error()
 	}
 
 	resp := map[string]any{
 		"code":    status,
 		"message": message,
 	}
-
-	if underlying != nil {
-		resp["error"] = underlying.Error()
+	if errMsg != "" {
+		resp["error"] = errMsg
 	}
 
 	WriteResponse(w, status, resp)
@@ -98,17 +99,31 @@ func WriteErrorResponse(w http.ResponseWriter, status int, message string, err .
 //
 // Returns true if a response was written (so the handler should return immediately).
 func ErrorHandler(w http.ResponseWriter, err error) bool {
-	if err == nil {
+	// Skip if no error or typed nil error
+	if err == nil || (reflect.ValueOf(err).Kind() == reflect.Ptr && reflect.ValueOf(err).IsNil()) {
 		return false
 	}
 
+	// Handle our custom errors
 	if cerr, ok := err.(*errors.Error); ok {
-		WriteErrorResponse(w, cerr.Code, cerr.Message, cerr.Err)
+		msg := cerr.Message
+		if msg == "" {
+			msg = http.StatusText(cerr.Code)
+		}
+
+		// Include underlying error only if available
+		if cerr.Err != nil {
+			WriteErrorResponse(w, cerr.Code, msg, cerr.Err)
+		} else {
+			WriteErrorResponse(w, cerr.Code, msg)
+		}
 		return true
 	}
 
-	// unexpected error
-	WriteErrorResponse(w, http.StatusInternalServerError, "internal server error")
-	log.Panic("internal error:", err)
+	// Handle unexpected errors
+	WriteErrorResponse(w, http.StatusInternalServerError, "internal server error", err)
+	log.Printf("⚠️ Internal error: %+v\n", err)
+
 	return true
 }
+

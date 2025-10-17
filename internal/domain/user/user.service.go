@@ -35,3 +35,4 @@ func (s *Service) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.E
 
 	return createdUser, nil
 }
+

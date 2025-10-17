@@ -1,4 +1,6 @@
-
-
+# ...
 name: Opsie
 version: v0.0.1-beta
+
+# ...
+session_days: 300

@@ -3,7 +3,6 @@ package user
 import (
 	"database/sql"
 	"encoding/json"
-	"net/http"
 	"opsie/constant"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
@@ -25,16 +24,6 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 
-func (r *Repository) IsUserExistsByEmail(email string) (bool, error) {
-	var exists bool
-	err := r.db.QueryRow("SELECT EXISTS (SELECT 1 FROM users WHERE email=$1)", email).Scan(&exists)
-	if err != nil {
-		return false, errors.New(http.StatusInternalServerError, "failed to check user existence")
-	}
-	return exists, nil
-}
-
-
 
 func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.Error) {
 	query := `
@@ -50,7 +39,7 @@ func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *error
 	system_role := constant.SystemRoleOwner
 
 	err := r.db.QueryRow(query, id, payload.DisplayName, payload.Email, payload.Password, system_role).Scan(
-		&user.Id,
+		&user.ID,
 		&user.DisplayName,
 		&user.Email,
 		&user.SystemRole,
@@ -78,4 +67,43 @@ func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *error
 
 	return user, nil
 }
+
+
+
+func (r *Repository) GetUserByEmail(email string) (TUser, *errors.Error) {
+	var user TUser
+	query := `
+		SELECT id, display_name, email, password, system_role, preference, is_active, created_at, updated_at
+		FROM users
+		WHERE email = $1
+	`
+	var prefBytes []byte
+
+	err := r.db.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.DisplayName,
+		&user.Email,
+		&user.Password,
+		&user.SystemRole,
+		&prefBytes,
+		&user.IsActive,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return TUser{}, errors.NotFound("user not found")
+		}
+		return TUser{}, errors.Internal(err)
+	}
+
+	if len(prefBytes) > 0 {
+		_ = json.Unmarshal(prefBytes, &user.Preference)
+	} else {
+		user.Preference = make(map[string]any)
+	}
+
+	return user, nil
+}
+
 

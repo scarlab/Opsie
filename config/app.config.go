@@ -6,23 +6,24 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// tAppConfig defines static application-level metadata.
+// TAppConfig defines static application-level metadata.
 // This YAML file should not contain any secrets — only static info like app name, version, etc.
-type tAppConfig struct {
+type TAppConfig struct {
 	Name    string `yaml:"name"`
 	Version string `yaml:"version"`
+	SessionDays int `yaml:"session_days"`
 }
 
 
 // loadConfig reads and parses the YAML configuration file located at `path`.
 // It returns a TAppConfig instance or an error if loading fails.
-func loadConfig(path string) (*tAppConfig, error) {
+func loadConfig(path string) (*TAppConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	var cfg tAppConfig
+	var cfg TAppConfig
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"log"
@@ -115,17 +114,10 @@ func createDomain(name string, withWS bool) error {
 
 	// --- Check if the domain already exists ---
 	if _, err := os.Stat(basePath); err == nil {
-		fmt.Printf("⚠️  Domain '%s' already exists. Override? [y/N]: ", name)
-		reader := bufio.NewReader(os.Stdin)
-		resp, _ := reader.ReadString('\n')
-		resp = strings.TrimSpace(strings.ToLower(resp))
-
-		if resp != "y" && resp != "yes" {
-			fmt.Println("❌ Aborted — existing domain left untouched.")
-			return nil
-		}
-		fmt.Println("🔁 Overriding existing domain...")
+		return fmt.Errorf("domain '%s' already exists", name)
 	}
+
+
 
 	// --- Create base directory ---
 	if err := os.MkdirAll(basePath, 0755); err != nil {

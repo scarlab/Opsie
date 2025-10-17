@@ -5,7 +5,7 @@ package user
 // that are only meaningful within this domain.
 
 type TUser struct {
-    Id uint64 `json:"id"`
+    ID int64 `json:"id"`
     DisplayName string `json:"display_name"`
     Email string `json:"email"`
     Password string `json:"password"`
@@ -24,3 +24,5 @@ type TNewOwnerPayload struct {
     Email string `json:"email"`
     Password string `json:"password"`
 }
+
+

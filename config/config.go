@@ -10,7 +10,7 @@ var ENV = loadEnv()
 //
 // Panics at startup if the file is missing or malformed —
 // this is intentional, as app metadata should never fail silently.
-var AppConfig *tAppConfig
+var AppConfig *TAppConfig
 
 // IsDev is a global convenience flag for development-only logic.
 // e.g., if config.IsDev { enableDebugLogging() }
