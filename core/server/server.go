@@ -13,7 +13,7 @@ import (
 // ApiServer represents the main HTTP server for the application.
 // It contains the listening address and a reference to the database connection.
 type ApiServer struct {
-	addr string   // Address where the server will listen (e.g. ":8080")
+	addr string   // Address where the server will listen (e.g. ":3905")
 	db   *sql.DB  // Database connection pool
 	uiFS fs.FS
 	socketHub *socket.Hub

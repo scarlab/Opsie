@@ -1,4 +1,4 @@
-package auth
+package types
 
 import "time"
 
@@ -6,7 +6,7 @@ import "time"
 // These structs represent requests, responses, and entities
 // that are only meaningful within this domain.
 
-type TSession struct {
+type Session struct {
     ID        int64     `json:"id"`        // BIGSERIAL
     UserID    int64     `json:"user_id"`   // references users.id
     Key       string    `json:"key"`
@@ -21,13 +21,13 @@ type TSession struct {
 
 
 
-type TLoginPayload struct {
+type LoginPayload struct {
     Email string `json:"email"`
     Password string `json:"password"`
 }
 
 
-type TAuthUser struct {
+type AuthUser struct {
     ID int64 `json:"id"`
     DisplayName string `json:"display_name"`
     Email string `json:"email"`

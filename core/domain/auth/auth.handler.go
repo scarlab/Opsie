@@ -3,18 +3,20 @@ package auth
 import (
 	"net/http"
 	"opsie/config"
+	"opsie/core/services"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
+	"opsie/types"
 )
 
 // Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *Service
+	service *services.AuthService
 }
 
 // NewHandler - Constructor for Handler
-func NewHandler(service *Service) *Handler {
+func NewHandler(service *services.AuthService) *Handler {
 	return &Handler{
 		service: service,
 	}
@@ -23,7 +25,7 @@ func NewHandler(service *Service) *Handler {
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
     // Processing Request Body
-	var payload TLoginPayload
+	var payload types.LoginPayload
 	bolt.ParseBody(w, r, &payload)
 
 	

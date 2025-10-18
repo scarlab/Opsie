@@ -13,7 +13,7 @@ func MarshalEnvelope(t string, v interface{}) ([]byte, error) {
         return nil, fmt.Errorf("failed to marshal payload: %w", err)
     }
 
-    envelope := TEnvelope{
+    envelope := Envelope{
         Type:    t,
         Payload: json.RawMessage(b),
     }
@@ -26,15 +26,15 @@ func MarshalEnvelope(t string, v interface{}) ([]byte, error) {
     return msg, nil
 }
 
-func UnmarshalEnvelope(data []byte) (*TEnvelope, error) {
-    var envelope TEnvelope
+func UnmarshalEnvelope(data []byte) (*Envelope, error) {
+    var envelope Envelope
     if err := json.Unmarshal(data, &envelope); err != nil {
         return nil, fmt.Errorf("failed to unmarshal envelope: %w", err)
     }
     return &envelope, nil
 }
 
-func DecodePayload[T any](envelope *TEnvelope) (*T, error) {
+func DecodePayload[T any](envelope *Envelope) (*T, error) {
     var payload T
     if err := json.Unmarshal(envelope.Payload, &payload); err != nil {
         return nil, fmt.Errorf("failed to unmarshal payload: %w", err)

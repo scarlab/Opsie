@@ -23,9 +23,9 @@ const (
 
 
  
-func  Api(router *mux.Router, method HTTPMethod, path string, handler THandlerFunc, middlewares ...TMiddleware) *mux.Router {
+func  Api(router *mux.Router, method HTTPMethod, path string, handler HandlerFunc, middlewares ...Middleware) *mux.Router {
 	// Apply user middlewares + bolt logger
-	final := Middleware(handler, middlewares...)
+	final := HandleMiddleware(handler, middlewares...)
 	
 	router.HandleFunc(path, func(w http.ResponseWriter, req *http.Request) {
 		final(w, req)

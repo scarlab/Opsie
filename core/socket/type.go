@@ -2,12 +2,12 @@ package socket
 
 import "encoding/json"
 
-type TEnvelope struct {
+type Envelope struct {
     Type  string          `json:"type"`
     Payload  json.RawMessage `json:"payload,omitempty"`
 }
 
-type TRegisterAgentPayload struct {
+type RegisterAgentPayload struct {
 	Hostname    string     	`json:"hostname"`
 	OS          string     	`json:"os"`
 	Kernel      string     	`json:"kernel"`
@@ -18,7 +18,7 @@ type TRegisterAgentPayload struct {
 	Memory 		uint64 		`json:"memory"`
 }
 
-type TConnectPayload struct {
+type ConnectPayload struct {
     Token string `json:"token"`
     NodeId string `json:"node_id"`
 }

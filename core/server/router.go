@@ -9,6 +9,7 @@ import (
 	"opsie/config"
 	"opsie/core/domain/auth"
 	"opsie/core/domain/user"
+	mw "opsie/core/middlewares"
 	ws_agent "opsie/core/socket/clients/agent"
 	ws_ui "opsie/core/socket/clients/ui"
 	"opsie/pkg/bolt"
@@ -28,6 +29,12 @@ func (s *ApiServer) Router() *mux.Router {
 	// Root Router
 	// -------------------------------------------------------------------
 	var router = mux.NewRouter()
+	
+
+	// -------------------------------------------------------------------
+	// Register Middlewares
+	// -------------------------------------------------------------------
+	mw.Register(s.db)
 
 
 	// -------------------------------------------------------------------
@@ -55,7 +62,7 @@ func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
 	// Handle Unknown API endpoint 404
 	// -------------------------------------------------------------------
-	router.PathPrefix("/api/").HandlerFunc(bolt.NormalizedMiddleware(bolt.Middleware(notFound)))
+	router.PathPrefix("/api/").HandlerFunc(bolt.NormalizedMiddleware(bolt.HandleMiddleware(notFound)))
 
 
 

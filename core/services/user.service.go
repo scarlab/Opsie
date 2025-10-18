@@ -1,28 +1,30 @@
-package user
+package services
 
 import (
+	repo "opsie/core/repositories"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
+	"opsie/types"
 )
 
-// Service - Contains all business logic for this domain.
+// UserService - Contains all business logic for this domain.
 // Talks to the Repository, but never to HTTP directly.
-type Service struct {
-	repo *Repository
+type UserService struct {
+	repo *repo.UserRepository
 }
 
 // NewService - Constructor for Service
-func NewService(repo *Repository) *Service {
-	return &Service{
+func NewUserService(repo *repo.UserRepository) *UserService {
+	return &UserService{
 		repo: repo,
 	}
 }
 
 // CreateOwnerAccount handles business logic for creating the first owner
-func (s *Service) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.Error) {
+func (s *UserService) CreateOwnerAccount(payload types.NewOwnerPayload) (types.User, *errors.Error) {
 	// Basic validation
 	if payload.Email == "" || payload.Password == "" {
-		return TUser{}, errors.BadRequest("email and password required")
+		return types.User{}, errors.BadRequest("email and password required")
 	}
 
 	hashedPassword, _ := utils.Hash.Generate( payload.Password)
@@ -30,7 +32,7 @@ func (s *Service) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.E
 
 	createdUser, err := s.repo.CreateOwnerAccount(payload)
 	if err != nil {
-		return TUser{}, err
+		return types.User{}, err
 	}
 
 	return createdUser, nil

@@ -1,10 +1,10 @@
-package user
+package types
 
 // Types - data structures for user
 // These structs represent requests, responses, and entities
 // that are only meaningful within this domain.
 
-type TUser struct {
+type User struct {
     ID int64 `json:"id"`
     DisplayName string `json:"display_name"`
     Email string `json:"email"`
@@ -19,7 +19,7 @@ type TUser struct {
 
 
 
-type TNewOwnerPayload struct {
+type NewOwnerPayload struct {
     DisplayName string `json:"display_name"`
     Email string `json:"email"`
     Password string `json:"password"`

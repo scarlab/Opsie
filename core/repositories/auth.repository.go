@@ -1,33 +1,34 @@
-package auth
+package repo
 
 import (
 	"database/sql"
 	"opsie/pkg/errors"
+	"opsie/types"
 	"time"
 )
 
-// Repository - Handles DB operations for auth.
+// AuthRepository - Handles DB operations for auth.
 // Talks only to the database (or other data sources).
-type Repository struct {
+type AuthRepository struct {
 	db *sql.DB
 }
 
-// NewRepository - Constructor for Repository
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{
+// NewAuthRepository - Constructor for Repository
+func NewAuthRepository(db *sql.DB) *AuthRepository {
+	return &AuthRepository{
 		db: db,
 	}
 }
 
 
-func (r *Repository) CreateSession(userId int64, key string, expiry time.Time) (TSession, *errors.Error) {
+func (r *AuthRepository) CreateSession(userId int64, key string, expiry time.Time) (types.Session, *errors.Error) {
 	query := `
 		INSERT INTO sessions (user_id, key, expiry)
 		VALUES ($1, $2, $3)
 		RETURNING id, user_id, key, ip, os, device, browser, is_valid, expiry, created_at;
 	`
 
-	var session TSession
+	var session types.Session
 	var ip, os, device, browser sql.NullString
 
 	err := r.db.QueryRow(query, userId, key, expiry).Scan(
@@ -43,7 +44,7 @@ func (r *Repository) CreateSession(userId int64, key string, expiry time.Time) (
 		&session.CreatedAt,
 	)
 	if err != nil {
-		return TSession{}, errors.Internal(err)
+		return types.Session{}, errors.Internal(err)
 	}
 
 	// Convert NullString to normal string

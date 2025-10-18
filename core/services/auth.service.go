@@ -1,40 +1,41 @@
-package auth
+package services
 
 import (
 	"opsie/config"
-	"opsie/core/domain/user"
+	repo "opsie/core/repositories"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
+	"opsie/types"
 	"time"
 )
 
-// Service - Contains all business logic for this domain.
+// AuthService - Contains all business logic for this domain.
 // Talks to the Repository, but never to HTTP directly.
-type Service struct {
-	repo *Repository
-	userRepo *user.Repository
+type AuthService struct {
+	repo *repo.AuthRepository
+	userRepo *repo.UserRepository
 }
 
 // NewService - Constructor for Service
-func NewService(repo *Repository, userRepo *user.Repository) *Service {
-	return &Service{
+func NewAuthService(repo *repo.AuthRepository, userRepo *repo.UserRepository) *AuthService {
+	return &AuthService{
 		repo: repo,
 		userRepo: userRepo,
 	}
 }
 
 
-func (s *Service) AuthenticateUser(payload TLoginPayload) (TAuthUser, *errors.Error) {
+func (s *AuthService) AuthenticateUser(payload types.LoginPayload) (types.AuthUser, *errors.Error) {
 	// Basic validation
 	if payload.Email == "" || payload.Password == "" {
-		return TAuthUser{}, errors.BadRequest("email and password required")
+		return types.AuthUser{}, errors.BadRequest("email and password required")
 	}
 	
 	
 	// Get Request User By Email
 	reqUser, err := s.userRepo.GetUserByEmail(payload.Email)
 	if err != nil {
-		return TAuthUser{}, err
+		return types.AuthUser{}, err
 	}
 
 	// Compare Password
@@ -45,7 +46,7 @@ func (s *Service) AuthenticateUser(payload TLoginPayload) (TAuthUser, *errors.Er
 	}
 
 	// Generate Auth user
-	authUser := TAuthUser{
+	authUser := types.AuthUser{
 		ID: reqUser.ID,
 		DisplayName: reqUser.DisplayName,
 		Email: reqUser.Email,
@@ -57,7 +58,7 @@ func (s *Service) AuthenticateUser(payload TLoginPayload) (TAuthUser, *errors.Er
 }
 
 
-func (s *Service) CreateSession(userID int64) (TSession, *errors.Error) {
+func (s *AuthService) CreateSession(userID int64) (types.Session, *errors.Error) {
 	// 
 	key, err := utils.GenerateSessionKey()
 	if err != nil {
@@ -68,7 +69,7 @@ func (s *Service) CreateSession(userID int64) (TSession, *errors.Error) {
 
 	session, err1 := s.repo.CreateSession(userID, key, expiry)
 	if err1 != nil {
-		return TSession{}, err1
+		return types.Session{}, err1
 	}
 
 	return session, nil

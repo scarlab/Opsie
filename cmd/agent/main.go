@@ -22,7 +22,7 @@ func main() {
 
 	// Get the system info
 	systemInfo := system.Info()
-	payload := socket.TRegisterAgentPayload{
+	payload := socket.RegisterAgentPayload{
 		Hostname:  systemInfo.Hostname,
 		OS:        systemInfo.OS,
 		Kernel:    systemInfo.Kernel,

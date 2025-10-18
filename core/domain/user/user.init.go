@@ -4,6 +4,8 @@ package user
 
 import (
 	"database/sql"
+	repo "opsie/core/repositories"
+	"opsie/core/services"
 
 	"github.com/gorilla/mux"
 )
@@ -19,10 +21,10 @@ import (
 //   packagename.Register(router, db)
 func Register(r *mux.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
-	repository := NewRepository(db)
+	repository := repo.NewUserRepository(db)
 
 	// Step 2: Create service (Business logic layer)
-	service := NewService(repository)
+	service := services.NewUserService(repository)
 
 	// Step 3: Create handler (HTTP layer)
 	handler := NewHandler(service)

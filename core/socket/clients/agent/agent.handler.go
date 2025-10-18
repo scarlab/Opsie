@@ -62,14 +62,14 @@ func (h *Handler) Connect(w http.ResponseWriter, r *http.Request) {
 
 	switch envelope.Type {
 		case "register":
-			metrics, err := socket.DecodePayload[socket.TRegisterAgentPayload](envelope)
+			metrics, err := socket.DecodePayload[socket.RegisterAgentPayload](envelope)
 			if err != nil { log.Fatal(err) }
 			
 			log.Printf("Register request from %s (%s)", metrics.Hostname, metrics.IPAddress)
 			fmt.Println(metrics)
 
 		case "connect":
-			var payload socket.TConnectPayload
+			var payload socket.ConnectPayload
 			if err := json.Unmarshal(envelope.Payload, &payload); err != nil {
 				log.Println("invalid connect payload:", err)
 				return
@@ -110,7 +110,7 @@ func (h *Handler) readPump(c *socket.Client) {
 		}
 
 		// unmarshal envelope
-		var envelope socket.TEnvelope
+		var envelope socket.Envelope
 		if err := json.Unmarshal(msg, &envelope); err != nil {
 			fmt.Println("invalid message envelope:", err)
 			continue

@@ -11,17 +11,17 @@ import (
 
 // HandlerFunc is a function that handles HTTP requests.
 // This is a simple shorthand to define easier to read functions.
-type THandlerFunc func(w http.ResponseWriter, r *http.Request) *errors.Error
+type HandlerFunc func(w http.ResponseWriter, r *http.Request) *errors.Error
 
 // Middleware is a special type that handles HandleFuncs.
-type TMiddleware func(THandlerFunc) THandlerFunc
+type Middleware func(HandlerFunc) HandlerFunc
 
 
 
 
 // Handle handles the middlewares.
 // It executes the middlewares in the order presented and finishes by calling the final handler.
-func Middleware(final THandlerFunc, middlewares ...TMiddleware) THandlerFunc {
+func HandleMiddleware(final HandlerFunc, middlewares ...Middleware) HandlerFunc {
 	if final == nil {
 		panic("no final handler")
 		// Or return a default handler.
@@ -46,7 +46,7 @@ func Middleware(final THandlerFunc, middlewares ...TMiddleware) THandlerFunc {
 
 
 
-func NormalizedMiddleware(handler THandlerFunc) http.HandlerFunc {
+func NormalizedMiddleware(handler HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_ = handler(w, r) 
 	}
@@ -55,7 +55,7 @@ func NormalizedMiddleware(handler THandlerFunc) http.HandlerFunc {
 
 
 
-func errorHandlerMiddleware(next THandlerFunc) THandlerFunc {
+func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) *errors.Error {
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -92,7 +92,7 @@ func errorHandlerMiddleware(next THandlerFunc) THandlerFunc {
 
 
 // logger measures request time, status, and response size.
-func loggerMiddleware(next THandlerFunc) THandlerFunc {
+func loggerMiddleware(next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) *errors.Error{
 		start := time.Now()
 

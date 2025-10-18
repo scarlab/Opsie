@@ -1,4 +1,4 @@
-package user
+package repo
 
 import (
 	"database/sql"
@@ -6,33 +6,34 @@ import (
 	"opsie/constant"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
+	"opsie/types"
 
 	"github.com/lib/pq"
 )
 
-// Repository - Handles DB operations for user.
+// UserRepository - Handles DB operations for user.
 // Talks only to the database (or other data sources).
-type Repository struct {
+type UserRepository struct {
 	db *sql.DB
 }
 
-// NewRepository - Constructor for Repository
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{
+// NewUserRepository - Constructor for Repository
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{
 		db: db,
 	}
 }
 
 
 
-func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *errors.Error) {
+func (r *UserRepository) CreateOwnerAccount(payload types.NewOwnerPayload) (types.User, *errors.Error) {
 	query := `
 		INSERT INTO users (id, display_name, email, password, system_role)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, display_name, email, system_role, preference, is_active, created_at, updated_at;
 	`
 
-	var user TUser
+	var user types.User
 	var prefBytes []byte
 
 	id := utils.GenerateID()
@@ -52,10 +53,10 @@ func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *error
 	if err != nil {
 		// Detect duplicate email constraint
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
-			return TUser{}, errors.New(409, "email already in use")
+			return types.User{}, errors.New(409, "email already in use")
 		}
 		
-		return TUser{}, errors.Internal(err)
+		return types.User{}, errors.Internal(err)
 	}
 
 	// Decode preference JSONB
@@ -70,8 +71,8 @@ func (r *Repository) CreateOwnerAccount(payload TNewOwnerPayload) (TUser, *error
 
 
 
-func (r *Repository) GetUserByEmail(email string) (TUser, *errors.Error) {
-	var user TUser
+func (r *UserRepository) GetUserByEmail(email string) (types.User, *errors.Error) {
+	var user types.User
 	query := `
 		SELECT id, display_name, email, password, system_role, preference, is_active, created_at, updated_at
 		FROM users
@@ -92,9 +93,9 @@ func (r *Repository) GetUserByEmail(email string) (TUser, *errors.Error) {
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return TUser{}, errors.NotFound("user not found")
+			return types.User{}, errors.NotFound("user not found")
 		}
-		return TUser{}, errors.Internal(err)
+		return types.User{}, errors.Internal(err)
 	}
 
 	if len(prefBytes) > 0 {
