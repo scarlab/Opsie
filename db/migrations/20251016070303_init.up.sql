@@ -121,7 +121,8 @@ CREATE TABLE user_organizations (
     user_id             BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     organization_id     BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     invited_by          BIGINT REFERENCES users(id) ON DELETE SET NULL,
-    joined_at           TIMESTAMP WITH TIME ZONE DEFAULT now()
+    joined_at           TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    is_default          BOOLEAN
 );
 
 CREATE UNIQUE INDEX idx_user_org_unique ON user_organizations(user_id, organization_id);

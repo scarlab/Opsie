@@ -22,7 +22,7 @@ func NewAuthRepository(db *sql.DB) *AuthRepository {
 }
 
 
-func (r *AuthRepository) CreateSession(userId int64, key string, expiry time.Time) (types.Session, *errors.Error) {
+func (r *AuthRepository) CreateSession(userId types.ID, key string, expiry time.Time) (types.Session, *errors.Error) {
 	query := `
 		INSERT INTO sessions (user_id, key, expiry)
 		VALUES ($1, $2, $3)
@@ -99,7 +99,7 @@ func (r *AuthRepository) GetValidSessionByKey(key string) (types.Session, *error
 
 
 
-func (r *AuthRepository) GetValidSessionWithUser(key string) (types.SessionWithUser, *errors.Error) {
+func (r *AuthRepository) GetValidSessionWithAuthUser(key string) (types.SessionWithUser, *errors.Error) {
     var su types.SessionWithUser
     var ip, os, device, browser sql.NullString
 
@@ -119,11 +119,11 @@ func (r *AuthRepository) GetValidSessionWithUser(key string) (types.SessionWithU
         &su.Session.IsValid,
         &su.Session.Expiry,
         &su.Session.CreatedAt,
-        &su.User.ID,
-        &su.User.DisplayName,
-        &su.User.Email,
-        &su.User.SystemRole,
-        &su.User.IsActive,
+        &su.AuthUser.ID,
+        &su.AuthUser.DisplayName,
+        &su.AuthUser.Email,
+        &su.AuthUser.SystemRole,
+        &su.AuthUser.IsActive,
     )
     if err != nil {
         return types.SessionWithUser{}, errors.Internal(err)
@@ -135,9 +135,20 @@ func (r *AuthRepository) GetValidSessionWithUser(key string) (types.SessionWithU
     su.Session.Device = device.String
     su.Session.Browser = browser.String
 
-    if !su.User.IsActive {
+    if !su.AuthUser.IsActive {
         return types.SessionWithUser{}, errors.New(http.StatusForbidden, "user is inactive")
     }
 
     return su, nil
+}
+
+
+func (r *AuthRepository) ExpireSession(key string) error {
+	query := `
+		UPDATE sessions
+		SET is_valid = false, expiry = NOW()
+		WHERE key = $1 AND is_valid = true
+	`
+	_, err := r.db.Exec(query, key)
+	return err
 }

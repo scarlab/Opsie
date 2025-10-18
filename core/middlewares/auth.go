@@ -29,21 +29,19 @@ func newAuthMiddleware(authRepo *repo.AuthRepository) bolt.Middleware {
 			}
 
 			if sessionKey == "" {
-				return errors.New(http.StatusUnauthorized, "missing session key")
+				return errors.New(http.StatusUnauthorized, "unauthorized")
 			}
 
 			// 2. Fetch session + user in a single query
-			sessionUser, err := authRepo.GetValidSessionWithUser(sessionKey)
+			sessionUser, err := authRepo.GetValidSessionWithAuthUser(sessionKey)
 			if err != nil {
 				return err
 			}
-			if !sessionUser.User.IsActive {
-				return errors.New(http.StatusForbidden, "user is inactive")
-			}
+
 
 			// 3. Attach to context
 			ctx := context.WithValue(r.Context(), constant.ContextKeySession, sessionUser.Session)
-			ctx = context.WithValue(ctx, constant.ContextKeyUser, sessionUser.User)
+			ctx = context.WithValue(ctx, constant.ContextKeyUser, sessionUser.AuthUser)
 			r = r.WithContext(ctx)
 
 			// 4. Call next middleware/handler

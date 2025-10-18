@@ -1,7 +1,6 @@
 package bolt
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"opsie/config"
@@ -67,7 +66,7 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 		}()
 
 		err := next(w, r)
-		fmt.Println("err",err)
+		
 		if err == nil || (reflect.ValueOf(err).Kind() == reflect.Ptr && reflect.ValueOf(err).IsNil()) {
 			return nil
 		}

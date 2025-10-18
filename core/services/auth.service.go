@@ -58,8 +58,7 @@ func (s *AuthService) AuthenticateUser(payload types.LoginPayload) (types.AuthUs
 }
 
 
-func (s *AuthService) CreateSession(userID int64) (types.Session, *errors.Error) {
-	// 
+func (s *AuthService) CreateSession(userID types.ID) (types.Session, *errors.Error) {
 	key, err := utils.GenerateSessionKey()
 	if err != nil {
 		errors.Internal(err)
@@ -73,4 +72,15 @@ func (s *AuthService) CreateSession(userID int64) (types.Session, *errors.Error)
 	}
 
 	return session, nil
+}
+
+
+
+func (s *AuthService) HandleLogout(key types.SessionKey) *errors.Error {
+	// 1. Expire the session in DB
+	queryErr := s.repo.ExpireSession(string(key))
+	if queryErr != nil {
+		return errors.Internal(queryErr)
+	}
+	return nil
 }

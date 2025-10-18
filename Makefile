@@ -41,3 +41,7 @@ mg-up:
 
 mg-down:
 	@go run cmd/cli/main.go migrate down
+
+mg-reset:
+	@go run cmd/cli/main.go migrate down
+	@go run cmd/cli/main.go migrate up
