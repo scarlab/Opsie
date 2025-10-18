@@ -60,14 +60,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error{
-    // Processing Request Body
-	// var payload TNewOwnerPayload
-	// bolt.ParseBody(w, r, &payload)
-
-	// Handling Business Logics
-	// _, err := h.service.CreateOwnerAccount(payload)
-	// if bolt.ErrorHandler(w, err) { return }
-
+    
 
 	// Send the final response 
 	bolt.WriteResponse(w, http.StatusOK, map[string]any{
