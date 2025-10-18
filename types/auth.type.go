@@ -4,7 +4,7 @@ import "time"
 
 // Types - data structures for auth
 // These structs represent requests, responses, and entities
-// that are only meaningful within this domain.
+// that are only meaningful within this api.
 
 type Session struct {
     ID        int64     `json:"id"`        // BIGSERIAL

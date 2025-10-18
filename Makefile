@@ -23,11 +23,11 @@ build-agent:
 
 
 
-domain:
-	@go run cmd/cli/main.go create-domain $(filter-out $@,$(MAKECMDGOALS))
+api:
+	@go run cmd/cli/main.go create-api $(filter-out $@,$(MAKECMDGOALS))
 
-domain-ws:
-	@go run cmd/cli/main.go create-domain $(filter-out $@,$(MAKECMDGOALS)) --ws
+api-ws:
+	@go run cmd/cli/main.go create-api $(filter-out $@,$(MAKECMDGOALS)) --ws
 
 
 migration:

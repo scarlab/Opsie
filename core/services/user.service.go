@@ -7,7 +7,7 @@ import (
 	"opsie/types"
 )
 
-// UserService - Contains all business logic for this domain.
+// UserService - Contains all business logic for this api.
 // Talks to the Repository, but never to HTTP directly.
 type UserService struct {
 	repo *repo.UserRepository

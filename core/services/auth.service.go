@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// AuthService - Contains all business logic for this domain.
+// AuthService - Contains all business logic for this api.
 // Talks to the Repository, but never to HTTP directly.
 type AuthService struct {
 	repo *repo.AuthRepository

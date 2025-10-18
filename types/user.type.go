@@ -2,7 +2,7 @@ package types
 
 // Types - data structures for user
 // These structs represent requests, responses, and entities
-// that are only meaningful within this domain.
+// that are only meaningful within this api.
 
 type User struct {
     ID int64 `json:"id"`

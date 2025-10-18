@@ -1,6 +1,6 @@
 package {{.PackageName}}
 
-// Service - Contains all business logic for this domain.
+// Service - Contains all business logic for this api.
 // Talks to the Repository, but never to HTTP directly.
 type Service struct {
 	repo *Repository

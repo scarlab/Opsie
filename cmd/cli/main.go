@@ -23,16 +23,16 @@ import (
 func main() {
 	rootCmd := &cobra.Command{
 		Use:   "devx",
-		Short: "DevX CLI for scaffolding domains and managing migrations",
+		Short: "DevX CLI for scaffolding apis and managing migrations",
 	}
 
 
 	// ------------------------
-	// create-domain command
+	// create-api command
 	// ------------------------
 	newDomainCmd := &cobra.Command{
-		Use:   "create-domain [name]",
-		Short: "Scaffold a new domain inside core/domain/",
+		Use:   "create-api [name]",
+		Short: "Scaffold a new api inside core/api/",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := strings.ToLower(args[0])
@@ -40,11 +40,11 @@ func main() {
 			// Read the flag
 			withWS, _ := cmd.Flags().GetBool("ws")
 
-			fmt.Printf("🧱 Creating domain '%s' (WebSocket: %v)\n", name, withWS)
+			fmt.Printf("🧱 Creating api '%s' (WebSocket: %v)\n", name, withWS)
 
-			// Generate domain files
+			// Generate api files
 			if err := createDomain(name, withWS); err != nil {
-				log.Fatalf("❌ Failed to create domain '%s': %v\n", name, err)
+				log.Fatalf("❌ Failed to create api '%s': %v\n", name, err)
 			}
 		},
 	}
@@ -110,18 +110,18 @@ func main() {
 // Domain scaffolding
 // ------------------------
 func createDomain(name string, withWS bool) error {
-	basePath := filepath.Join("core", "domain", name)
+	basePath := filepath.Join("core", "api", name)
 
-	// --- Check if the domain already exists ---
+	// --- Check if the api already exists ---
 	if _, err := os.Stat(basePath); err == nil {
-		return fmt.Errorf("domain '%s' already exists", name)
+		return fmt.Errorf("api '%s' already exists", name)
 	}
 
 
 
 	// --- Create base directory ---
 	if err := os.MkdirAll(basePath, 0755); err != nil {
-		return fmt.Errorf("failed to create domain dir: %w", err)
+		return fmt.Errorf("failed to create api dir: %w", err)
 	}
 
 	// --- Template list ---
@@ -137,14 +137,14 @@ func createDomain(name string, withWS bool) error {
 	// if --ws flag is passed, use -ws.tpl versions where available
 	if withWS {
 		for i, name := range templates {
-			wsPath := filepath.Join("cmd", "cli", "templates", "domain", strings.Replace(name, ".tpl", "-ws.tpl", 1))
+			wsPath := filepath.Join("cmd", "cli", "templates", "api", strings.Replace(name, ".tpl", "-ws.tpl", 1))
 			if _, err := os.Stat(wsPath); err == nil {
 				templates[i] = strings.Replace(name, ".tpl", "-ws.tpl", 1)
 			}
 		}
 	}
 
-	tplDir := filepath.Join("cmd", "cli", "templates", "domain")
+	tplDir := filepath.Join("cmd", "cli", "templates", "api")
 	data := struct {
 		PackageName string
 		CreatedAt   string

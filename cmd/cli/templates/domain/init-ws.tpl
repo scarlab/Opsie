@@ -9,12 +9,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Init - Entry point for initializing domain - {{.PackageName}} with socket hub
+// Init - Entry point for initializing api - {{.PackageName}} with socket hub
 //
 // Responsibilities:
 // 1. Create repository, service, and handler instances.
 // 2. Wire dependencies in the correct order.
-// 3. Register domain-specific routes.
+// 3. Register api-specific routes.
 //
 // Usage:
 //   packagename.Register(router, db)
@@ -28,9 +28,9 @@ func Register(r *mux.Router, db *sql.DB, socketHub *socket.Hub) {
 	// Step 3: Create handler (HTTP layer)
 	handler := NewHandler(service, socketHub)
 
-	// Step 4: Create the sub-router for this domain (modify if required)
+	// Step 4: Create the sub-router for this api (modify if required)
 	router := r.PathPrefix("/{{.PackageName}}").Subrouter()
 
-	// Step 5: Register routes for this domain
+	// Step 5: Register routes for this api
 	HandleRoutes(router, handler)
 }
