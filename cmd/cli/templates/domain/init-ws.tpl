@@ -4,7 +4,7 @@ package {{.PackageName}}
 
 import (
 	"database/sql"
-	"opsie/internal/socket"
+	"opsie/core/socket"
 
 	"github.com/gorilla/mux"
 )

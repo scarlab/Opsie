@@ -12,8 +12,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"opsie/internal/server"
-	"opsie/internal/socket"
+	"opsie/core/server"
+	"opsie/core/socket"
 )
 
 // getLocalIP returns the first non-loopback local IP address (e.g., 192.168.x.x).

@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
-	"opsie/internal/socket"
+	"opsie/core/socket"
 	"time"
 )
 

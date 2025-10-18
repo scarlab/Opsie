@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"opsie/internal/socket"
+	"opsie/core/socket"
 	"opsie/pkg/system"
 
 	"github.com/gorilla/websocket"

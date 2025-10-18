@@ -3,7 +3,7 @@ package {{.PackageName}}
 import (
 	"encoding/json"
 	"net/http"
-	"opsie/internal/socket"
+	"opsie/core/socket"
 	"time"
 )
 

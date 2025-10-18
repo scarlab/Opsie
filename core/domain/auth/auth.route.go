@@ -1,7 +1,7 @@
 package auth
 
 import (
-	mw "opsie/internal/middlewares"
+	mw "opsie/core/middlewares"
 	"opsie/pkg/bolt"
 
 	"github.com/gorilla/mux"

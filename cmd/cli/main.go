@@ -32,7 +32,7 @@ func main() {
 	// ------------------------
 	newDomainCmd := &cobra.Command{
 		Use:   "create-domain [name]",
-		Short: "Scaffold a new domain inside internal/domain/",
+		Short: "Scaffold a new domain inside core/domain/",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := strings.ToLower(args[0])
@@ -110,7 +110,7 @@ func main() {
 // Domain scaffolding
 // ------------------------
 func createDomain(name string, withWS bool) error {
-	basePath := filepath.Join("internal", "domain", name)
+	basePath := filepath.Join("core", "domain", name)
 
 	// --- Check if the domain already exists ---
 	if _, err := os.Stat(basePath); err == nil {

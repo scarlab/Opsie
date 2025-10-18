@@ -2,7 +2,7 @@ package auth
 
 import (
 	"opsie/config"
-	"opsie/internal/domain/user"
+	"opsie/core/domain/user"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 	"time"

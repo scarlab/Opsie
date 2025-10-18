@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"opsie/config"
-	"opsie/internal/socket"
+	"opsie/core/socket"
 	"opsie/pkg/system"
 	"time"
 
