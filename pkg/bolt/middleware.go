@@ -94,20 +94,50 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 
 // logger measures request time, status, and response size.
 func loggerMiddleware(next HandlerFunc) HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) *errors.Error{
+	return func(w http.ResponseWriter, r *http.Request) *errors.Error {
 		start := time.Now()
 
-		// Wrap the ResponseWriter
 		lrw := &loggingResponseWriter{ResponseWriter: w, status: http.StatusOK}
-
-		next(lrw, r) // call the next handler
+		err := next(lrw, r)
 
 		duration := time.Since(start)
-		log.Printf("%s %s %d %v %d", r.Method, r.RequestURI, lrw.status, duration, lrw.size)
-		errors.New(http.StatusForbidden, "user is inactiv exx")
-		return nil
+
+		// Color codes
+		reset := "\033[0m"
+		bold := "\033[1m"
+		gray := "\033[90m"
+
+		green := "\033[32m"
+		yellow := "\033[33m"
+		red := "\033[31m"
+		cyan := "\033[36m"
+		magenta := "\033[35m"
+
+		// Status color based on code
+		statusColor := green
+		switch {
+		case lrw.status >= 500:
+			statusColor = red
+		case lrw.status >= 400:
+			statusColor = yellow
+		case lrw.status >= 300:
+			statusColor = cyan
+		}
+
+		// Build colored log
+		log.Printf(
+			"%s%-6s%s %s%-40s%s %s%d%s %s%v%s - %s%dB%s",
+			bold, r.Method, reset,
+			cyan, r.RequestURI, reset,
+			statusColor, lrw.status, reset,
+			gray, duration, reset,
+			magenta, lrw.size, reset,
+		)
+
+		return err
 	}
 }
+
 
 // loggingResponseWriter captures status code and response size
 type loggingResponseWriter struct {
