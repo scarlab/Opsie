@@ -8,3 +8,13 @@ const (
 	SystemRoleAdmin SystemRole = "admin"
 	SystemRoleStaff SystemRole = "staff"
 )
+
+
+
+// Define a private type for context keys
+type ContextKey string
+
+const (
+    ContextKeySession ContextKey = "session"
+    ContextKeyUser    ContextKey = "user"
+)

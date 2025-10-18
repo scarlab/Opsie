@@ -1,6 +1,7 @@
 package bolt
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"opsie/config"
@@ -27,12 +28,13 @@ func HandleMiddleware(final HandlerFunc, middlewares ...Middleware) HandlerFunc 
 		// Or return a default handler.
 	}
 	
+	// Add Error Handler to the chain
+	middlewares = append([]Middleware{errorHandlerMiddleware}, middlewares...) // 1th
+	
 	if config.IsDev {
-		middlewares = append(middlewares, loggerMiddleware)
+		middlewares = append([]Middleware{loggerMiddleware}, middlewares...)   // 0th
 	}
 
-	// Add Error Handler to the chain
-	middlewares = append(middlewares, errorHandlerMiddleware)
 	
 
 	// Execute the middleware in the same order and return the final func.
@@ -65,7 +67,7 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 		}()
 
 		err := next(w, r)
-		
+		fmt.Println("err",err)
 		if err == nil || (reflect.ValueOf(err).Kind() == reflect.Ptr && reflect.ValueOf(err).IsNil()) {
 			return nil
 		}
@@ -103,7 +105,7 @@ func loggerMiddleware(next HandlerFunc) HandlerFunc {
 
 		duration := time.Since(start)
 		log.Printf("%s %s %d %v %d", r.Method, r.RequestURI, lrw.status, duration, lrw.size)
-
+		errors.New(http.StatusForbidden, "user is inactiv exx")
 		return nil
 	}
 }

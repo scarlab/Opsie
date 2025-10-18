@@ -33,7 +33,7 @@ func (s *AuthService) AuthenticateUser(payload types.LoginPayload) (types.AuthUs
 	
 	
 	// Get Request User By Email
-	reqUser, err := s.userRepo.GetUserByEmail(payload.Email)
+	reqUser, err := s.userRepo.GetByEmail(payload.Email)
 	if err != nil {
 		return types.AuthUser{}, err
 	}

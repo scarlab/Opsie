@@ -35,3 +35,9 @@ type AuthUser struct {
     SystemRole string `json:"system_role"`
     Preference map[string]any `json:"preference"`
 }
+
+
+type SessionWithUser struct {
+    Session Session
+    User    User
+}

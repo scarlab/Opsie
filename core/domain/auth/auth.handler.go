@@ -1,8 +1,10 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
 	"opsie/config"
+	"opsie/constant"
 	"opsie/core/services"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
@@ -64,6 +66,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error{
     
 
+	fmt.Println("user - ", r.Context().Value(constant.ContextKeyUser))
+	fmt.Println("session - ", r.Context().Value(constant.ContextKeySession))
 	// Send the final response 
 	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message": "Successfully logged out",

@@ -1,27 +1,23 @@
 package mw
 
 import (
-	"fmt"
+	"context"
 	"net/http"
+	"opsie/constant"
 	repo "opsie/core/repositories"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
 	"strings"
-	"time"
 )
-
 
 func newAuthMiddleware(authRepo *repo.AuthRepository) bolt.Middleware {
 	return func(next bolt.HandlerFunc) bolt.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) *errors.Error {
-			// Get the session key from cookie/header
-			// 1. Try cookie
+			// 1. Get session key
 			var sessionKey string
 			if cookie, err := r.Cookie("session"); err == nil {
 				sessionKey = cookie.Value
 			}
-
-			// 2. Fallback to header
 			if sessionKey == "" {
 				sessionKey = r.Header.Get("X-Session-Key")
 				if sessionKey == "" {
@@ -32,19 +28,26 @@ func newAuthMiddleware(authRepo *repo.AuthRepository) bolt.Middleware {
 				}
 			}
 
-			// 3. Validate
 			if sessionKey == "" {
 				return errors.New(http.StatusUnauthorized, "missing session key")
 			}
 
-			fmt.Println("{auth} session key:", sessionKey)
+			// 2. Fetch session + user in a single query
+			sessionUser, err := authRepo.GetValidSessionWithUser(sessionKey)
+			if err != nil {
+				return err
+			}
+			if !sessionUser.User.IsActive {
+				return errors.New(http.StatusForbidden, "user is inactive")
+			}
 
-			authRepo.CreateSession(2, "", time.Now())
+			// 3. Attach to context
+			ctx := context.WithValue(r.Context(), constant.ContextKeySession, sessionUser.Session)
+			ctx = context.WithValue(ctx, constant.ContextKeyUser, sessionUser.User)
+			r = r.WithContext(ctx)
 
-			// TODO: Fetch & validate session in DB
-
-			next(w, r)
-			return nil
+			// 4. Call next middleware/handler
+			return next(w, r)
 		}
 	}
 }

@@ -71,7 +71,7 @@ func (r *UserRepository) CreateOwnerAccount(payload types.NewOwnerPayload) (type
 
 
 
-func (r *UserRepository) GetUserByEmail(email string) (types.User, *errors.Error) {
+func (r *UserRepository) GetByEmail(email string) (types.User, *errors.Error) {
 	var user types.User
 	query := `
 		SELECT id, display_name, email, password, system_role, preference, is_active, created_at, updated_at
@@ -81,6 +81,45 @@ func (r *UserRepository) GetUserByEmail(email string) (types.User, *errors.Error
 	var prefBytes []byte
 
 	err := r.db.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.DisplayName,
+		&user.Email,
+		&user.Password,
+		&user.SystemRole,
+		&prefBytes,
+		&user.IsActive,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return types.User{}, errors.NotFound("user not found")
+		}
+		return types.User{}, errors.Internal(err)
+	}
+
+	if len(prefBytes) > 0 {
+		_ = json.Unmarshal(prefBytes, &user.Preference)
+	} else {
+		user.Preference = make(map[string]any)
+	}
+
+	return user, nil
+}
+
+
+
+
+func (r *UserRepository) GetByID(ID int64) (types.User, *errors.Error) {
+	var user types.User
+	query := `
+		SELECT id, display_name, email, password, system_role, preference, is_active, created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`
+	var prefBytes []byte
+
+	err := r.db.QueryRow(query, ID).Scan(
 		&user.ID,
 		&user.DisplayName,
 		&user.Email,
