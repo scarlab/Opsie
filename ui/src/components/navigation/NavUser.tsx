@@ -15,18 +15,36 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/cn/popover
 import { Link, useNavigate } from 'react-router-dom';
 import { Theme } from '../theme';
 import CsImage from '@/constants/image';
+import { Actions, useCsDispatch, useCsSelector } from '@/cs-redux';
+import { toast } from 'sonner';
 
 
 export default function NavUserMenu() {
-    const navigation = useNavigate()
+    const navigate = useNavigate()
+    const dispatch = useCsDispatch();
+    const { authUser } = useCsSelector(state => state.auth);
 
     const [open, setOpen] = useState(false);
 
 
+
+    async function onLogout() {
+        const res = await dispatch(Actions.auth.logout())
+
+        if (res.payload.message) {
+            toast.success(res.payload.message)
+            navigate("/auth/login", { replace: true })
+        }
+        else if (res.payload.error) {
+            toast.error(res.payload.message)
+        }
+
+        setOpen(false)
+    }
     return (
         <>
             <Button size={'icon'} variant={'outline'} className='overflow-hidden' onClick={() => { setOpen(true) }}>
-                <img src={CsImage.user} alt="" />
+                <img src={authUser?.avatar ? authUser?.avatar : CsImage.user} alt={authUser?.display_name} />
             </Button>
 
             <Popover open={open} onOpenChange={() => { setOpen(false) }}>
@@ -39,11 +57,11 @@ export default function NavUserMenu() {
                         <div className='mb-3'>
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Button size={'icon'} variant={'outline'} className='overflow-hidden' onClick={() => { setOpen(true) }}>
-                                    <img src={CsImage.user} alt="" />
+                                    <img src={authUser?.avatar ? authUser?.avatar : CsImage.user} alt={authUser?.display_name} />
                                 </Button>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Samrat</span>
-                                    <span className="truncate text-xs">sam@codingsamrat.com</span>
+                                    <span className="truncate font-semibold">{authUser?.display_name}</span>
+                                    <span className="truncate text-xs">{authUser?.email}</span>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +93,7 @@ export default function NavUserMenu() {
                             </div>
 
 
-                            <div onClick={() => { navigation('/auth/login'); setOpen(false) }} >
+                            <div onClick={onLogout} >
                                 <CommandItem className='!text-destructive hover:!text-destructive cursor-pointer'>
                                     Logout <CommandShortcut><LogOut className='!text-destructive hover:!text-destructive' /></CommandShortcut>
                                 </CommandItem>

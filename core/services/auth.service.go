@@ -42,7 +42,7 @@ func (s *AuthService) AuthenticateUser(payload types.LoginPayload) (types.AuthUs
 	isMatched := utils.Hash.Compare(reqUser.Password, payload.Password)
 	
 	if !isMatched {
-		errors.Unauthorized("invalid email or password")
+	  return  types.AuthUser{}, errors.Unauthorized("invalid email or password")
 	}
 
 	// Generate Auth user

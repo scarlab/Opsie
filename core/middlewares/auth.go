@@ -33,15 +33,15 @@ func newAuthMiddleware(authRepo *repo.AuthRepository) bolt.Middleware {
 			}
 
 			// 2. Fetch session + user in a single query
-			sessionUser, err := authRepo.GetValidSessionWithAuthUser(sessionKey)
+			authUser, err := authRepo.GetValidSessionWithAuthUser(sessionKey)
 			if err != nil {
 				return err
 			}
 
 
 			// 3. Attach to context
-			ctx := context.WithValue(r.Context(), constant.ContextKeySession, sessionUser.Session)
-			ctx = context.WithValue(ctx, constant.ContextKeyUser, sessionUser.AuthUser)
+			ctx := context.WithValue(r.Context(), constant.ContextKeySession, authUser.Session)
+			ctx = context.WithValue(ctx, constant.ContextKeyUser, authUser.AuthUser)
 			r = r.WithContext(ctx)
 
 			// 4. Call next middleware/handler

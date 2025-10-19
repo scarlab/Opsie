@@ -3,12 +3,17 @@ import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
 import { InputPassword } from "@/components/cn/input-password";
 import Config from "@/config";
-import type { LoginPayload } from "@/types/user";
 import { Lock } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import type { LoginPayload } from "@/types/auth";
+import { Actions, useCsDispatch } from "@/cs-redux";
+import { toast } from "sonner";
 
 export default function LoginView() {
+    const dispatch = useCsDispatch();
+    const navigate = useNavigate()
+
 
     const [payload, setPayload] = useState<LoginPayload>({
         email: '',
@@ -25,7 +30,18 @@ export default function LoginView() {
 
 
     async function onLogin() {
-        console.log(payload);
+        if (!payload.email) return toast.error("Enter Email")
+        else if (!payload.password) return toast.error("Enter Password")
+
+        const res = await dispatch(Actions.auth.login({ email: payload.email, password: payload.password }))
+        if (res.payload.message) {
+            toast.success(res.payload.message)
+            navigate("/", { replace: true })
+
+        }
+        else if (res.payload.error) {
+            toast.error(res.payload.message)
+        }
     }
 
     return (

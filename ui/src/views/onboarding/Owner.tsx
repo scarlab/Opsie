@@ -10,7 +10,7 @@ import { motion } from "framer-motion"
 export default function Owner({ next }: { next?: () => void }) {
 
     const [payload, setPayload] = useState<NewOwnerPayload>({
-        name: '',
+        display_name: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -74,7 +74,7 @@ export default function Owner({ next }: { next?: () => void }) {
                     >
                         <div className="space-y-2">
                             <Label>Name</Label>
-                            <Input name="name" value={payload.name} onChange={handleChange} type="text" placeholder="Full Name" />
+                            <Input name="name" value={payload.display_name} onChange={handleChange} type="text" placeholder="Full Name" />
                         </div>
 
                         <div className="space-y-2">

@@ -7,6 +7,7 @@ import { Outlet } from "react-router-dom";
 export default function AppLayout() {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+
     return (
         <div>
             <AppHeader />

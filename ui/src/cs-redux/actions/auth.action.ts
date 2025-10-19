@@ -1,11 +1,12 @@
 import ApiManager from "@/configs/api.config";
+import type { LoginPayload } from "@/types/auth";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export class AuthAction {
 
     login = createAsyncThunk(
         "auth/login",
-        async (payload: { email: string; password: string }, { rejectWithValue, fulfillWithValue }) => {
+        async (payload: LoginPayload, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.post(`/auth/login`, payload);
 
@@ -21,6 +22,7 @@ export class AuthAction {
         "auth/session",
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
+
                 const { data } = await ApiManager.get(`/auth/session`);
 
                 return fulfillWithValue(data)

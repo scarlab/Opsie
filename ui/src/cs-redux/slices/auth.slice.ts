@@ -1,15 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { AuthAction } from '../actions/auth.action';
+import type { AuthUser } from '@/types/auth';
 
 const Auth = new AuthAction()
 
 const initialState: {
-    sessionUser: undefined;
+    authUser: AuthUser | undefined;
 
     loading: boolean;
     notFound: boolean;
 } = {
-    sessionUser: undefined,
+    authUser: undefined,
     loading: false,
     notFound: false,
 };
@@ -18,7 +19,9 @@ const AuthSlice = createSlice({
     name: "AuthSlice",
     initialState,
     reducers: {
-
+        restoreAuthUser: (state, { payload }) => {
+            state.authUser = payload
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -27,12 +30,12 @@ const AuthSlice = createSlice({
             })
             .addCase(Auth.login.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.sessionUser = payload.session_user;
+                state.authUser = payload.auth_user;
             })
             .addCase(Auth.login.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
-                state.sessionUser = undefined;
+                state.authUser = undefined;
             })
 
         builder
@@ -41,12 +44,12 @@ const AuthSlice = createSlice({
             })
             .addCase(Auth.session.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.sessionUser = payload.session_user;
+                state.authUser = payload.auth_user;
             })
             .addCase(Auth.session.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
-                state.sessionUser = undefined;
+                state.authUser = undefined;
             })
 
 
@@ -56,7 +59,7 @@ const AuthSlice = createSlice({
             })
             .addCase(Auth.logout.fulfilled, (state, _) => {
                 state.loading = false;
-                state.sessionUser = undefined;
+                state.authUser = undefined;
             })
             .addCase(Auth.logout.rejected, (state, _) => {
                 state.loading = false;

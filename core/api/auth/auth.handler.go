@@ -106,12 +106,13 @@ func (h *Handler) GetSessionUser(w http.ResponseWriter, r *http.Request) *errors
 		return errors.New(http.StatusUnauthorized, "no active session found")
 	}
 
-
+	
 	authUser, ok := userVal.(types.AuthUser)
 	if !ok {
 		return errors.Internal(fmt.Errorf("invalid session"))
 	}
 	
+	// time.Sleep(2 * time.Second)
 	// 4. Respond success
 	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message": "Authenticated User",
