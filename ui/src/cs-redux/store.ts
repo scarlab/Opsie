@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import CsRootReducer from './root-reducer'
+import CsRootReducer from './slices'
 import { type TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
 

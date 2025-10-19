@@ -20,10 +20,13 @@ import Config from "@/config";
 import { CheckCheck, Ellipsis, Mail, Send } from "lucide-react";
 import { useState } from "react";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { useCsSelector } from "@/cs-redux";
 
 
 export default function AccountEmail() {
-    const [email, setEmail] = useState<string>("sam@codingsamrat.com");
+    const { authUser } = useCsSelector(state => state.auth);
+
+    const [email, setEmail] = useState<string>(authUser?.email ?? "");
     const [otp, setOtp] = useState<string>("");
     const [otpSent, setOtpSent] = useState<boolean>(false);
 

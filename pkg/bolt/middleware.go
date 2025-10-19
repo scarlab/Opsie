@@ -66,7 +66,7 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 		}
 
 		// Custom error handling
-		msg := err.Message
+		msg := err.Error
 		if msg == "" {
 			msg = http.StatusText(err.Code)
 		}

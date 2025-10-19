@@ -38,3 +38,14 @@ func (s *UserService) CreateOwnerAccount(payload types.NewOwnerPayload) (types.U
 	return createdUser, nil
 }
 
+
+// GetOwnerCount
+func (s *UserService) GetOwnerCount() (int, *errors.Error) {
+	count, err := s.repo.GetOwnerCount()
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+

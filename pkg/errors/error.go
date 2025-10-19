@@ -2,22 +2,16 @@ package errors
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 )
 
 type Error struct {
 	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Err     error  `json:"error,omitempty"`
+	Error 	string `json:"error"`
+	Err     error  `json:"err,omitempty"`
 }
 
-func (e *Error) Error() string {
-	if e.Err != nil {
-		return fmt.Sprintf("%s: %v", e.Message, e.Err)
-	}
-	return e.Message
-}
+
 // Unwrap returns the inner error.
 func (e *Error) Unwrap() error {
 	return e.Err
@@ -25,12 +19,12 @@ func (e *Error) Unwrap() error {
 
 // ---- Core Constructors ----
 
-func New(code int, msg string, err ...error) *Error {
+func New(code int, errMsg string, err ...error) *Error {
 	var underlying error
 	if len(err) > 0 {
 		underlying = err[0]
 	}
-	return &Error{Code: code, Message: msg, Err: underlying}
+	return &Error{Code: code, Error: errMsg, Err: underlying}
 }
 
 
@@ -39,7 +33,7 @@ func Wrap(msg string, err error) *Error {
 	if err == nil {
 		return nil
 	}
-	return &Error{Code: http.StatusInternalServerError, Message: msg, Err: err}
+	return &Error{Code: http.StatusInternalServerError, Error: msg, Err: err}
 }
 
 
@@ -47,39 +41,39 @@ func Wrap(msg string, err error) *Error {
 // ---- Common Helpers ----
 
 func BadRequest(msg string) *Error {
-	return &Error{Code: http.StatusBadRequest, Message: msg}
+	return &Error{Code: http.StatusBadRequest, Error: msg}
 }
 
 func Unauthorized(msg string) *Error {
-	return &Error{Code: http.StatusUnauthorized, Message: msg}
+	return &Error{Code: http.StatusUnauthorized, Error: msg}
 }
 
 func Forbidden(msg string) *Error {
-	return &Error{Code: http.StatusForbidden, Message: msg}
+	return &Error{Code: http.StatusForbidden, Error: msg}
 }
 
 func NotFound(msg string) *Error {
-	return &Error{Code: http.StatusNotFound, Message: msg}
+	return &Error{Code: http.StatusNotFound, Error: msg}
 }
 
 func Conflict(msg string) *Error {
-	return &Error{Code: http.StatusConflict, Message: msg}
+	return &Error{Code: http.StatusConflict, Error: msg}
 }
 
 func Internal(err error) *Error {
 	return &Error{
 		Code:    http.StatusInternalServerError,
-		Message: "Internal Server Error",
+		Error: "Internal Server Error",
 		Err:     err,
 	}
 }
 
 func UnprocessableEntity(msg string) *Error {
-	return &Error{Code: http.StatusUnprocessableEntity, Message: msg}
+	return &Error{Code: http.StatusUnprocessableEntity, Error: msg}
 }
 
 func ServiceUnavailable(msg string) *Error {
-	return &Error{Code: http.StatusServiceUnavailable, Message: msg}
+	return &Error{Code: http.StatusServiceUnavailable, Error: msg}
 }
 
 // ---- Utilities ----

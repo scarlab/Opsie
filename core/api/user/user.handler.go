@@ -40,5 +40,19 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *er
 	return nil
 }
 
+func (h *Handler) GetOwnerCount(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Handling Business Logics
+	count, err := h.service.GetOwnerCount()
+	if err != nil { return err}
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "Owner count",
+		"count":    count,
+	})
+
+	return nil
+}
+
 
 

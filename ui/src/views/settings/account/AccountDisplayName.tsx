@@ -2,11 +2,14 @@ import { Button } from "@/components/cn/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/cn/card";
 import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
+import { useCsSelector } from "@/cs-redux";
 import { useState } from "react";
 
 
 export default function AccountDisplayName() {
-    const [name, setName] = useState<string>("Samrat");
+    const { authUser } = useCsSelector(state => state.auth);
+    const [name, setName] = useState<string>(authUser?.display_name ?? "");
+
     return (
         <Card>
             <CardHeader>

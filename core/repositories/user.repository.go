@@ -69,6 +69,20 @@ func (r *UserRepository) CreateOwnerAccount(payload types.NewOwnerPayload) (type
 	return user, nil
 }
 
+func (r *UserRepository) GetOwnerCount() (int, *errors.Error) {
+    var count int
+
+    query := `SELECT COUNT(*) FROM users WHERE system_role = 'owner'`
+
+    err := r.db.QueryRow(query).Scan(&count)
+    if err != nil {
+        return 0, errors.Internal(err)
+    }
+
+    return count, nil
+}
+
+
 
 
 func (r *UserRepository) GetByEmail(email string) (types.User, *errors.Error) {

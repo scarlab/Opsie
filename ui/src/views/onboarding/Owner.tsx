@@ -6,14 +6,19 @@ import CsImage from "@/constants/image";
 import type { NewOwnerPayload } from "@/types/user";
 import { useState } from "react";
 import { motion } from "framer-motion"
+import { toast } from "sonner";
+import { Actions, useCsDispatch } from "@/cs-redux";
+import { Spinner } from "@/components/cn/spinner";
 
 export default function Owner({ next }: { next?: () => void }) {
+    const dispatch = useCsDispatch();
 
+    const [loading, setLoading] = useState<boolean>(false)
     const [payload, setPayload] = useState<NewOwnerPayload>({
         display_name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirm_password: ''
     });
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -24,9 +29,27 @@ export default function Owner({ next }: { next?: () => void }) {
         }));
     }
 
+
     async function onSave() {
-        console.log(payload);
-        next && next();
+        if (!payload.display_name) return toast.error("Enter Owner Name")
+        else if (!payload.email) return toast.error("Enter Owner Email")
+        else if (!payload.password) return toast.error("Enter Password")
+        else if (!payload.confirm_password) return toast.error("Confirm Password")
+        else if (payload.password !== payload.confirm_password) return toast.error("Password doesn't match")
+
+
+        setLoading(true)
+
+        const res = await dispatch(Actions.user.createOwnerAccount(payload))
+        if (res.payload.message) {
+            toast.success(res.payload.message)
+            next && next();
+        }
+        else if (res.payload.error) {
+            toast.error(res.payload.error)
+        }
+
+        setLoading(false)
     }
 
     return (
@@ -74,7 +97,7 @@ export default function Owner({ next }: { next?: () => void }) {
                     >
                         <div className="space-y-2">
                             <Label>Name</Label>
-                            <Input name="name" value={payload.display_name} onChange={handleChange} type="text" placeholder="Full Name" />
+                            <Input name="display_name" value={payload.display_name} onChange={handleChange} type="text" placeholder="Display Name" />
                         </div>
 
                         <div className="space-y-2">
@@ -88,7 +111,7 @@ export default function Owner({ next }: { next?: () => void }) {
                         </div>
                         <div className="space-y-2">
                             <Label>Confirm Password</Label>
-                            <InputPassword name="confirmPassword" value={payload.confirmPassword} onChange={handleChange} placeholder="Re-enter Password" />
+                            <InputPassword name="confirm_password" value={payload.confirm_password} onChange={handleChange} placeholder="Re-enter Password" />
                         </div>
                     </motion.div>
                 </div>
@@ -103,8 +126,8 @@ export default function Owner({ next }: { next?: () => void }) {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.5, type: "spring" }}
                 >
-                    <Button onClick={onSave} size={'sm'}>
-                        Save & Continue
+                    <Button disabled={loading} onClick={onSave} size={'sm'}>
+                        {loading ? <Spinner /> : "Save & Continue"}
                     </Button>
                 </motion.div>
             </div>

@@ -79,10 +79,10 @@ func WriteErrorResponse(w http.ResponseWriter, status int, message string, err .
 
 	resp := map[string]any{
 		"code":    status,
-		"message": message,
+		"error": message,
 	}
 	if errMsg != "" {
-		resp["error"] = errMsg
+		resp["err"] = errMsg
 	}
 
 	WriteResponse(w, status, resp)

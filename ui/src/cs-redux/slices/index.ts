@@ -1,10 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import GlobalSlice from "./slices/global.slice";
-import AuthSlice from "./slices/auth.slice";
+import GlobalSlice from "./global.slice";
+import AuthSlice from "./auth.slice";
+import UserSlice from "./user.slice";
 
 const CsRootReducer = combineReducers({
     global: GlobalSlice.reducer,
     auth: AuthSlice.reducer,
+    user: UserSlice.reducer,
 })
 
 export type CsRootState = ReturnType<typeof CsRootReducer>;

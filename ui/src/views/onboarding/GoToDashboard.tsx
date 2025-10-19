@@ -21,7 +21,7 @@ export default function GoToDashboard() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                 >
-                    Everything&prime;s ready to roll. Let&prime;s jump into your dashboard.
+                    Everything&prime;s ready to roll. Let&prime;s log in to your dashboard.
                 </motion.p>
             </div>
 
@@ -40,9 +40,9 @@ export default function GoToDashboard() {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.5, type: "spring" }}
             >
-                <Link to={'/'} replace>
+                <Link to={'/auth/login'} replace>
                     <Button size={'sm'}>
-                        Let&prime;s Go →
+                        Let&prime;s Login →
                     </Button>
                 </Link>
 
