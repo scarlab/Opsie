@@ -4,12 +4,13 @@ package {{.PackageName}}
 
 import (
 	"database/sql"
-	"opsie/core/socket"
-
+	repo "opsie/core/repositories"
+	"opsie/core/services"
+	
 	"github.com/gorilla/mux"
 )
 
-// Init - Entry point for initializing api - {{.PackageName}} with socket hub
+// Init - Entry point for initializing api - {{.PackageName}}
 //
 // Responsibilities:
 // 1. Create repository, service, and handler instances.
@@ -18,15 +19,15 @@ import (
 //
 // Usage:
 //   packagename.Register(router, db)
-func Register(r *mux.Router, db *sql.DB, socketHub *socket.Hub) {
+func Register(r *mux.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
-	repository := NewRepository(db)
+	repository := repo.New{{.Name}}Repository(db)
 
 	// Step 2: Create service (Business logic layer)
-	service := NewService(repository)
+	service := services.New{{.Name}}Service(repository)
 
 	// Step 3: Create handler (HTTP layer)
-	handler := NewHandler(service, socketHub)
+	handler := NewHandler(service)
 
 	// Step 4: Create the sub-router for this api (modify if required)
 	router := r.PathPrefix("/{{.PackageName}}").Subrouter()
