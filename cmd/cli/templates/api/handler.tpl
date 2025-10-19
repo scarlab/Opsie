@@ -3,25 +3,28 @@ package {{.PackageName}}
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 	"opsie/core/services"
+	"opsie/pkg/errors"
 )
+
 
 // {{.Name}} Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *{{.Name}}Service
+	service *services.{{.Name}}Service
 }
 
 // NewHandler - Constructor for {{.Name}} Handler
-func NewHandler(service *{{.Name}}Service) *Handler {
+func NewHandler(service *services.{{.Name}}Service) *Handler {
 	return &Handler{
 		service: service,
 	}
 }
 
 
-// func (h *Handler) Example(w http.ResponseWriter, r *http.Request) {
-//     
-//     json.NewEncoder(w).Encode("ok")
-// }
+
+func (h *Handler) Example(w http.ResponseWriter, r *http.Request) *errors.Error{
+    
+    json.NewEncoder(w).Encode("ok")
+	return nil
+}
