@@ -15,6 +15,7 @@ var AppConfig *TAppConfig
 // IsDev is a global convenience flag for development-only logic.
 // e.g., if config.IsDev { enableDebugLogging() }
 var IsDev bool
+var IsProd bool
 
 // init runs automatically when the package is imported.
 // It initializes global configuration objects.
@@ -26,4 +27,5 @@ func init() {
 	}
 
 	IsDev = ENV.GoEnv == "development"
+	IsProd = ENV.GoEnv == "production"
 }

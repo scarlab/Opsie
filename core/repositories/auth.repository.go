@@ -126,6 +126,9 @@ func (r *AuthRepository) GetValidSessionWithAuthUser(key string) (types.SessionW
         &su.AuthUser.IsActive,
     )
     if err != nil {
+		if err == sql.ErrNoRows {
+			return types.SessionWithUser{}, errors.Unauthorized("invalid session")
+		}
         return types.SessionWithUser{}, errors.Internal(err)
     }
 

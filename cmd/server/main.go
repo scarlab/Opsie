@@ -8,6 +8,7 @@ import (
 	embedui "opsie"
 	"opsie/config"
 	"opsie/db"
+	"opsie/pkg/logger"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,6 +42,7 @@ func main() {
 	log.Printf("🚀 Starting %s (%s)\n", config.AppConfig.Name, config.AppConfig.Version)
 	log.Printf("🌱 Environment: %s\n\n", config.ENV.GoEnv)
 
+	logger.Init()
 
 	// -------------------------------------------------------------------
 	// Embed React UI

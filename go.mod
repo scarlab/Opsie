@@ -10,6 +10,7 @@ require (
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
@@ -28,6 +29,8 @@ require (
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
 	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
+	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sys v0.36.0 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )

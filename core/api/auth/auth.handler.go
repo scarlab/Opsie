@@ -105,6 +105,8 @@ func (h *Handler) GetSessionUser(w http.ResponseWriter, r *http.Request) *errors
 	if userVal == nil {
 		return errors.New(http.StatusUnauthorized, "no active session found")
 	}
+
+
 	authUser, ok := userVal.(types.AuthUser)
 	if !ok {
 		return errors.Internal(fmt.Errorf("invalid session"))

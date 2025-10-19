@@ -1,10 +1,9 @@
 package bolt
 
 import (
-	"log"
 	"net/http"
-	"opsie/config"
 	"opsie/pkg/errors"
+	"opsie/pkg/logger"
 	"reflect"
 	"time"
 )
@@ -27,14 +26,9 @@ func HandleMiddleware(final HandlerFunc, middlewares ...Middleware) HandlerFunc 
 		// Or return a default handler.
 	}
 	
-	// Add Error Handler to the chain
-	middlewares = append([]Middleware{errorHandlerMiddleware}, middlewares...) // 1th
-	
-	if config.IsDev {
-		middlewares = append([]Middleware{loggerMiddleware}, middlewares...)   // 0th
-	}
-
-	
+	// Add Error Handler & Logger to the chain
+	middlewares = append([]Middleware{loggerMiddleware, errorHandlerMiddleware}, middlewares...) // 1th
+		
 
 	// Execute the middleware in the same order and return the final func.
 	// This is a confusing and tricky construct :)
@@ -60,7 +54,7 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) *errors.Error {
 		defer func() {
 			if rec := recover(); rec != nil {
-				log.Println("Panic Recovered:", rec)
+				logger.Error("Panic: %s", rec)
 				WriteErrorResponse(w, http.StatusInternalServerError, "internal server error")
 			}
 		}()
@@ -96,50 +90,39 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 func loggerMiddleware(next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) *errors.Error {
 		start := time.Now()
-
 		lrw := &loggingResponseWriter{ResponseWriter: w, status: http.StatusOK}
-		err := next(lrw, r)
 
+		err := next(lrw, r)
 		duration := time.Since(start)
 
-		// Color codes
+		statusColor := colorForStatus(lrw.status)
+		methodColor := colorForMethod(r.Method)
+		sizeColor := "\033[36m"
 		reset := "\033[0m"
 		bold := "\033[1m"
-		gray := "\033[90m"
 
-		green := "\033[32m"
-		yellow := "\033[33m"
-		red := "\033[31m"
-		cyan := "\033[36m"
-		magenta := "\033[35m"
+		fLogger, sLogger := logger.RequestLogger()
 
-		// Status color based on code
-		statusColor := green
-		switch {
-		case lrw.status >= 500:
-			statusColor = red
-		case lrw.status >= 400:
-			statusColor = yellow
-		case lrw.status >= 300:
-			statusColor = cyan
-		}
-
-		// Build colored log
-		log.Printf(
-			"%s%-6s%s %s%-40s%s %s%d%s %s%v%s - %s%dB%s",
-			bold, r.Method, reset,
-			cyan, r.RequestURI, reset,
+		sLogger.Printf("%s%s%-6s%s  %-40s  %s%3d%s  %8.2fms  %s%dB%s\n",
+			bold, methodColor, r.Method, reset,
+			r.URL.Path,
 			statusColor, lrw.status, reset,
-			gray, duration, reset,
-			magenta, lrw.size, reset,
+			float64(duration.Microseconds())/1000.0,
+			sizeColor, lrw.size, reset,
+		)
+
+		fLogger.Printf("%-6s  %-40s  %3d  %8.2fms  %dB\n",
+			r.Method,
+			r.URL.Path,
+			lrw.status,
+			float64(duration.Microseconds())/1000.0,
+			lrw.size,
 		)
 
 		return err
 	}
 }
 
-
-// loggingResponseWriter captures status code and response size
 type loggingResponseWriter struct {
 	http.ResponseWriter
 	status int
@@ -152,7 +135,37 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 }
 
 func (lrw *loggingResponseWriter) Write(b []byte) (int, error) {
-	size, err := lrw.ResponseWriter.Write(b)
-	lrw.size += size
-	return size, err
+	n, err := lrw.ResponseWriter.Write(b)
+	lrw.size += n
+	return n, err
+}
+
+func colorForStatus(code int) string {
+	switch {
+	case code >= 200 && code < 300:
+		return "\033[32m" // green
+	case code >= 300 && code < 400:
+		return "\033[36m" // cyan
+	case code >= 400 && code < 500:
+		return "\033[33m" // yellow
+	default:
+		return "\033[31m" // red
+	}
+}
+
+func colorForMethod(method string) string {
+	switch method {
+	case "GET":
+		return "\033[34m" // blue
+	case "POST":
+		return "\033[32m" // green
+	case "PUT":
+		return "\033[33m" // yellow
+	case "PATCH":
+		return "\033[33m" // yellow
+	case "DELETE":
+		return "\033[31m" // red
+	default:
+		return "\033[37m" // white
+	}
 }
