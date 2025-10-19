@@ -53,7 +53,7 @@ func (s *ApiServer) Router() *mux.Router {
 
 
 	// -------------------------------------------------------------------
-	// Register Domains
+	// Register Apis
 	// -------------------------------------------------------------------
 	user.Register(apiRouter, s.db)
 	auth.Register(apiRouter, s.db)

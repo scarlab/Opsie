@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"opsie/config"
+	"opsie/core/cli"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgMigrate "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -30,32 +32,58 @@ func main() {
 
 
 	// ------------------------
-	// create-api command
+	// api parent command
 	// ------------------------
-	newDomainCmd := &cobra.Command{
-		Use:   "create-api [name]",
-		Short: "Scaffold a new api inside core/api/",
+	apiCmd := &cobra.Command{
+		Use:   "api",
+		Short: "Manage backend API modules (create/delete/list)",
+	}
+
+	// ------------------------
+	// api create command
+	// ------------------------
+	apiCreateCmd := &cobra.Command{
+		Use:   "create [name]",
+		Short: "Scaffold a new API inside core/api/",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			name := strings.ToLower(args[0])
-
-			// Read the flag
 			withWS, _ := cmd.Flags().GetBool("ws")
 
 			fmt.Printf("🧱 Creating api '%s' (WebSocket: %v)\n", name, withWS)
-
-			// Generate api files
-			if err := createDomain(name, withWS); err != nil {
+			if err := createApi(name, withWS); err != nil {
 				log.Fatalf("❌ Failed to create api '%s': %v\n", name, err)
 			}
 		},
 	}
+	apiCreateCmd.Flags().BoolP("ws", "w", false, "Include WebSocket-enabled templates")
 
-	// Add flag
-	newDomainCmd.Flags().BoolP("ws", "w", false, "Include WebSocket-enabled templates")
+	// ------------------------
+	// api delete command
+	// ------------------------
+	apiDeleteCmd := &cobra.Command{
+		Use:   "delete [name]",
+		Short: "Delete an existing API and its related files",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			name := strings.ToLower(args[0])
 
+			fmt.Printf("🗑️ Deleting api '%s'...\n", name)
+			if err := deleteApi(name); err != nil {
+				log.Fatalf("❌ Failed to delete api '%s': %v\n", name, err)
+			}
+		},
+	}
 
-	rootCmd.AddCommand(newDomainCmd)
+	// ------------------------
+	// attach subcommands
+	// ------------------------
+	apiCmd.AddCommand(apiCreateCmd)
+	apiCmd.AddCommand(apiDeleteCmd)
+
+	// Register parent command with root
+	rootCmd.AddCommand(apiCmd)
+
 
 	// ------------------------
 	// migrate command
@@ -109,9 +137,9 @@ func main() {
 }
 
 // ------------------------
-// Domain scaffolding
+// Api scaffolding
 // ------------------------
-func createDomain(name string, withWS bool) error {
+func createApi(name string, withWS bool) error {
     // --- Define output paths ---
     apiBase := filepath.Join("core", "api", name)
     serviceBase := filepath.Join("core", "services")
@@ -207,8 +235,79 @@ func createDomain(name string, withWS bool) error {
         fmt.Printf("✅ Created %s\n", outFile)
     }
 
-    fmt.Printf("🎉 Domain '%s' created successfully.\n", name)
+    fmt.Printf("🎉 Api '%s' created successfully.\n", name)
+
+	// --- Generate Redux files ---
+	if err := cli.GenerateReduxFiles(name); err != nil {
+		return fmt.Errorf("redux generation failed: %w", err)
+	}
+
+	fmt.Printf("🎨 Redux layer for '%s' created successfully.\n", name)
+
     return nil
+}
+
+
+func deleteApi(name string) error {
+	caser := cases.Title(language.English)
+	nameLower := strings.ToLower(name)
+	nameTitle := caser.String(nameLower)
+
+	// Ask for confirmation by typing the name again
+	fmt.Printf("You are about to DELETE the API and related files(feature) for '%s'.\n", nameTitle)
+	fmt.Printf("Type the name '%s' to confirm: ", nameLower)
+
+	reader := bufio.NewReader(os.Stdin)
+	inputRaw, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read confirmation: %w", err)
+	}
+	input := strings.ToLower(strings.TrimSpace(inputRaw))
+
+	if input != nameLower {
+		fmt.Println("Confirmation did not match. Aborting deletion.")
+		return fmt.Errorf("confirmation mismatch")
+	}
+
+	// --- Backend folders ---
+	backendPaths := []string{
+		filepath.Join("core", "api", nameLower),
+		filepath.Join("core", "services", fmt.Sprintf("%s.service.go", nameLower)),
+		filepath.Join("core", "repositories", fmt.Sprintf("%s.repository.go", nameLower)),
+		filepath.Join("types", fmt.Sprintf("%s.type.go", nameLower)),
+	}
+
+	for _, path := range backendPaths {
+		if _, err := os.Stat(path); err == nil {
+			if err := os.RemoveAll(path); err != nil {
+				return fmt.Errorf("failed to remove %s: %w", path, err)
+			}
+			fmt.Printf("🗑️  Deleted %s\n", path)
+		}
+	}
+
+	// --- Frontend (Redux) files ---
+	reduxFiles := []string{
+		filepath.Join("ui", "src", "cs-redux", "actions", fmt.Sprintf("%s.action.ts", nameLower)),
+		filepath.Join("ui", "src", "cs-redux", "slices", fmt.Sprintf("%s.slice.ts", nameLower)),
+	}
+
+	for _, path := range reduxFiles {
+		if _, err := os.Stat(path); err == nil {
+			if err := os.Remove(path); err != nil {
+				return fmt.Errorf("failed to remove %s: %w", path, err)
+			}
+			fmt.Printf("🗑️  Deleted %s\n", path)
+		}
+	}
+
+	// --- Clean Redux index.ts entries ---
+	if err := cli.CleanReduxIndexes(nameTitle, nameLower); err != nil {
+		return fmt.Errorf("failed to clean redux indexes: %w", err)
+	}
+
+	fmt.Printf("✅ Api '%s' fully removed.\n", name)
+	return nil
 }
 
 

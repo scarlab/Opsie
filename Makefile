@@ -24,10 +24,13 @@ build-agent:
 
 
 api:
-	@go run cmd/cli/main.go create-api $(filter-out $@,$(MAKECMDGOALS))
+	@go run cmd/cli/main.go api create $(filter-out $@,$(MAKECMDGOALS))
 
 api-ws:
-	@go run cmd/cli/main.go create-api $(filter-out $@,$(MAKECMDGOALS)) --ws
+	@go run cmd/cli/main.go api create $(filter-out $@,$(MAKECMDGOALS)) --ws
+
+api-delete:
+	@go run cmd/cli/main.go api delete $(filter-out $@,$(MAKECMDGOALS))
 
 
 migration:

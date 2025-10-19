@@ -34,7 +34,7 @@ export default function LoginView() {
         else if (!payload.password) return toast.error("Enter Password")
 
         const res = await dispatch(Actions.auth.login({ email: payload.email, password: payload.password }))
-        console.log(res.payload);
+
         if (res.payload.message) {
             toast.success(res.payload.message)
             navigate("/", { replace: true })
