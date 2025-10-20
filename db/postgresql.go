@@ -3,8 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"opsie/config"
+	"opsie/pkg/logger"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
@@ -30,17 +30,17 @@ func Postgres() (*sql.DB, error) {
 	// Establish connection
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		log.Printf("❌ Failed to open PostgreSQL connection: %v", err)
+		logger.Fatalf("Failed to open PostgreSQL connection: %v", err)
 		return nil, err
 	}
 
 	// Verify connection
 	if err := db.Ping(); err != nil {
-		log.Printf("❌ Failed to ping PostgreSQL: %v", err)
+		logger.Fatalf("Failed to ping PostgreSQL: %v", err)
 		return nil, err
 	}
 
-	log.Printf("✅ PostgreSQL connected → [%s:%s/%s]\n", config.ENV.PG_Host, config.ENV.PG_Port, config.ENV.PG_Database)
+	logger.Info("✅ PostgreSQL connected → [%s:%s/%s]\n", config.ENV.PG_Host, config.ENV.PG_Port, config.ENV.PG_Database)
 
 	return db, nil
 }

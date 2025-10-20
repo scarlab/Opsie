@@ -101,7 +101,7 @@ func loggerMiddleware(next HandlerFunc) HandlerFunc {
 		reset := "\033[0m"
 		bold := "\033[1m"
 
-		fLogger, sLogger := logger.RequestLogger()
+		fLogger, sLogger := logger.HttpLogger()
 
 		sLogger.Printf("%s%s%-6s%s  %-40s  %s%3d%s  %8.2fms  %s%dB%s\n",
 			bold, methodColor, r.Method, reset,

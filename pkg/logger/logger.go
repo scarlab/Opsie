@@ -22,7 +22,7 @@ const (
 
 
 var (
-	requestFilePath = "/var/log/opsie/request.log"
+	httpFilePath = "/var/log/opsie/http.log"
 	logFilePath = "/var/log/opsie/opsie.log"
 )
 
@@ -41,9 +41,13 @@ func Init() {
 
 	stdLogger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lmsgprefix)
 	fileLogger = log.New(logFile, "", log.Ldate|log.Ltime|log.Lmsgprefix)
-
 }
 
+
+func Printf(format string, v ...any) {
+	stdLogger.Printf(format, v...)
+	fileLogger.Printf(format, v...)
+}
 
 func Debug(format string, v ...any) {
 	stdLogger.Printf(bold+cyan+" DEBUG "+reset+cyan+format+reset, v...)
@@ -66,12 +70,17 @@ func Error(format string, v ...any) {
 	fileLogger.Printf(" ERROR "+format, v...)
 }
 
+func Fatalf(format string, v ...any) {
+	stdLogger.Fatalf(bold+red+" FATAL_ERROR "+reset+red+format+reset, v...)
+	fileLogger.Fatalf(" FATAL_ERROR "+format, v...)
+}
 
 
 
-func RequestLogger() (*log.Logger, *log.Logger) {
-		requestFile := &lumberjack.Logger{
-		Filename:   requestFilePath,
+
+func HttpLogger() (*log.Logger, *log.Logger) {
+	httpFile := &lumberjack.Logger{
+		Filename:   httpFilePath,
 		MaxSize:    10,
 		MaxBackups: 3,
 		MaxAge:     14,
@@ -79,7 +88,7 @@ func RequestLogger() (*log.Logger, *log.Logger) {
 	}
 
 	stdoutLogger := log.New(os.Stdout, bold+" HTTP  "+reset, log.Ldate|log.Ltime|log.Lmsgprefix)
-	fileLogger := log.New(requestFile, " HTTP  ", log.Ldate|log.Ltime|log.Lmsgprefix)
+	fileLogger := log.New(httpFile, " HTTP  ", log.Ldate|log.Ltime|log.Lmsgprefix)
 
 	
 	return  fileLogger, stdoutLogger
