@@ -3,7 +3,10 @@ package repo
 import (
 	"database/sql"
 	"net/http"
+	"opsie/config"
+	"opsie/core/dbutils"
 	"opsie/pkg/errors"
+	"opsie/pkg/utils"
 	"opsie/types"
 	"time"
 )
@@ -26,37 +29,12 @@ func (r *AuthRepository) CreateSession(userId types.ID, key string, expiry time.
 	query := `
 		INSERT INTO sessions (user_id, key, expiry)
 		VALUES ($1, $2, $3)
-		RETURNING id, user_id, key, ip, os, device, browser, is_valid, expiry, created_at;
-	`
+		RETURNING ` + dbutils.SessionColumns + `;`
 
-	var session types.Session
-	var ip, os, device, browser sql.NullString
-
-	err := r.db.QueryRow(query, userId, key, expiry).Scan(
-		&session.ID,
-		&session.UserID,
-		&session.Key,
-		&ip,
-		&os,
-		&device,
-		&browser,
-		&session.IsValid,
-		&session.Expiry,
-		&session.CreatedAt,
-	)
-	if err != nil {
-		return types.Session{}, errors.Internal(err)
-	}
-
-	// Convert NullString to normal string
-	session.IP = ip.String
-	session.OS = os.String
-	session.Device = device.String
-	session.Browser = browser.String
-
-
-	return session, nil
+	row := r.db.QueryRow(query, userId, key, expiry)
+	return dbutils.SessionScan(row)
 }
+
 
 func (r *AuthRepository) GetValidSessionByKey(key string) (types.Session, *errors.Error) {
 	query := `
@@ -65,33 +43,11 @@ func (r *AuthRepository) GetValidSessionByKey(key string) (types.Session, *error
 		WHERE key=$1 AND is_valid=true AND expiry > now()
 	`
 
-	var session types.Session
-	var ip, os, device, browser sql.NullString
-
-	err := r.db.QueryRow(query, key).Scan(
-		&session.ID,
-		&session.UserID,
-		&session.Key,
-		&ip,
-		&os,
-		&device,
-		&browser,
-		&session.IsValid,
-		&session.Expiry,
-		&session.CreatedAt,
-	)
+	row := r.db.QueryRow(query, key)
+	session, err := dbutils.SessionScan(row)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return types.Session{}, errors.NotFound("session not found or expired")
-		}
-		return types.Session{}, errors.Internal(err)
+		return types.Session{}, err
 	}
-
-	// Convert NullString to normal string
-	session.IP = ip.String
-	session.OS = os.String
-	session.Device = device.String
-	session.Browser = browser.String
 
 	return session, nil
 }
@@ -146,12 +102,44 @@ func (r *AuthRepository) GetValidSessionWithAuthUser(key string) (types.SessionW
 }
 
 
-func (r *AuthRepository) ExpireSession(key string) error {
+func (r *AuthRepository) ExpireSession(key string) *errors.Error {
 	query := `
 		UPDATE sessions
 		SET is_valid = false, expiry = NOW()
 		WHERE key = $1 AND is_valid = true
 	`
-	_, err := r.db.Exec(query, key)
-	return err
+	result, err := r.db.Exec(query, key)
+	if err != nil {
+		return errors.Internal(err)
+	}
+
+	// Optional: check if any row was actually updated
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.NotFound("No active session found")
+	}
+
+	return nil
+}
+
+
+
+func (r *AuthRepository) RegenerateSessionKey(key types.SessionKey) (types.Session, *errors.Error) {
+
+	newKey, gskRrr := utils.GenerateSessionKey()
+	if gskRrr != nil {
+		return types.Session{}, errors.Internal(gskRrr)
+	}
+
+	expiry := time.Now().Add(time.Duration(config.AppConfig.SessionDays) * 24 * time.Hour)
+
+	query := `
+		UPDATE sessions
+		SET key = $2, expiry = $3
+		WHERE key = $1 AND is_valid = true
+		RETURNING ` + dbutils.SessionColumns + `;
+	`
+
+	row := r.db.QueryRow(query, key, newKey, expiry)
+	return dbutils.SessionScan(row)
 }

@@ -3,8 +3,8 @@ package mw
 import (
 	"context"
 	"net/http"
-	"opsie/constant"
 	repo "opsie/core/repositories"
+	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
 	"strings"
@@ -40,8 +40,8 @@ func newAuthMiddleware(authRepo *repo.AuthRepository) bolt.Middleware {
 
 
 			// 3. Attach to context
-			ctx := context.WithValue(r.Context(), constant.ContextKeySession, authUser.Session)
-			ctx = context.WithValue(ctx, constant.ContextKeyUser, authUser.AuthUser)
+			ctx := context.WithValue(r.Context(), def.ContextKeySession, authUser.Session)
+			ctx = context.WithValue(ctx, def.ContextKeyUser, authUser.AuthUser)
 			r = r.WithContext(ctx)
 
 			// 4. Call next middleware/handler

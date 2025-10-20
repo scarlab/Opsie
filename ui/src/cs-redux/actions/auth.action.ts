@@ -4,8 +4,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export class AuthAction {
 
-    login = createAsyncThunk(
-        "auth/login",
+    Login = createAsyncThunk(
+        "Auth/Login",
         async (payload: LoginPayload, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.post(`/auth/login`, payload);
@@ -18,8 +18,8 @@ export class AuthAction {
     )
 
 
-    session = createAsyncThunk(
-        "auth/session",
+    Session = createAsyncThunk(
+        "Auth/Session",
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
 
@@ -33,8 +33,8 @@ export class AuthAction {
     )
 
 
-    logout = createAsyncThunk(
-        "auth/logout",
+    Logout = createAsyncThunk(
+        "Auth/Logout",
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.get(`/auth/logout`);

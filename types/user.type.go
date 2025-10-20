@@ -26,3 +26,12 @@ type NewOwnerPayload struct {
 }
 
 
+type UpdateAccountNamePayload struct {
+    DisplayName string          `json:"display_name"`
+}
+type UpdateAccountPasswordPayload struct {
+    Password string             `json:"password"`
+    NewPassword string          `json:"new_password"`
+}
+
+

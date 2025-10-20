@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"opsie/config"
-	"opsie/constant"
 	"opsie/core/services"
+	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
 	"opsie/types"
@@ -65,7 +65,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// 1. Get session from context
-	sessionVal := r.Context().Value(constant.ContextKeySession)
+	sessionVal := r.Context().Value(def.ContextKeySession)
 	if sessionVal == nil {
 		return errors.New(http.StatusUnauthorized, "no active session found")
 	}
@@ -101,7 +101,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error {
 
 func (h *Handler) GetSessionUser(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// 1. Get session from context
-	userVal := r.Context().Value(constant.ContextKeyUser)
+	userVal := r.Context().Value(def.ContextKeyUser)
 	if userVal == nil {
 		return errors.New(http.StatusUnauthorized, "no active session found")
 	}

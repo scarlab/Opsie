@@ -22,38 +22,41 @@ const AuthSlice = createSlice({
     reducers: {
         restoreAuthUser: (state, { payload }) => {
             state.authUser = payload
-        }
+        },
+        updateAuthUser: (state, { payload }) => {
+            state.authUser = payload
+        },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(Auth.login.pending, () => {
+            .addCase(Auth.Login.pending, () => {
                 // state.loading = true;
             })
-            .addCase(Auth.login.fulfilled, (state, { payload }) => {
+            .addCase(Auth.Login.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.authUser = payload.auth_user;
 
                 //...
                 setLocalAuthUser(payload.auth_user)
             })
-            .addCase(Auth.login.rejected, (state, _) => {
+            .addCase(Auth.Login.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
                 state.authUser = undefined;
             })
 
         builder
-            .addCase(Auth.session.pending, (state, _) => {
+            .addCase(Auth.Session.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(Auth.session.fulfilled, (state, { payload }) => {
+            .addCase(Auth.Session.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.authUser = payload.auth_user;
 
                 //...
                 setLocalAuthUser(payload.auth_user)
             })
-            .addCase(Auth.session.rejected, (state, _) => {
+            .addCase(Auth.Session.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
                 state.authUser = undefined;
@@ -64,17 +67,17 @@ const AuthSlice = createSlice({
 
 
         builder
-            .addCase(Auth.logout.pending, (state, _) => {
+            .addCase(Auth.Logout.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(Auth.logout.fulfilled, (state, _) => {
+            .addCase(Auth.Logout.fulfilled, (state, _) => {
                 state.loading = false;
                 state.authUser = undefined;
 
                 // ...
                 removeLocalAuthUser()
             })
-            .addCase(Auth.logout.rejected, (state, _) => {
+            .addCase(Auth.Logout.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
             })

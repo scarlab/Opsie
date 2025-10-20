@@ -1,4 +1,4 @@
-package constant
+package def
 
 // SystemRole represents the role of a user in the system.
 type SystemRole string
@@ -17,4 +17,10 @@ type ContextKey string
 const (
     ContextKeySession ContextKey = "session"
     ContextKeyUser    ContextKey = "user"
+)
+
+// Define a private type for context keys
+
+const (
+    CookieNameSession string = "session"
 )

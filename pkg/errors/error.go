@@ -13,9 +13,8 @@ type Error struct {
 
 
 // Unwrap returns the inner error.
-func (e *Error) Unwrap() error {
-	return e.Err
-}
+func (e *Error) Unwrap() error { return e.Err }
+func (e *Error) Original() error { return e.Err }
 
 // ---- Core Constructors ----
 

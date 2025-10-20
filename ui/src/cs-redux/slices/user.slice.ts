@@ -25,18 +25,34 @@ const UserSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(User.createOwnerAccount.pending, (state, _) => {
+            .addCase(User.CreateOwnerAccount.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(User.createOwnerAccount.fulfilled, (state, { payload }) => {
+            .addCase(User.CreateOwnerAccount.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.user = payload.user;
             })
-            .addCase(User.createOwnerAccount.rejected, (state, _) => {
+            .addCase(User.CreateOwnerAccount.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
                 state.user = undefined;
             })
+
+
+        // User Account
+        // builder
+        //     .addCase(User.UpdateAccountDisplayName.pending, (state, _) => {
+        //         state.loading = true;
+        //     })
+        //     .addCase(User.UpdateAccountDisplayName.fulfilled, (state, { payload }) => {
+        //         state.loading = false;
+        //         state.user = payload.user;
+        //     })
+        //     .addCase(User.UpdateAccountDisplayName.rejected, (state, _) => {
+        //         state.loading = false;
+        //         state.notFound = true;
+        //         state.user = undefined;
+        //     })
     }
 });
 

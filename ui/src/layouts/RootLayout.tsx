@@ -18,7 +18,7 @@ export default function RootLayout() {
         const init = async () => {
             try {
                 // Check if system is onboarded (owner exists)
-                const { payload: { count } } = await dispatch(Actions.user.getOwnerCount());
+                const { payload: { count } } = await dispatch(Actions.user.GetOwnerCount());
 
                 if (count <= 0) {
                     removeLocalAuthUser();
@@ -34,7 +34,7 @@ export default function RootLayout() {
                 } else {
                     removeLocalAuthUser();
                     // Verify session server-side
-                    await dispatch(Actions.auth.session());
+                    await dispatch(Actions.auth.Session());
                 }
             } catch (err) {
                 console.error("RootLayout init error:", err);

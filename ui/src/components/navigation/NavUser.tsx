@@ -29,7 +29,7 @@ export default function NavUserMenu() {
 
 
     async function onLogout() {
-        const res = await dispatch(Actions.auth.logout())
+        const res = await dispatch(Actions.auth.Logout())
 
         if (res.payload.message) {
             toast.success(res.payload.message)

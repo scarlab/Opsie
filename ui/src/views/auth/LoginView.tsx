@@ -33,7 +33,7 @@ export default function LoginView() {
         if (!payload.email) return toast.error("Enter Email")
         else if (!payload.password) return toast.error("Enter Password")
 
-        const res = await dispatch(Actions.auth.login({ email: payload.email, password: payload.password }))
+        const res = await dispatch(Actions.auth.Login({ email: payload.email, password: payload.password }))
 
         if (res.payload.message) {
             toast.success(res.payload.message)

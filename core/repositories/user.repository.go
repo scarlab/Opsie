@@ -2,8 +2,8 @@ package repo
 
 import (
 	"database/sql"
-	"encoding/json"
-	"opsie/constant"
+	"opsie/core/dbutils"
+	"opsie/def"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 	"opsie/types"
@@ -27,47 +27,30 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 
 
 func (r *UserRepository) CreateOwnerAccount(payload types.NewOwnerPayload) (types.User, *errors.Error) {
-	query := `
-		INSERT INTO users (id, display_name, email, password, system_role)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, display_name, email, system_role, preference, is_active, created_at, updated_at;
-	`
+	query := `INSERT INTO users (id, display_name, email, password, system_role)
+			VALUES ($1, $2, $3, $4, $5)
+			RETURNING ` + dbutils.UserColumns 
 
 	var user types.User
-	var prefBytes []byte
 
 	id := utils.GenerateID()
-	system_role := constant.SystemRoleOwner
+	system_role := def.SystemRoleOwner
 
-	err := r.db.QueryRow(query, id, payload.DisplayName, payload.Email, payload.Password, system_role).Scan(
-		&user.ID,
-		&user.DisplayName,
-		&user.Email,
-		&user.SystemRole,
-		&prefBytes,
-		&user.IsActive,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-	
+	row := r.db.QueryRow(query, id, payload.DisplayName, payload.Email, payload.Password, system_role)
+	 
+	user, err := dbutils.UserScan(row)
 	if err != nil {
-		// Detect duplicate email constraint
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
-			return types.User{}, errors.New(409, "email already in use")
+		if pqErr, ok := err.Original().(*pq.Error); ok && pqErr.Code == "23505" {
+			return types.User{}, errors.New(409, "Email already in use")
 		}
-		
-		return types.User{}, errors.Internal(err)
-	}
-
-	// Decode preference JSONB
-	if len(prefBytes) > 0 {
-		_ = json.Unmarshal(prefBytes, &user.Preference)
-	} else {
-		user.Preference = make(map[string]any)
+		return types.User{}, err
 	}
 
 	return user, nil
 }
+
+
+
 
 func (r *UserRepository) GetOwnerCount() (int, *errors.Error) {
     var count int
@@ -86,78 +69,48 @@ func (r *UserRepository) GetOwnerCount() (int, *errors.Error) {
 
 
 func (r *UserRepository) GetByEmail(email string) (types.User, *errors.Error) {
-	var user types.User
-	query := `
-		SELECT id, display_name, email, password, system_role, preference, is_active, created_at, updated_at
-		FROM users
-		WHERE email = $1
-	`
-	var prefBytes []byte
-
-	err := r.db.QueryRow(query, email).Scan(
-		&user.ID,
-		&user.DisplayName,
-		&user.Email,
-		&user.Password,
-		&user.SystemRole,
-		&prefBytes,
-		&user.IsActive,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return types.User{}, errors.NotFound("user not found")
-		}
-		return types.User{}, errors.Internal(err)
-	}
-
-	if len(prefBytes) > 0 {
-		_ = json.Unmarshal(prefBytes, &user.Preference)
-	} else {
-		user.Preference = make(map[string]any)
-	}
-
-	return user, nil
+	query := `SELECT ` + dbutils.UserColumns + ` FROM users WHERE email = $1`
+	
+	row := r.db.QueryRow(query, email)
+	return dbutils.UserScan(row)
 }
 
 
 
 
-func (r *UserRepository) GetByID(ID int64) (types.User, *errors.Error) {
-	var user types.User
-	query := `
-		SELECT id, display_name, email, password, system_role, preference, is_active, created_at, updated_at
-		FROM users
-		WHERE id = $1
-	`
-	var prefBytes []byte
+func (r *UserRepository) GetByID(ID types.ID) (types.User, *errors.Error) {
+	query := `SELECT ` + dbutils.UserColumns + ` FROM users WHERE id = $1`
 
-	err := r.db.QueryRow(query, ID).Scan(
-		&user.ID,
-		&user.DisplayName,
-		&user.Email,
-		&user.Password,
-		&user.SystemRole,
-		&prefBytes,
-		&user.IsActive,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return types.User{}, errors.NotFound("user not found")
-		}
-		return types.User{}, errors.Internal(err)
-	}
-
-	if len(prefBytes) > 0 {
-		_ = json.Unmarshal(prefBytes, &user.Preference)
-	} else {
-		user.Preference = make(map[string]any)
-	}
-
-	return user, nil
+	row := r.db.QueryRow(query, ID)
+	return dbutils.UserScan(row)
 }
+
+
+
+
+
+func (r *UserRepository) UpdateAccountName(userID types.ID, name string) (types.User, *errors.Error) {
+	query := `UPDATE users SET display_name = $1 WHERE id = $2 RETURNING ` + dbutils.UserColumns 
+
+
+	row := r.db.QueryRow(query, name, userID)
+	return dbutils.UserScan(row)
+}
+
+
+
+
+func (r *UserRepository) UpdateAccountPassword(userID types.ID, password string) (bool, *errors.Error) {
+	query := ` UPDATE users SET password = $1 WHERE id = $2`
+
+	res, err := r.db.Exec(query, password, userID)
+	if err != nil {
+		return false, errors.Internal(err)
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	return rowsAffected > 0, nil
+}
+
 
 

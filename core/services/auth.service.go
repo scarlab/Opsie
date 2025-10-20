@@ -80,7 +80,7 @@ func (s *AuthService) HandleLogout(key types.SessionKey) *errors.Error {
 	// 1. Expire the session in DB
 	queryErr := s.repo.ExpireSession(string(key))
 	if queryErr != nil {
-		return errors.Internal(queryErr)
+		return errors.Internal(queryErr.Err)
 	}
 	return nil
 }

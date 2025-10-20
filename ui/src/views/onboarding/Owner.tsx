@@ -40,7 +40,7 @@ export default function Owner({ next }: { next?: () => void }) {
 
         setLoading(true)
 
-        const res = await dispatch(Actions.user.createOwnerAccount(payload))
+        const res = await dispatch(Actions.user.CreateOwnerAccount(payload))
         if (res.payload.message) {
             toast.success(res.payload.message)
             next && next();

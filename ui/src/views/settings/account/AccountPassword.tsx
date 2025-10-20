@@ -2,23 +2,31 @@ import { Button } from "@/components/cn/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/cn/card";
 import { InputPassword } from "@/components/cn/input-password";
 import { Label } from "@/components/cn/label";
+import { Actions, useCsDispatch } from "@/cs-redux";
 import { useState } from "react";
 import { toast } from "sonner";
 
 
 export default function AccountPassword() {
-    const [currentPassword, setCurrentPassword] = useState<string>("");
+    const dispatch = useCsDispatch();
+
+    const [password, setPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
 
     async function onSave() {
-        const payload = {
-            current_password: currentPassword,
-            new_password: newPassword,
-            confirm_password: confirmPassword,
+        if (!password) return toast.error("Enter your current password")
+        else if (!newPassword) return toast.error("Enter new password")
+        else if (!confirmPassword) return toast.error("Confirm new password")
+        else if (newPassword !== confirmPassword) return toast.error("New password doesn't match")
+
+
+        const res = await dispatch(Actions.user.UpdateAccountPassword({ password, new_password: newPassword }))
+        if (res.payload.message) {
+            toast.success(res.payload.message)
+        } else if (res.payload.error) {
+            toast.error(res.payload.error)
         }
-        console.log(payload);
-        toast.success(<pre>{JSON.stringify(payload, null, 2)}</pre>)
     }
     return (
         <Card>
@@ -29,7 +37,7 @@ export default function AccountPassword() {
                 <CardContent className="mt-3 space-y-5">
                     <div>
                         <Label className="mb-2" htmlFor="current-password">Current Password</Label>
-                        <InputPassword value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} id="current-password" name="current-password" placeholder="* * * * * * * * *" />
+                        <InputPassword value={password} onChange={e => setPassword(e.target.value)} id="current-password" name="current-password" placeholder="* * * * * * * * *" />
                     </div>
                     <div>
                         <Label className="mb-2" htmlFor="new-password">New Password</Label>

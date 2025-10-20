@@ -72,6 +72,9 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 		}
 
 		if err.Err != nil {
+			if err.Code ==500 {
+				logger.Error("%s: %s", err.Err)
+			}
 			WriteErrorResponse(w, err.Code, msg, err.Err)
 		} else {
 			WriteErrorResponse(w, err.Code, msg)
