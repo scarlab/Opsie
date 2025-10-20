@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"opsie/core/repo"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
@@ -12,33 +13,63 @@ import (
 type UserService struct {
 	repo *repo.UserRepository
 	authRepo *repo.AuthRepository
+	orgRepo *repo.OrganizationRepository
+	userOrgRepo *repo.UserOrganizationRepository
 }
 
 // NewService - Constructor for Service
-func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository) *UserService {
+func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository,orgRepo *repo.OrganizationRepository, userOrgRepo *repo.UserOrganizationRepository) *UserService {
 	return &UserService{
 		repo: repo,
 		authRepo: authRepo,
+		orgRepo: orgRepo,
+		userOrgRepo: userOrgRepo,
 	}
 }
-
 // CreateOwnerAccount handles business logic for creating the first owner
 func (s *UserService) CreateOwnerAccount(payload types.NewOwnerPayload) (types.User, *errors.Error) {
-	// Basic validation
 	if payload.Email == "" || payload.Password == "" {
 		return types.User{}, errors.BadRequest("email and password required")
 	}
 
-	hashedPassword, _ := utils.Hash.Generate( payload.Password)
+	hashedPassword, _ := utils.Hash.Generate(payload.Password)
 	payload.Password = hashedPassword
 
-	createdUser, err := s.repo.CreateOwnerAccount(payload)
+	tx, txErr := s.repo.BeginTx(context.Background(), nil)
+	if txErr != nil {
+		return types.User{}, txErr
+	}
+	defer tx.Rollback()
+
+	// 1️⃣ Create user
+	user, err := s.repo.CreateOwnerAccount(tx, payload)
 	if err != nil {
 		return types.User{}, err
 	}
 
-	return createdUser, nil
+	// 2️⃣ Create default org
+	orgPayload := types.NewOrganizationPayload{
+		Name:        utils.GenerateOrgName(),
+		Description: "This is your default organization.",
+	}
+	org, orgErr := s.orgRepo.Create(tx, orgPayload)
+	if orgErr != nil {
+		return types.User{}, orgErr
+	}
+
+	// 3️⃣ Link user <-> org
+	if addErr := s.userOrgRepo.AddUserToOrg(tx, user.ID, org.ID, true, nil); addErr != nil {
+		return types.User{}, addErr
+	}
+
+	// ✅ Commit
+	if err := tx.Commit(); err != nil {
+		return types.User{}, errors.Internal(err)
+	}
+
+	return user, nil
 }
+
 
 
 // GetOwnerCount

@@ -1,16 +1,16 @@
-// 2025/10/14 12:59:19
+// 2025/10/20 15:33:22
 
-package user
+package organization
 
 import (
 	"database/sql"
-	"opsie/core/repo"
+		"opsie/core/repo"
 	"opsie/core/services"
-
+	
 	"github.com/gorilla/mux"
 )
 
-// Init - Entry point for initializing api - user
+// Init - Entry point for initializing api - organization
 //
 // Responsibilities:
 // 1. Create repository, service, and handler instances.
@@ -21,19 +21,16 @@ import (
 //   packagename.Register(router, db)
 func Register(r *mux.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
-	repository := repo.NewUserRepository(db)
-	authRepository := repo.NewAuthRepository(db)
-	orgRepository := repo.NewOrganizationRepository(db)
-	userOrgRepository := repo.NewUserOrganizationRepository(db)
+	repository := repo.NewOrganizationRepository(db)
 
 	// Step 2: Create service (Business logic layer)
-	service := services.NewUserService(repository, authRepository, orgRepository, userOrgRepository)
+	service := services.NewOrganizationService(repository)
 
 	// Step 3: Create handler (HTTP layer)
 	handler := NewHandler(service)
 
 	// Step 4: Create the sub-router for this api (modify if required)
-	router := r.PathPrefix("/user").Subrouter()
+	router := r.PathPrefix("/organization").Subrouter()
 
 	// Step 5: Register routes for this api
 	HandleRoutes(router, handler)

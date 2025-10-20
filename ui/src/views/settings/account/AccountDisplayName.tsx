@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
 import { Actions, useCsDispatch, useCsSelector } from "@/cs-redux";
-import AuthSlice from "@/cs-redux/slices/auth.slice";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,12 +23,11 @@ export default function AccountDisplayName() {
         const res = await dispatch(Actions.user.UpdateAccountDisplayName({ display_name }))
         if (res.payload.message) {
             toast.success(res.payload.message)
-            dispatch(AuthSlice.actions.updateAuthUser(res.payload.auth_user))
+            dispatch(Actions.auth.Session())
         }
         else if (res.payload.error) {
             toast.error(res.payload.error)
         }
-
     }
 
     return (

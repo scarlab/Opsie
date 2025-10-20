@@ -47,7 +47,7 @@ func CreateApi(name string, withWS bool) error {
         "init.tpl",
         "handler.tpl",
         "service.tpl",
-        "repository.tpl",
+        "repo.tpl",
         "route.tpl",
         "type.tpl",
     }
@@ -91,7 +91,7 @@ func CreateApi(name string, withWS bool) error {
             outFile = filepath.Join(apiBase, fmt.Sprintf("%s.%s.go", name, strings.TrimSuffix(strings.TrimSuffix(tplFile, "-ws.tpl"), ".tpl")))
         case strings.HasPrefix(tplFile, "service"):
             outFile = filepath.Join(serviceBase, fmt.Sprintf("%s.%s.go", name, strings.TrimSuffix(strings.TrimSuffix(tplFile, "-ws.tpl"), ".tpl")))
-        case strings.HasPrefix(tplFile, "repository"):
+        case strings.HasPrefix(tplFile, "repo"):
             outFile = filepath.Join(repoBase, fmt.Sprintf("%s.%s.go", name, strings.TrimSuffix(strings.TrimSuffix(tplFile, "-ws.tpl"), ".tpl")))
         case strings.HasPrefix(tplFile, "type"):
             outFile = filepath.Join(typeBase, fmt.Sprintf("%s.%s.go", name, strings.TrimSuffix(strings.TrimSuffix(tplFile, "-ws.tpl"), ".tpl")))
@@ -150,7 +150,7 @@ func DeleteApi(name string) error {
 	backendPaths := []string{
 		filepath.Join("core", "api", nameLower),
 		filepath.Join("core", "services", fmt.Sprintf("%s.service.go", nameLower)),
-		filepath.Join("core", "repo", fmt.Sprintf("%s.repository.go", nameLower)),
+		filepath.Join("core", "repo", fmt.Sprintf("%s.repo.go", nameLower)),
 		filepath.Join("types", fmt.Sprintf("%s.type.go", nameLower)),
 	}
 

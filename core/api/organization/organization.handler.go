@@ -1,22 +1,22 @@
-package {{.PackageName}}
+package organization
 
 import (
 	"net/http"
 	"opsie/core/services"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
+	"opsie/pkg/logger"
 	"opsie/types"
 )
 
-
-// {{.Name}} Handler - Handles HTTP requests & responses.
+// Organization Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *services.{{.Name}}Service
+	service *services.OrganizationService
 }
 
-// NewHandler - Constructor for {{.Name}} Handler
-func NewHandler(service *services.{{.Name}}Service) *Handler {
+// NewHandler - Constructor for Organization Handler
+func NewHandler(service *services.OrganizationService) *Handler {
 	return &Handler{
 		service: service,
 	}
@@ -26,18 +26,18 @@ func NewHandler(service *services.{{.Name}}Service) *Handler {
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.New{{.Name}}Payload
+	var payload types.NewOrganizationPayload
 	bolt.ParseBody(w, r, &payload)
-
-	// Create {{.Name}}
-	{{.PackageName}}, err := h.service.Create(payload)
+logger.Debug("%s",payload)
+	// Create Organization
+	organization, err := h.service.Create(payload)
 	if err != nil {
 		return err
 	}
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"	: "{{.Name}} created",
-		"{{.PackageName}}"		: {{.PackageName}},
+		"message"		: "Organization created",
+		"organization"	: organization,
 	})
 	return nil
 }

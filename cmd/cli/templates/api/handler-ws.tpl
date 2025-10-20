@@ -1,11 +1,12 @@
 package {{.PackageName}}
 
 import (
-	"encoding/json"
 	"net/http"
 	"opsie/core/services"
-	"opsie/core/socket"
+	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
+	"opsie/types"
+	"opsie/core/socket"
 )
 
 // {{.Name}} Handler - Handles HTTP requests & responses.
@@ -25,8 +26,19 @@ func NewHandler(service *services.{{.Name}}Service, socketHub *socket.Hub) *Hand
 
 
 
-func (h *Handler) Example(w http.ResponseWriter, r *http.Request) *errors.Error{
-    
-    json.NewEncoder(w).Encode("ok")
-	return nil
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Processing Request Body
+	var payload types.New{{.Name}}Payload
+	bolt.ParseBody(w, r, &payload)
+
+	// Create {{.Name}}
+	{{.PackageName}}, err := h.service.Create(payload)
+	if err != nil {
+		return err
+	}
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"	: "{{.Name}} created",
+		"{{.PackageName}}"		: {{.PackageName}},
+	})n nil
 }

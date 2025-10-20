@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	"opsie/core/dbutils"
 	"opsie/def"
@@ -25,21 +26,36 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 
+func (r *UserRepository) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, *errors.Error) {
+    tx, err := r.db.BeginTx(ctx, opts)
+    if err != nil {
+        return nil, errors.Internal(err)
+    }
+    return tx, nil
+}
 
-func (r *UserRepository) CreateOwnerAccount(payload types.NewOwnerPayload) (types.User, *errors.Error) {
-	query := `INSERT INTO users (id, display_name, email, password, system_role)
-			VALUES ($1, $2, $3, $4, $5)
-			RETURNING ` + dbutils.UserColumns 
 
-	var user types.User
+
+func (r *UserRepository) CreateOwnerAccount(tx *sql.Tx, payload types.NewOwnerPayload) (types.User, *errors.Error) {
+	query := `
+		INSERT INTO users (id, display_name, email, password, system_role)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING ` + dbutils.UserColumns
 
 	id := utils.GenerateID()
 	system_role := def.SystemRoleOwner
 
-	row := r.db.QueryRow(query, id, payload.DisplayName, payload.Email, payload.Password, system_role)
-	 
+	// Choose the right query executor
+	var row *sql.Row
+	if tx != nil {
+		row = tx.QueryRow(query, id, payload.DisplayName, payload.Email, payload.Password, system_role)
+	} else {
+		row = r.db.QueryRow(query, id, payload.DisplayName, payload.Email, payload.Password, system_role)
+	}
+
 	user, err := dbutils.UserScan(row)
 	if err != nil {
+		// Handle unique constraint violation
 		if pqErr, ok := err.Original().(*pq.Error); ok && pqErr.Code == "23505" {
 			return types.User{}, errors.New(409, "Email already in use")
 		}
@@ -48,6 +64,7 @@ func (r *UserRepository) CreateOwnerAccount(payload types.NewOwnerPayload) (type
 
 	return user, nil
 }
+
 
 
 
@@ -63,6 +80,22 @@ func (r *UserRepository) GetOwnerCount() (int, *errors.Error) {
     }
 
     return count, nil
+}
+
+
+func (r *UserRepository) Delete(userID types.ID) *errors.Error {
+	query := `DELETE FROM users WHERE id = $1`
+	result, err := r.db.Exec(query, userID)
+	if err != nil {
+		return errors.Internal(err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return errors.NotFound("user not found")
+	}
+
+	return nil
 }
 
 

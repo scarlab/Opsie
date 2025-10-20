@@ -128,6 +128,7 @@ CREATE TABLE user_organizations (
 CREATE UNIQUE INDEX idx_user_org_unique ON user_organizations(user_id, organization_id);
 CREATE INDEX idx_user_org_user_id ON user_organizations(user_id);
 CREATE INDEX idx_user_org_org_id ON user_organizations(organization_id);
+CREATE UNIQUE INDEX ux_user_default_org ON user_organizations(user_id) WHERE is_default = true;
 
 
 -- -----------------------------------------------------------------------

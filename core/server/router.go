@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"opsie/config"
 	"opsie/core/api/auth"
+	"opsie/core/api/organization"
 	"opsie/core/api/user"
 	mw "opsie/core/middlewares"
 	ws_agent "opsie/core/socket/clients/agent"
@@ -57,6 +58,7 @@ func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
 	user.Register(apiRouter, s.db)
 	auth.Register(apiRouter, s.db)
+	organization.Register(apiRouter, s.db)
 
 
 	// -------------------------------------------------------------------

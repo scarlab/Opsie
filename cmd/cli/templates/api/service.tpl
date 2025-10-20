@@ -1,6 +1,12 @@
 package services
 
-import 	"opsie/core/repo"
+import 	(
+	"opsie/core/repo"
+	"opsie/pkg/errors"
+	"opsie/types"
+	"time"
+)
+
 
 
 // {{.Name}}Service - Contains all business logic for {{.Name}} api.
@@ -17,6 +23,10 @@ func New{{.Name}}Service(repo *repo.{{.Name}}Repository) *{{.Name}}Service {
 }
 
 
-// func (s *{{.Name}}Service) Example() (Item, error) {
-//     return s.repo.Example()
-// }
+func (s *{{.Name}}Service) Create(payload types.New{{.Name}}Payload) (types.{{.Name}}, *errors.Error) {
+	if payload.Name == "" {
+		return types.{{.Name}}{}, errors.BadRequest("{{.Name}} name ir required")
+	}
+
+    return types.Organization{Name: payload.Name, CreatedAt: time.Now(), UpdatedAt: time.Now()}, nil
+}

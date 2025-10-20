@@ -5,6 +5,7 @@ import (
 	"opsie/pkg/errors"
 	"opsie/pkg/logger"
 	"reflect"
+	"runtime"
 	"time"
 )
 
@@ -71,9 +72,13 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 			msg = http.StatusText(err.Code)
 		}
 
+
 		if err.Err != nil {
+			file, line := getCaller()
+
 			if err.Code ==500 {
-				logger.Error("%s: %s", err.Err)
+				logger.Error("%s", err.Err)
+				logger.Printf("%s at %d", file, line)
 			}
 			WriteErrorResponse(w, err.Code, msg, err.Err)
 		} else {
@@ -85,6 +90,14 @@ func errorHandlerMiddleware(next HandlerFunc) HandlerFunc {
 }
 
 
+// helper to get caller file:line
+func getCaller() (string, int) {
+    _, file, line, ok := runtime.Caller(2) // 2 to skip runtime + logger function
+    if !ok {
+        return "unknown", 0
+    }
+    return file, line
+}
 
 
 
