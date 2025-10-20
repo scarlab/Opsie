@@ -3,7 +3,8 @@ package mw
 import (
 	"context"
 	"net/http"
-	repo "opsie/core/repositories"
+
+	"opsie/core/repo"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"

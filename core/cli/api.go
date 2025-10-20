@@ -20,7 +20,7 @@ func CreateApi(name string, withWS bool) error {
     // --- Define output paths ---
     apiBase := filepath.Join("core", "api", name)
     serviceBase := filepath.Join("core", "services")
-    repoBase := filepath.Join("core", "repositories")
+    repoBase := filepath.Join("core", "repo")
     typeBase := filepath.Join("types")
 
     // --- Check if the API already exists ---
@@ -150,7 +150,7 @@ func DeleteApi(name string) error {
 	backendPaths := []string{
 		filepath.Join("core", "api", nameLower),
 		filepath.Join("core", "services", fmt.Sprintf("%s.service.go", nameLower)),
-		filepath.Join("core", "repositories", fmt.Sprintf("%s.repository.go", nameLower)),
+		filepath.Join("core", "repo", fmt.Sprintf("%s.repository.go", nameLower)),
 		filepath.Join("types", fmt.Sprintf("%s.type.go", nameLower)),
 	}
 

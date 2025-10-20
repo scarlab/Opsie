@@ -2,7 +2,7 @@ package mw
 
 import (
 	"database/sql"
-	repo "opsie/core/repositories"
+	"opsie/core/repo"
 	"opsie/pkg/bolt"
 )
 

@@ -2,7 +2,7 @@ package services
 
 import (
 	"opsie/config"
-	repo "opsie/core/repositories"
+	"opsie/core/repo"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 	"opsie/types"

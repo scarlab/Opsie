@@ -1,6 +1,6 @@
 package services
 
-import repo "opsie/core/repositories"
+import 	"opsie/core/repo"
 
 
 // {{.Name}}Service - Contains all business logic for {{.Name}} api.

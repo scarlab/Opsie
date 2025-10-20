@@ -1,7 +1,7 @@
 package services
 
 import (
-	repo "opsie/core/repositories"
+	"opsie/core/repo"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 	"opsie/types"

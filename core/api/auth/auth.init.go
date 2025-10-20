@@ -4,7 +4,7 @@ package auth
 
 import (
 	"database/sql"
-	repo "opsie/core/repositories"
+	"opsie/core/repo"
 	"opsie/core/services"
 
 	"github.com/gorilla/mux"

@@ -24,6 +24,9 @@ export default function AccountPassword() {
         const res = await dispatch(Actions.user.UpdateAccountPassword({ password, new_password: newPassword }))
         if (res.payload.message) {
             toast.success(res.payload.message)
+            setPassword("")
+            setNewPassword("")
+            setConfirmPassword("")
         } else if (res.payload.error) {
             toast.error(res.payload.error)
         }
