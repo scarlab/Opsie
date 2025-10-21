@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io/fs"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"opsie/config"
 	"opsie/core/api/auth"
 	"opsie/core/api/organization"
@@ -30,7 +28,15 @@ func (s *ApiServer) Router() *mux.Router {
 	// Root Router
 	// -------------------------------------------------------------------
 	var router = mux.NewRouter()
-	
+
+	// -------------------------------------------------------------------
+	// Static Route: Serve static files from `static_dir` at `/_static/`
+	// -------------------------------------------------------------------
+	fileServer := http.FileServer(http.Dir(config.DefaultStaticDir))
+	staticHandler := http.StripPrefix("/_static/", fileServer)
+	mwh := bolt.AdaptToHTTP(bolt.HandleMiddleware(bolt.AdaptFromHTTP(staticHandler)))
+	router.PathPrefix("/_static/").HandlerFunc(mwh)
+
 
 	// -------------------------------------------------------------------
 	// Register Middlewares
@@ -41,14 +47,14 @@ func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
 	// Gateway of API routes
 	// -------------------------------------------------------------------
-	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+	apiRouter 		:= router.PathPrefix("/api/v1").Subrouter()
 	bolt.Api(apiRouter, "GET", "", apiHome)
 	
 
 	// -------------------------------------------------------------------
 	// Web Socket Routes
 	// -------------------------------------------------------------------
-	wsRouter := apiRouter.PathPrefix("/ws").Subrouter()
+	wsRouter 		:= apiRouter.PathPrefix("/ws").Subrouter()
 	ws_agent.Register(wsRouter, s.db, s.socketHub)
 	ws_ui.Register(wsRouter, s.db, s.socketHub)
 
@@ -64,7 +70,8 @@ func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
 	// Handle Unknown API endpoint 404
 	// -------------------------------------------------------------------
-	router.PathPrefix("/api/").HandlerFunc(bolt.NormalizedMiddleware(bolt.HandleMiddleware(notFound)))
+	notFoundRoute 	:= router.PathPrefix("/api/")
+	notFoundRoute.HandlerFunc(bolt.AdaptToHTTP(bolt.HandleMiddleware(notFound)))
 
 
 
@@ -72,10 +79,10 @@ func (s *ApiServer) Router() *mux.Router {
 	// Web UI - Proxy(dev) / Embed (prod)
 	// -------------------------------------------------------------------
 	if config.IsDev {
-		viteURL, _ := url.Parse("http://"+config.ENV.DevUIHost+":5173/")
-		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
-		router.PathPrefix("/").Handler(viteProxy)
-	} else{
+		// viteURL, _ := url.Parse("http://"+config.ENV.DevUIHost+":5173/")
+		// viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
+		// router.PathPrefix("/").Handler(viteProxy)
+	} else if config.IsProd{
 		// Static assets
 		staticHandler := http.FileServer(http.FS(s.uiFS))
 		router.PathPrefix("/assets/").Handler(staticHandler)
@@ -112,11 +119,14 @@ func notFound(w http.ResponseWriter, r *http.Request) *errors.Error{
 	resp := map[string]interface{}{
 		"error": "API endpoint not found",
 		"code":    http.StatusNotFound,
-		"path":    r.URL.Path,
 		"method":  r.Method,
+		"path":    r.URL.Path,
 	}
 
 	_ = json.NewEncoder(w).Encode(resp)
 
 	return nil
 }
+
+
+

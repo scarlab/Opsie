@@ -12,13 +12,22 @@ type TAppConfig struct {
 	Name    string `yaml:"name"`
 	Version string `yaml:"version"`
 	SessionDays int `yaml:"session_days"`
+
+	// Directory & Files
+	LogDir string `yaml:"log_dir"`
+	StaticDir string `yaml:"static_dir"`
+	DataDir string `yaml:"data_dir"`
+
+	ConfigFile string `yaml:"config_file"`
+	RuntimeFile string `yaml:"runtime_dir"`
+	Binary string `yaml:"binary"`
 }
 
 
-// loadConfig reads and parses the YAML configuration file located at `path`.
+// loadAppConfig reads and parses the YAML configuration file located at `path`.
 // It returns a TAppConfig instance or an error if loading fails.
-func loadConfig(path string) (*TAppConfig, error) {
-	data, err := os.ReadFile(path)
+func loadAppConfig() (*TAppConfig, error) {
+	data, err := os.ReadFile("app.config.yaml")
 	if err != nil {
 		return nil, err
 	}

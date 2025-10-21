@@ -60,3 +60,14 @@ Cluster Manager
 | `docker-compose exec <service> sh` | Exec into service        | `docker-compose exec opsie sh` |
 | `docker-compose stop <service>`    | Stop a service           | `docker-compose stop ui`       |
 | `docker-compose rm <service>`      | Remove a service         | `docker-compose rm opsie`      |
+
+
+### Directory Layout
+| Purpose                           | Suggested Path                 | Description                  |
+| --------------------------------- | ------------------------------ | ---------------------------- |
+| Binary                            | `/usr/local/bin/opsied`        | Your compiled service binary |
+| Config                            | `/etc/opsie/config.yaml`       | Configuration file           |
+| Logs                              | `/var/log/opsie/opsie.log`     | Main log file                |
+| Uploads (images, org logos, etc.) | `/var/lib/opsie/uploads/`      | Persistent uploaded data     |
+| Database (SQLite, if used)        | `/var/lib/opsie/data/opsie.db` | Internal data store          |
+| Runtime pid/socket                | `/run/opsie/opsie.pid`         | PID or runtime socket        |

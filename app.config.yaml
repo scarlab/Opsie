@@ -1,6 +1,16 @@
-# ...
-name: Opsie
-version: v0.0.1-beta
+# App Info
+name            : "Opsie"
+version         : "v0.0.1-beta"
 
-# ...
-session_days: 300
+# Authentication
+session_days    : 300
+
+
+# Directory & Files
+log_dir         : "/var/log/opsie"                # http requests, errors system log and others
+static_dir      : "/var/lib/opsie/static"         # For serving static files [FileServer]
+data_dir        : "/var/lib/opsie/data"           # Storing data sqlite, json ...
+
+config_file     : "/etc/opsie/config.yaml"        # System Configuration file
+runtime_file    : "/run/opsie/opsie.pid"          # [runtime]...
+binary          : "/usr/local/bin/opsied"         # Binary file, final build

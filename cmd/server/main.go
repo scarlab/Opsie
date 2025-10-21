@@ -41,8 +41,8 @@ func GetLocalIP() string {
 func main() {
 	logger.Init()
 
-	logger.Info("🚀 Starting %s (%s)\n", config.AppConfig.Name, config.AppConfig.Version)
-	logger.Info("🌱 Environment: %s\n\n", config.ENV.GoEnv)
+	logger.Info("🚀 Starting %s (%s)\n", config.App.Name, config.App.Version)
+	logger.Info("🌱 Environment: %s\n\n", config.ENV.Env)
 
 
 	// -------------------------------------------------------------------

@@ -9,7 +9,9 @@ import (
 )
 
 type HTTPMethod string
-
+func (k HTTPMethod) ToString() string  {
+	return string(k)
+}
 const (
 	MethodGet     HTTPMethod = "GET"
 	MethodPost    HTTPMethod = "POST"

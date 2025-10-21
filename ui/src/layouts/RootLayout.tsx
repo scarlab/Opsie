@@ -48,13 +48,18 @@ export default function RootLayout() {
 
     // Redirect logic after session fully initialized
     useEffect(() => {
-        if (!sessionInitializing && !loading && !onboardingRequired) {
-            if (!authUser && !location.pathname.startsWith('/auth')) {
-                navigate('/auth/login', { replace: true });
-            } else if (authUser && location.pathname.startsWith('/auth')) {
-                navigate('/', { replace: true });
+        (() => {
+
+            if (location.pathname.startsWith("/_static")) return
+
+            if (!sessionInitializing && !loading && !onboardingRequired) {
+                if (!authUser && !location.pathname.startsWith('/auth')) {
+                    navigate('/auth/login', { replace: true });
+                } else if (authUser && location.pathname.startsWith('/auth')) {
+                    navigate('/', { replace: true });
+                }
             }
-        }
+        })()
     }, [sessionInitializing, loading, authUser, onboardingRequired, navigate, location.pathname]);
 
     // Block render until session + onboarding check is complete

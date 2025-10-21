@@ -42,9 +42,21 @@ func HandleMiddleware(final HandlerFunc, middlewares ...Middleware) HandlerFunc 
 
 
 
-func NormalizedMiddleware(handler HandlerFunc) http.HandlerFunc {
+
+// AdaptFromHTTP wraps a standard http.Handler (like FileServer)
+// so it can be used in your custom middleware system.
+func AdaptFromHTTP(h http.Handler) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) *errors.Error {
+		h.ServeHTTP(w, r)
+		return nil
+	}
+}
+
+// AdaptToHTTP converts your custom HandlerFunc
+// to a standard http.HandlerFunc for compatibility with net/http.
+func AdaptToHTTP(handler HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_ = handler(w, r) 
+		_ = handler(w, r)
 	}
 }
 

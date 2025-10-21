@@ -131,7 +131,7 @@ func (r *AuthRepository) RegenerateSessionKey(key types.SessionKey) (types.Sessi
 		return types.Session{}, errors.Internal(gskRrr)
 	}
 
-	expiry := time.Now().Add(time.Duration(config.AppConfig.SessionDays) * 24 * time.Hour)
+	expiry := time.Now().Add(time.Duration(config.App.SessionDays) * 24 * time.Hour)
 
 	query := `
 		UPDATE sessions

@@ -64,7 +64,7 @@ func (s *AuthService) CreateSession(userID types.ID) (types.Session, *errors.Err
 		errors.Internal(err)
 	}
 
-	expiry := time.Now().Add(time.Duration(config.AppConfig.SessionDays) * 24 * time.Hour)
+	expiry := time.Now().Add(time.Duration(config.App.SessionDays) * 24 * time.Hour)
 
 	session, err1 := s.repo.CreateSession(userID, key, expiry)
 	if err1 != nil {

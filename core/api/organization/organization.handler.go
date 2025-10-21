@@ -41,3 +41,22 @@ logger.Debug("%s",payload)
 	})
 	return nil
 }
+
+
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Processing Request Body
+	var payload types.NewOrganizationPayload
+	bolt.ParseBody(w, r, &payload)
+
+	// Create Organization
+	organization, err := h.service.Create(payload)
+	if err != nil {
+		return err
+	}
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "Organization created",
+		"organization"	: organization,
+	})
+	return nil
+}

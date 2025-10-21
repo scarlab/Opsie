@@ -2,6 +2,7 @@ package logger
 
 import (
 	"log"
+	"opsie/config"
 	"os"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -22,13 +23,13 @@ const (
 
 
 var (
-	httpFilePath = "/var/log/opsie/http.log"
-	logFilePath = "/var/log/opsie/opsie.log"
+	httpFilePath = config.App.LogDir + "/http.log"
+	logFilePath  = config.App.LogDir + "/opsie.log"
 )
 
 
 func Init() {
-
+	
 	logFile := &lumberjack.Logger{
 		Filename:   logFilePath,
 		MaxSize:    10,
