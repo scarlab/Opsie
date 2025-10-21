@@ -101,6 +101,7 @@ EXECUTE FUNCTION set_updated_at();
 CREATE TABLE organizations (
     id              BIGINT PRIMARY KEY,
     name            TEXT NOT NULL,
+    slug            TEXT NOT NULL UNIQUE,
     description     TEXT,
     logo            TEXT,
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT now(),
