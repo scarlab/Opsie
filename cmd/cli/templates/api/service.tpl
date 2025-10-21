@@ -28,5 +28,5 @@ func (s *{{.Name}}Service) Create(payload types.New{{.Name}}Payload) (types.{{.N
 		return types.{{.Name}}{}, errors.BadRequest("{{.Name}} name ir required")
 	}
 
-    return types.Organization{Name: payload.Name, CreatedAt: time.Now(), UpdatedAt: time.Now()}, nil
+    return types.{{.Name}}{Name: payload.Name, CreatedAt: time.Now(), UpdatedAt: time.Now()}, nil
 }

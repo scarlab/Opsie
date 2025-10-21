@@ -6,13 +6,13 @@ import (
 
 	"opsie/core/repo"
 	"opsie/def"
-	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
+	"opsie/types"
 	"strings"
 )
 
-func newAuthMiddleware(authRepo *repo.AuthRepository) bolt.Middleware {
-	return func(next bolt.HandlerFunc) bolt.HandlerFunc {
+func newAuthMiddleware(authRepo *repo.AuthRepository) types.Middleware {
+	return func(next types.HandlerFunc) types.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) *errors.Error {
 			// 1. Get session key
 			var sessionKey string

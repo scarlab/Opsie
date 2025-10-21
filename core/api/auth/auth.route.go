@@ -2,16 +2,16 @@ package auth
 
 import (
 	mw "opsie/core/middlewares"
-	"opsie/pkg/bolt"
+	"opsie/pkg/api"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 // HandleRoutes - Defines all HTTP endpoints for auth.
-func HandleRoutes(r *mux.Router, h *Handler) {
-	bolt.Api(r, bolt.MethodPost, "/login", h.Login)
+func HandleRoutes(r chi.Router, h *Handler) {
+	api.Post(r, "/login", h.Login)
 	
 	// MW - [Auth]
-	bolt.Api(r, bolt.MethodGet, "/session", h.GetSessionUser, mw.Auth)
-	bolt.Api(r, bolt.MethodGet, "/logout", h.Logout, mw.Auth)
+	api.Get(r, "/session", h.GetSessionUser, mw.Auth)
+	api.Get(r, "/logout", h.Logout, mw.Auth)
 }

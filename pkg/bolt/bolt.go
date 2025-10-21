@@ -4,40 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
-type HTTPMethod string
-func (k HTTPMethod) ToString() string  {
-	return string(k)
-}
-const (
-	MethodGet     HTTPMethod = "GET"
-	MethodPost    HTTPMethod = "POST"
-	MethodPut     HTTPMethod = "PUT"
-	MethodPatch   HTTPMethod = "PATCH"
-	MethodDelete  HTTPMethod = "DELETE"
-	MethodOptions HTTPMethod = "OPTIONS"
-	MethodHead    HTTPMethod = "HEAD"
-)
+// [v0.0.1-beta] legacy mux router implementation
+// func  Api(router *mux.Router, method HTTPMethod, path string, handler HandlerFunc, middlewares ...Middleware) *mux.Router {
+// 	// Apply user middlewares + bolt logger
+// 	final := HandleMiddleware(handler, middlewares...)
 
+// 	router.HandleFunc(path, func(w http.ResponseWriter, req *http.Request) {
+// 		final(w, req)
+// 	}).Methods(string(method))
 
-
- 
-func  Api(router *mux.Router, method HTTPMethod, path string, handler HandlerFunc, middlewares ...Middleware) *mux.Router {
-	// Apply user middlewares + bolt logger
-	final := HandleMiddleware(handler, middlewares...)
-	
-	router.HandleFunc(path, func(w http.ResponseWriter, req *http.Request) {
-		final(w, req)
-	}).Methods(string(method))
-
-	return router
-}
-
-
-
+// 	return router
+// }
 
 // ParseBody reads the JSON body of an HTTP request into the given payload.
 // It returns an error if the body is missing, contains invalid JSON,
