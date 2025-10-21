@@ -11,98 +11,74 @@ import (
 	"opsie/core/api/organization"
 	"opsie/core/api/user"
 	mw "opsie/core/middlewares"
-	ws_agent "opsie/core/socket/clients/agent"
-	ws_ui "opsie/core/socket/clients/ui"
-	"opsie/pkg/bolt"
+	"opsie/pkg/api"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 
 
+func (s *ApiServer) Router() chi.Router {
+	// -------------------------------------------------------------------
+	// Root Router -------------------------------------------------------
+	var router = chi.NewRouter()
+
+
+	
+	// -------------------------------------------------------------------
+	// Web UI ------------------------------------------------------------
+	// Dev : Proxy vite app
+	// Prod: Embed vite build app
+	setupUI(router, s.uiFS)
 
 
 
-func (s *ApiServer) Router() *mux.Router {
 	// -------------------------------------------------------------------
-	// Root Router
-	// -------------------------------------------------------------------
-	var router = mux.NewRouter()
+	// File Server -------------------------------------------------------
+	// Serves static files for the `static_dir` dir
+	// Dev : "./uploads"
+	// Prod: "/var/lib/opsie/static"
+	setupFileServer(router)
 
-	// -------------------------------------------------------------------
-	// Static Route: Serve static files from `static_dir` at `/_static/`
-	// -------------------------------------------------------------------
-	fileServer := http.FileServer(http.Dir(config.DefaultStaticDir))
-	staticHandler := http.StripPrefix("/_static/", fileServer)
-	mwh := bolt.AdaptToHTTP(bolt.HandleMiddleware(bolt.AdaptFromHTTP(staticHandler)))
-	router.PathPrefix("/_static/").HandlerFunc(mwh)
 
 
 	// -------------------------------------------------------------------
-	// Register Middlewares
-	// -------------------------------------------------------------------
+	// Middlewares -------------------------------------------------------
 	mw.Register(s.db)
 
 
-	// -------------------------------------------------------------------
-	// Gateway of API routes
-	// -------------------------------------------------------------------
-	apiRouter 		:= router.PathPrefix("/api/v1").Subrouter()
-	bolt.Api(apiRouter, "GET", "", apiHome)
-	
 
 	// -------------------------------------------------------------------
-	// Web Socket Routes
-	// -------------------------------------------------------------------
-	wsRouter 		:= apiRouter.PathPrefix("/ws").Subrouter()
-	ws_agent.Register(wsRouter, s.db, s.socketHub)
-	ws_ui.Register(wsRouter, s.db, s.socketHub)
-
-
-	// -------------------------------------------------------------------
-	// Register Apis
-	// -------------------------------------------------------------------
-	user.Register(apiRouter, s.db)
-	auth.Register(apiRouter, s.db)
-	organization.Register(apiRouter, s.db)
-
-
-	// -------------------------------------------------------------------
-	// Handle Unknown API endpoint 404
-	// -------------------------------------------------------------------
-	notFoundRoute 	:= router.PathPrefix("/api/")
-	notFoundRoute.HandlerFunc(bolt.AdaptToHTTP(bolt.HandleMiddleware(notFound)))
+	// API Gateway [v1] --------------------------------------------------
+	router.Route("/api/v1", func(apiRoute chi.Router) {
+		// Api Home Root
+		api.Get(apiRoute, "", apiHome)
 
 
 
-	// -------------------------------------------------------------------
-	// Web UI - Proxy(dev) / Embed (prod)
-	// -------------------------------------------------------------------
-	if config.IsDev {
-		viteURL, _ := url.Parse("http://"+config.ENV.DevUIHost+":5173/")
-		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
-		router.PathPrefix("/").Handler(viteProxy)
-	} else if config.IsProd{
-		// Static assets
-		staticHandler := http.FileServer(http.FS(s.uiFS))
-		router.PathPrefix("/assets/").Handler(staticHandler)
-
-		// SPA fallback → index.html
-		router.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			data, err := fs.ReadFile(s.uiFS, "index.html")
-			if err != nil {
-				http.Error(w, "index.html not found", http.StatusInternalServerError)
-				return
-			}
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			w.Write(data)
+		// Register APIs
+		apiRoute.Route("/auth",func(r chi.Router){
+			auth.Register(r, s.db)
 		})
-	}
+		apiRoute.Route("/user",func(r chi.Router){
+			user.Register(r, s.db)
+		})
+		apiRoute.Route("/organization",func(r chi.Router){
+			organization.Register(r, s.db)
+		})
+
+
+		
+		// Handle Unknown API endpoint: 404!
+		apiRoute.NotFound(notFound)
+	})
 
 	return router
 }
+
+
 
 
 // healthHandler returns a simple apiHome status as JSON.
@@ -114,7 +90,9 @@ func apiHome(w http.ResponseWriter, r *http.Request) *errors.Error{
 	return nil
 }
 
-func notFound(w http.ResponseWriter, r *http.Request) *errors.Error{
+
+
+func notFound(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
 
@@ -126,9 +104,40 @@ func notFound(w http.ResponseWriter, r *http.Request) *errors.Error{
 	}
 
 	_ = json.NewEncoder(w).Encode(resp)
-
-	return nil
 }
 
 
 
+func setupUI(router chi.Router, uiFS fs.FS) {
+	if config.IsDev {
+		// Dev: Proxy to Vite server
+		viteURL, _ := url.Parse("http://" + config.ENV.DevUIHost + ":5173/")
+		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
+		router.Handle("/*", viteProxy)
+	} else if config.IsProd {
+		// Prod: Serve static assets
+		router.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.FS(uiFS))))
+
+		// SPA fallback → serve index.html for all other routes
+		router.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
+			data, err := fs.ReadFile(uiFS, "index.html")
+			if err != nil {
+				http.Error(w, "index.html not found", http.StatusInternalServerError)
+				return
+			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(data)
+		})
+	}
+}
+
+func setupFileServer(router chi.Router) {
+	// Serve _static directory with your middleware
+	fileServer := http.FileServer(http.Dir(config.DefaultStaticDir))
+	staticHandler := http.StripPrefix("/_static/", fileServer)
+
+	// Wrap with your bolt middleware
+	// mwh := bolt.AdaptToHTTP(bolt.HandleMiddleware(bolt.AdaptFromHTTP(staticHandler)))
+
+	router.Handle("/_static/*", staticHandler) // Chi uses Handle with wildcard
+}

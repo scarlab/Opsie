@@ -3,10 +3,10 @@ package mw
 import (
 	"database/sql"
 	"opsie/core/repo"
-	"opsie/pkg/bolt"
+	"opsie/types"
 )
 
-var Auth bolt.Middleware
+var Auth types.Middleware
 
 func Register(db *sql.DB)  {
 	// Repositories

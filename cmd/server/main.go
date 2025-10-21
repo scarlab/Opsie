@@ -81,7 +81,7 @@ func main() {
 	// -------------------------------------------------------------------
 	// Start API Server
 	// -------------------------------------------------------------------
-	apiServer := server.NewApiServer(config.ENV.Addr, database,uiFS, socketHub)
+	apiServer := server.NewApiServer(config.ENV.Addr, database, uiFS, socketHub)
 
 	logger.Info("🌍 Server listening on http://%s%s\n", GetLocalIP(),config.ENV.Addr)
 

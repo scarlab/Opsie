@@ -7,7 +7,7 @@ import (
 	"opsie/core/repo"
 	"opsie/core/services"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 // Init - Entry point for initializing api - user
@@ -19,7 +19,7 @@ import (
 //
 // Usage:
 //   packagename.Register(router, db)
-func Register(r *mux.Router, db *sql.DB) {
+func Register(r chi.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
 	repository := repo.NewUserRepository(db)
 	authRepository := repo.NewAuthRepository(db)
@@ -33,8 +33,9 @@ func Register(r *mux.Router, db *sql.DB) {
 	handler := NewHandler(service)
 
 	// Step 4: Create the sub-router for this api (modify if required)
-	router := r.PathPrefix("/user").Subrouter()
+	// [v0.0.1-beta] legacy mux router implementation
+	// router := r.PathPrefix("/organization").Subrouter()
 
 	// Step 5: Register routes for this api
-	HandleRoutes(router, handler)
+	HandleRoutes(r, handler) // [chi-v0.0.2] new chi router implementation
 }
