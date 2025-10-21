@@ -6,19 +6,23 @@ import (
 	"opsie/types"
 )
 
-const OrganizationColumns = `
-    id,
-    name,
-    description,
-    logo,
-    updated_at,
-    created_at
+
+const UserOrganizationColumns = `
+    o.id,
+    o.name,
+    o.description,
+    o.logo,
+    o.updated_at,
+    o.created_at,
+    uo.is_default,
+    uo.joined_at
 `
 
-
-func OrganizationScan(row *sql.Row) (types.Organization, *errors.Error) {
-	var org types.Organization
+func UserOrganizationScan(row *sql.Row) (types.UserOrganization, *errors.Error) {
+	var org types.UserOrganization
 	var logo, description sql.NullString
+	var isDefault sql.NullBool
+	var joinedAt sql.NullTime
 
 	err := row.Scan(
 		&org.ID,
@@ -27,12 +31,14 @@ func OrganizationScan(row *sql.Row) (types.Organization, *errors.Error) {
 		&logo,
 		&org.UpdatedAt,
 		&org.CreatedAt,
+		&isDefault,
+		&joinedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return types.Organization{}, errors.NotFound("Organization not found")
+			return types.UserOrganization{}, errors.NotFound("Organization not found")
 		}
-		return types.Organization{}, errors.Internal(err)
+		return types.UserOrganization{}, errors.Internal(err)
 	}
 
 	if logo.Valid {
@@ -41,16 +47,19 @@ func OrganizationScan(row *sql.Row) (types.Organization, *errors.Error) {
 	if description.Valid {
 		org.Description = description.String
 	}
-	
+	org.IsDefault = isDefault.Valid && isDefault.Bool
+
 	return org, nil
 }
 
-func OrganizationScanRows(rows *sql.Rows) ([]types.Organization, *errors.Error) {
-	var orgs []types.Organization
+func UserOrganizationScanRows(rows *sql.Rows) ([]types.UserOrganization, *errors.Error) {
+	var orgs []types.UserOrganization
 
 	for rows.Next() {
-		var org types.Organization
+		var org types.UserOrganization
 		var logo, description sql.NullString
+		var isDefault sql.NullBool
+		var joinedAt sql.NullTime
 
 		if err := rows.Scan(
 			&org.ID,
@@ -59,6 +68,8 @@ func OrganizationScanRows(rows *sql.Rows) ([]types.Organization, *errors.Error) 
 			&logo,
 			&org.UpdatedAt,
 			&org.CreatedAt,
+			&isDefault,
+			&joinedAt,
 		); err != nil {		
 
 			return nil, errors.Internal(err)
@@ -70,6 +81,7 @@ func OrganizationScanRows(rows *sql.Rows) ([]types.Organization, *errors.Error) 
 		if description.Valid {
 			org.Description = description.String
 		}
+		org.IsDefault = isDefault.Valid && isDefault.Bool
 
 		orgs = append(orgs, org)
 	}

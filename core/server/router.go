@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/fs"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"opsie/config"
 	"opsie/core/api/auth"
 	"opsie/core/api/organization"
@@ -79,9 +81,9 @@ func (s *ApiServer) Router() *mux.Router {
 	// Web UI - Proxy(dev) / Embed (prod)
 	// -------------------------------------------------------------------
 	if config.IsDev {
-		// viteURL, _ := url.Parse("http://"+config.ENV.DevUIHost+":5173/")
-		// viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
-		// router.PathPrefix("/").Handler(viteProxy)
+		viteURL, _ := url.Parse("http://"+config.ENV.DevUIHost+":5173/")
+		viteProxy := httputil.NewSingleHostReverseProxy(viteURL)
+		router.PathPrefix("/").Handler(viteProxy)
 	} else if config.IsProd{
 		// Static assets
 		staticHandler := http.FileServer(http.FS(s.uiFS))

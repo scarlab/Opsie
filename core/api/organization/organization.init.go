@@ -4,9 +4,9 @@ package organization
 
 import (
 	"database/sql"
-		"opsie/core/repo"
+	"opsie/core/repo"
 	"opsie/core/services"
-	
+
 	"github.com/gorilla/mux"
 )
 
@@ -22,9 +22,10 @@ import (
 func Register(r *mux.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
 	repository := repo.NewOrganizationRepository(db)
+	userOrgRepository := repo.NewUserOrganizationRepository(db)
 
 	// Step 2: Create service (Business logic layer)
-	service := services.NewOrganizationService(repository)
+	service := services.NewOrganizationService(repository, userOrgRepository)
 
 	// Step 3: Create handler (HTTP layer)
 	handler := NewHandler(service)

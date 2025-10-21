@@ -59,9 +59,9 @@ func (r *UserOrganizationRepository) RemoveUserFromOrg(userID, orgID types.ID) *
     return nil
 }
 
-func (r *UserOrganizationRepository) ListOrgsByUser(userID types.ID) ([]types.Organization, *errors.Error) {
+func (r *UserOrganizationRepository) ListOrgsByUser(userID types.ID) ([]types.UserOrganization, *errors.Error) {
 	query := `
-        SELECT o.` + dbutils.OrganizationColumns + `
+        SELECT ` + dbutils.UserOrganizationColumns + `
         FROM organizations o
         JOIN user_organizations uo ON o.id = uo.organization_id
         WHERE uo.user_id = $1
@@ -72,7 +72,7 @@ func (r *UserOrganizationRepository) ListOrgsByUser(userID types.ID) ([]types.Or
 	}
 	defer rows.Close()
 
-	return dbutils.OrganizationScanRows(rows)
+	return dbutils.UserOrganizationScanRows(rows)
 }
 
 

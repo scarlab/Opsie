@@ -103,7 +103,7 @@ func (h *Handler) GetSessionUser(w http.ResponseWriter, r *http.Request) *errors
 	// 1. Get session from context
 	userVal := r.Context().Value(def.ContextKeyUser)
 	if userVal == nil {
-		return errors.New(http.StatusUnauthorized, "no active session found")
+		return errors.Internal(fmt.Errorf("session user not found"))
 	}
 
 	

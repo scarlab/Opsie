@@ -1,8 +1,10 @@
 package organization
 
 import (
+	"fmt"
 	"net/http"
 	"opsie/core/services"
+	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
 	"opsie/pkg/logger"
@@ -43,20 +45,66 @@ logger.Debug("%s",payload)
 }
 
 
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error{
-	// Processing Request Body
-	var payload types.NewOrganizationPayload
-	bolt.ParseBody(w, r, &payload)
+func (h *Handler) GetAllOrganizations(w http.ResponseWriter, r *http.Request) *errors.Error{
 
-	// Create Organization
-	organization, err := h.service.Create(payload)
-	if err != nil {
-		return err
-	}
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "Organization created",
-		"organization"	: organization,
+		"message"		: "All organizations",
+		"organizations"		: "all",
+	})
+	return nil
+}
+
+func (h *Handler) GetUserOrganizations(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Get the session user
+	userVal:= r.Context().Value(def.ContextKeyUser)
+	if userVal == nil {
+		return errors.Internal(fmt.Errorf("session user not found"))
+	}
+	
+	authUser, ok := userVal.(types.AuthUser)
+	if !ok {
+		return errors.Internal(fmt.Errorf("invalid session"))
+	}
+
+	// Fetch all orgs of user
+	orgs, err := h.service.GetUserOrganizations(authUser.ID)
+	if err != nil {return err}
+
+
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "All user organizations",
+		"organizations"		: orgs,
+	})
+	return nil
+}
+
+
+func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Processing Request Body
+	var payload types.UpdateOrganizationPayload
+	bolt.ParseBody(w, r, &payload)
+
+
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "Organization updated",
+		"payload"		: payload,
+	})
+	return nil
+}
+
+
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Processing Request Body
+	var payload types.UpdateOrganizationPayload
+	bolt.ParseBody(w, r, &payload)
+
+
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "Organization deleted",
 	})
 	return nil
 }
