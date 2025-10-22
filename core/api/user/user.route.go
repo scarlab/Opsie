@@ -1,7 +1,7 @@
 package user
 
 import (
-	mw "opsie/core/middlewares"
+	"opsie/core/mw"
 	"opsie/pkg/api"
 
 	"github.com/go-chi/chi/v5"

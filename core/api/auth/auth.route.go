@@ -1,7 +1,7 @@
 package auth
 
 import (
-	mw "opsie/core/middlewares"
+	"opsie/core/mw"
 	"opsie/pkg/api"
 
 	"github.com/go-chi/chi/v5"
@@ -9,9 +9,10 @@ import (
 
 // HandleRoutes - Defines all HTTP endpoints for auth.
 func HandleRoutes(r chi.Router, h *Handler) {
-	api.Post(r, "/login", h.Login)
+	// Public
+	api.Post(r, 		"/login", 			h.Login)
 	
 	// MW - [Auth]
-	api.Get(r, "/session", h.GetSessionUser, mw.Auth)
-	api.Get(r, "/logout", h.Logout, mw.Auth)
+	api.Get(r, 			"/session", 		h.GetSessionUser, 		mw.Auth)
+	api.Get(r, 			"/logout", 			h.Logout, 				mw.Auth)
 }

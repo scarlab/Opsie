@@ -2,7 +2,7 @@ package api
 
 import (
 	"net/http"
-	mw "opsie/core/middlewares"
+	"opsie/core/mw"
 	"opsie/types"
 	"strings"
 

@@ -10,7 +10,7 @@ import (
 	"opsie/core/api/auth"
 	"opsie/core/api/organization"
 	"opsie/core/api/user"
-	mw "opsie/core/middlewares"
+	"opsie/core/mw"
 	"opsie/pkg/api"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
@@ -81,7 +81,8 @@ func (s *ApiServer) Router() chi.Router {
 
 
 
-// healthHandler returns a simple apiHome status as JSON.
+// -------------------------------------------------------------------
+// healthHandler returns a simple apiHome status as JSON.-------------
 func apiHome(w http.ResponseWriter, r *http.Request) *errors.Error{
 	msg := map[string]interface{}{"status": "ok", "id":utils.GenerateID()}
 	w.Header().Set("Content-Type", "application/json")
@@ -91,7 +92,8 @@ func apiHome(w http.ResponseWriter, r *http.Request) *errors.Error{
 }
 
 
-
+// -------------------------------------------------------------------
+// Not Found: 404 Handler --------------------------------------------
 func notFound(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
@@ -108,6 +110,9 @@ func notFound(w http.ResponseWriter, r *http.Request){
 
 
 
+
+// -------------------------------------------------------------------
+// Proxy/Embed UI ----------------------------------------------------
 func setupUI(router chi.Router, uiFS fs.FS) {
 	if config.IsDev {
 		// Dev: Proxy to Vite server
