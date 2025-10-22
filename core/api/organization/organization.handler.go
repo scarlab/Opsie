@@ -80,6 +80,31 @@ func (h *Handler) GetUserOrganizations(w http.ResponseWriter, r *http.Request) *
 	return nil
 }
 
+func (h *Handler) GetUserDefaultOrganization(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Get the session user
+	userVal:= r.Context().Value(def.ContextKeyUser)
+	if userVal == nil {
+		return errors.Internal(fmt.Errorf("session user not found"))
+	}
+	
+	authUser, ok := userVal.(types.AuthUser)
+	if !ok {
+		return errors.Internal(fmt.Errorf("invalid session"))
+	}
+
+	// Fetch all orgs of user
+	orgs, err := h.service.GetUserOrganizations(authUser.ID)
+	if err != nil {return err}
+
+
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "Default organizations",
+		"organizations"		: orgs,
+	})
+	return nil
+}
+
 
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body

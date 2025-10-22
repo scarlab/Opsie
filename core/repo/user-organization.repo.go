@@ -75,6 +75,21 @@ func (r *UserOrganizationRepository) ListOrgsByUser(userID types.ID) ([]types.Us
 	return dbutils.UserOrganizationScanRows(rows)
 }
 
+func (r *UserOrganizationRepository) DefaultOrg(userID types.ID) (types.UserOrganization, *errors.Error) {
+    query := `
+        SELECT ` + dbutils.UserOrganizationColumns + `
+        FROM organizations o
+        JOIN user_organizations uo ON o.id = uo.organization_id
+        WHERE uo.user_id = $1 AND uo.id_default = true
+        LIMIT 1
+    `
+
+    row := r.db.QueryRow(query, userID)
+
+    return dbutils.UserOrganizationScan(row)
+}
+
+
 
 func (r *UserOrganizationRepository) SetDefaultOrg(userID, orgID types.ID) *errors.Error {
 	tx, err := r.db.Begin()

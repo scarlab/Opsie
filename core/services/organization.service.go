@@ -32,6 +32,8 @@ func (s *OrganizationService) Create(payload types.NewOrganizationPayload) (type
 		return types.Organization{}, err
 	}
 
+	// Add Owner 
+
     return organization, nil
 }
 
@@ -39,7 +41,7 @@ func (s *OrganizationService) Create(payload types.NewOrganizationPayload) (type
 
 func (s *OrganizationService) GetUserOrganizations(userId types.ID) ([]types.UserOrganization, *errors.Error) {
 	if userId <= 0 {
-		return []types.UserOrganization{}, errors.BadRequest("Organization id is required")
+		return []types.UserOrganization{}, errors.BadRequest("User id is required")
 	}
 
 	organizations, err := s.userOrgRepo.ListOrgsByUser(userId)
@@ -48,4 +50,19 @@ func (s *OrganizationService) GetUserOrganizations(userId types.ID) ([]types.Use
 	}
 
     return organizations, nil
+}
+
+
+
+func (s *OrganizationService) GetUserDefaultOrganization(userId types.ID) (types.UserOrganization, *errors.Error) {
+	if userId <= 0 {
+		return types.UserOrganization{}, errors.BadRequest("User id is required")
+	}
+
+	organization, err := s.userOrgRepo.DefaultOrg(userId)
+	if err != nil {
+		return types.UserOrganization{}, err
+	}
+
+    return organization, nil
 }
