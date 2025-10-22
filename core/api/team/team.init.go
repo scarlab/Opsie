@@ -1,6 +1,6 @@
 // 2025/10/20 15:33:22
 
-package organization
+package team
 
 import (
 	"database/sql"
@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Init - Entry point for initializing api - organization
+// Init - Entry point for initializing api - team
 //
 // Responsibilities:
 // 1. Create repository, service, and handler instances.
@@ -21,18 +21,18 @@ import (
 //   packagename.Register(router, db)
 func Register(r chi.Router, db *sql.DB) {
 	// Step 1: Create repository (DB layer)
-	repository := repo.NewOrganizationRepository(db)
-	userOrgRepository := repo.NewUserOrganizationRepository(db)
+	repository := repo.NewTeamRepository(db)
+	userTeamRepository := repo.NewUserTeamRepository(db)
 
 	// Step 2: Create service (Business logic layer)
-	service := services.NewOrganizationService(repository, userOrgRepository)
+	service := services.NewTeamService(repository, userTeamRepository)
 
 	// Step 3: Create handler (HTTP layer)
 	handler := NewHandler(service)
 
 	// Step 4: Create the sub-router for this api (modify if required)
 	// [v0.0.1-beta] legacy mux router implementation
-	// router := r.PathPrefix("/organization").Subrouter()
+	// router := r.PathPrefix("/team").Subrouter()
 
 	// Step 5: Register routes for this api
 	HandleRoutes(r, handler) // [chi-v0.0.2] new chi router implementation

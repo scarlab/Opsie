@@ -70,7 +70,7 @@ export default function Owner({ next }: { next?: () => void }) {
                     transition={{ delay: 0.3 }}
                 >
                     Let&prime;s start by creating your owner account.<br />
-                    It gives you access to everything your organization will manage.
+                    It gives you access to everything your team will manage.
                 </motion.p>
             </div>
 

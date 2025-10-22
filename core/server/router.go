@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"opsie/config"
 	"opsie/core/api/auth"
-	"opsie/core/api/organization"
+	"opsie/core/api/team"
 	"opsie/core/api/user"
 	"opsie/core/mw"
 	"opsie/pkg/api"
@@ -65,8 +65,8 @@ func (s *ApiServer) Router() chi.Router {
 		apiRoute.Route("/user",func(r chi.Router){
 			user.Register(r, s.db)
 		})
-		apiRoute.Route("/organization",func(r chi.Router){
-			organization.Register(r, s.db)
+		apiRoute.Route("/team",func(r chi.Router){
+			team.Register(r, s.db)
 		})
 
 

@@ -13,8 +13,8 @@ import ResourcesView from "./views/workspace/resources/ResourcesView";
 import ProjectsView from "./views/workspace/projects/ProjectsView";
 import UsersView from "./views/workspace/users/UsersView";
 import SettingsLayout from "./layouts/SettingsLayout";
-import OrganizationSettingsView from "./views/settings/organization/OrganizationSettingsView";
 import AccountSettingsView from "./views/settings/account/AccountSettingsView";
+import TeamSettingsView from "./views/settings/organization/TeamSettingsView";
 
 export default function App() {
   return (
@@ -62,7 +62,7 @@ export default function App() {
               App routes (protected)
           ====================== */}
           <Route path="settings/*" element={<SettingsLayout />}>
-            <Route index element={<OrganizationSettingsView />} />
+            <Route index element={<TeamSettingsView />} />
             <Route path="account" element={<AccountSettingsView />} />
 
 

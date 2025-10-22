@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../cn/dropdown-menu";
 import { AudioWaveform, ChevronsUpDown, Command, GalleryVerticalEnd, Plus } from "lucide-react";
 
-const organizations = [
+const teams = [
     {
         name: "Acme Inc",
         logo: GalleryVerticalEnd,
@@ -20,10 +20,10 @@ const organizations = [
     },
 ]
 
-export default function OrganizationSwitcher() {
+export default function TeamSwitcher() {
 
-    const [activeOrganization, setActiveOrganization] = useState(organizations[0])
-    if (!activeOrganization) {
+    const [activeTeam, setActiveTeam] = useState(teams[0])
+    if (!activeTeam) {
         return null
     }
     return (
@@ -33,8 +33,8 @@ export default function OrganizationSwitcher() {
                 <DropdownMenuTrigger asChild>
                     <div className="hover:bg-accent dark:hover:bg-accent/40 cursor-pointer flex items-center gap-2 transition-all rounded px-2 py-">
                         <div className="space-x-3">
-                            <span className="truncate font-medium">{activeOrganization.name}</span>
-                            <span className="truncate text-xs border rounded-2xl px-2.5 bg-accent/60">{activeOrganization.plan}</span>
+                            <span className="truncate font-medium">{activeTeam.name}</span>
+                            <span className="truncate text-xs border rounded-2xl px-2.5 bg-accent/60">{activeTeam.plan}</span>
                         </div>
                         <ChevronsUpDown size={17} />
                     </div>
@@ -46,15 +46,15 @@ export default function OrganizationSwitcher() {
                     sideOffset={4}
                 >
                     <DropdownMenuLabel className="text-muted-foreground text-xs">
-                        Organizations
+                        Teams
                     </DropdownMenuLabel>
-                    {organizations.map((organization, i) => (
+                    {teams.map((team, i) => (
                         <DropdownMenuItem
-                            key={organization.name + i}
-                            onClick={() => setActiveOrganization(organization)}
+                            key={team.name + i}
+                            onClick={() => setActiveTeam(team)}
                             className="gap-2 p-2"
                         >
-                            {organization.name}
+                            {team.name}
 
                         </DropdownMenuItem>
                     ))}
@@ -63,7 +63,7 @@ export default function OrganizationSwitcher() {
                         <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                             <Plus className="size-4" />
                         </div>
-                        <div className="text-muted-foreground font-medium">Add organization</div>
+                        <div className="text-muted-foreground font-medium">Add team</div>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

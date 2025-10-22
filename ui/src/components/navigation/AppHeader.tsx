@@ -5,20 +5,20 @@ import { Bell } from 'lucide-react'
 import NavUser from './NavUser'
 import AddNew from './AddNew'
 import { Link } from 'react-router-dom'
-import OrganizationSwitcher from './OrganizationSwitcher'
+import TeamSwitcher from './TeamSwitcher'
 import { Theme } from '../theme'
 
 export default function AppHeader() {
     return (
         <nav className="bg-secondary border-b px-3 gap-3 flex items-center py-2 h-[var(--header-height)] sticky top-0 z-50">
-            <Link to={'/'} className="w-8 aspect-square rounded-full overflow-hidden ">
+            <Link to={'/'} className="w-8 ">
                 <img width={200} height={200} src={CsImage.logo} alt={Config.projectName} />
             </Link>
 
             <div className="mx-2 h-7 w-0.5 bg-accent rotate-12"></div>
 
             <div className="grow flex gap-2 items-center">
-                <OrganizationSwitcher />
+                <TeamSwitcher />
             </div>
 
             <div className='flex gap-3 items-center'>

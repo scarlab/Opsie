@@ -96,9 +96,9 @@ EXECUTE FUNCTION set_updated_at();
 
 
 -- -----------------------------------------------------------------------
--- Organizations
+-- Teams
 -- -----------------------------------------------------------------------
-CREATE TABLE organizations (
+CREATE TABLE teams (
     id              BIGINT PRIMARY KEY,
     name            TEXT NOT NULL,
     slug            TEXT NOT NULL UNIQUE,
@@ -108,28 +108,28 @@ CREATE TABLE organizations (
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE TRIGGER set_organizations_updated_at
-BEFORE UPDATE ON organizations
+CREATE TRIGGER set_teams_updated_at
+BEFORE UPDATE ON teams
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
 
 -- -----------------------------------------------------------------------
--- User <-> Organizations
+-- User <-> Teams
 -- -----------------------------------------------------------------------
-CREATE TABLE user_organizations (
+CREATE TABLE user_teams (
     id                  BIGSERIAL PRIMARY KEY,
     user_id             BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    organization_id     BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    team_id     BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
     invited_by          BIGINT REFERENCES users(id) ON DELETE SET NULL,
     joined_at           TIMESTAMP WITH TIME ZONE DEFAULT now(),
     is_default          BOOLEAN
 );
 
-CREATE UNIQUE INDEX idx_user_org_unique ON user_organizations(user_id, organization_id);
-CREATE INDEX idx_user_org_user_id ON user_organizations(user_id);
-CREATE INDEX idx_user_org_org_id ON user_organizations(organization_id);
-CREATE UNIQUE INDEX ux_user_default_org ON user_organizations(user_id) WHERE is_default = true;
+CREATE UNIQUE INDEX idx_user_team_unique ON user_teams(user_id, team_id);
+CREATE INDEX idx_user_team_user_id ON user_teams(user_id);
+CREATE INDEX idx_user_team_team_id ON user_teams(team_id);
+CREATE UNIQUE INDEX ux_user_default_team ON user_teams(user_id) WHERE is_default = true;
 
 
 -- -----------------------------------------------------------------------
@@ -137,7 +137,7 @@ CREATE UNIQUE INDEX ux_user_default_org ON user_organizations(user_id) WHERE is_
 -- -----------------------------------------------------------------------
 CREATE TABLE roles (
     id                BIGINT PRIMARY KEY,
-    organization_id   BIGINT REFERENCES organizations(id) ON DELETE CASCADE,
+    team_id   BIGINT REFERENCES teams(id) ON DELETE CASCADE,
     title             TEXT NOT NULL,
     color             TEXT,
     is_default        BOOLEAN DEFAULT false,
@@ -146,7 +146,7 @@ CREATE TABLE roles (
     created_at        TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE INDEX idx_roles_org_id ON roles(organization_id);
+CREATE INDEX idx_roles_team_id ON roles(team_id);
 
 CREATE TRIGGER set_roles_updated_at
 BEFORE UPDATE ON roles
@@ -187,14 +187,14 @@ CREATE TABLE user_roles (
     id                BIGSERIAL PRIMARY KEY,
     user_id           BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     role_id           BIGINT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-    organization_id   BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    team_id   BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
     assigned_by       BIGINT REFERENCES users(id) ON DELETE SET NULL,
     created_at        TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    UNIQUE (user_id, role_id, organization_id)
+    UNIQUE (user_id, role_id, team_id)
 );
 
 CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
-CREATE INDEX idx_user_roles_org_id ON user_roles(organization_id);
+CREATE INDEX idx_user_roles_team_id ON user_roles(team_id);
 
 
 -- -----------------------------------------------------------------------
@@ -202,7 +202,7 @@ CREATE INDEX idx_user_roles_org_id ON user_roles(organization_id);
 -- -----------------------------------------------------------------------
 CREATE TABLE projects (
     id                BIGINT PRIMARY KEY,
-    organization_id   BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    team_id   BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
     name              TEXT NOT NULL,
     description       TEXT,
     status            TEXT,
@@ -212,7 +212,7 @@ CREATE TABLE projects (
     updated_at        TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE INDEX idx_projects_org_id ON projects(organization_id);
+CREATE INDEX idx_projects_team_id ON projects(team_id);
 
 CREATE TRIGGER set_projects_updated_at
 BEFORE UPDATE ON projects
@@ -225,7 +225,7 @@ EXECUTE FUNCTION set_updated_at();
 -- -----------------------------------------------------------------------
 CREATE TABLE resources (
     id                BIGINT PRIMARY KEY,
-    organization_id   BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    team_id   BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
     project_id        BIGINT REFERENCES projects(id) ON DELETE CASCADE,
     name              TEXT NOT NULL,
     description       TEXT,
@@ -240,7 +240,7 @@ CREATE TABLE resources (
     updated_at        TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE INDEX idx_resources_org_id ON resources(organization_id);
+CREATE INDEX idx_resources_team_id ON resources(team_id);
 CREATE INDEX idx_resources_project_id ON resources(project_id);
 
 CREATE TRIGGER set_resources_updated_at

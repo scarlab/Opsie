@@ -19,8 +19,8 @@ var nouns = []string{
 	"hawk", "tiger", "phoenix", "comet", "mountain", "whale", "forest",
 }
 
-// GenerateOrgName returns a random two-word org name like “Blue Falcon”.
-func GenerateOrgName() string {
+// GenerateTeamName returns a random two-word org name like “Blue Falcon”.
+func GenerateTeamName() string {
 	adj := adjectives[rand.IntN(len(adjectives))]
 	noun := nouns[rand.IntN(len(nouns))]
 

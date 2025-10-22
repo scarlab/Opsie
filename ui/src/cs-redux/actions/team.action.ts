@@ -3,12 +3,12 @@
 import ApiManager from "@/configs/api.config";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-export class OrganizationAction {
+export class TeamAction {
     Example = createAsyncThunk(
-        "Organization/Example",
+        "Team/Example",
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
-                const { data } = await ApiManager.get(`/organization/login`);
+                const { data } = await ApiManager.get(`/team/login`);
 
                 return fulfillWithValue(data)
             } catch (error: any) {

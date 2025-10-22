@@ -1,4 +1,4 @@
-package organization
+package team
 
 import (
 	"fmt"
@@ -11,14 +11,14 @@ import (
 	"opsie/types"
 )
 
-// Organization Handler - Handles HTTP requests & responses.
+// Team Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *services.OrganizationService
+	service *services.TeamService
 }
 
-// NewHandler - Constructor for Organization Handler
-func NewHandler(service *services.OrganizationService) *Handler {
+// NewHandler - Constructor for Team Handler
+func NewHandler(service *services.TeamService) *Handler {
 	return &Handler{
 		service: service,
 	}
@@ -28,34 +28,34 @@ func NewHandler(service *services.OrganizationService) *Handler {
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.NewOrganizationPayload
+	var payload types.NewTeamPayload
 	bolt.ParseBody(w, r, &payload)
 logger.Debug("%s",payload)
-	// Create Organization
-	organization, err := h.service.Create(payload)
+	// Create Team
+	team, err := h.service.Create(payload)
 	if err != nil {
 		return err
 	}
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "Organization created",
-		"organization"	: organization,
+		"message"		: "Team created",
+		"team"	: team,
 	})
 	return nil
 }
 
 
-func (h *Handler) GetAllOrganizations(w http.ResponseWriter, r *http.Request) *errors.Error{
+func (h *Handler) GetAllTeams(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "All organizations",
-		"organizations"		: "all",
+		"message"		: "All teams",
+		"teams"		: "all",
 	})
 	return nil
 }
 
-func (h *Handler) GetUserOrganizations(w http.ResponseWriter, r *http.Request) *errors.Error{
+func (h *Handler) GetUserTeams(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Get the session user
 	userVal:= r.Context().Value(def.ContextKeyUser)
 	if userVal == nil {
@@ -67,20 +67,20 @@ func (h *Handler) GetUserOrganizations(w http.ResponseWriter, r *http.Request) *
 		return errors.Internal(fmt.Errorf("invalid session"))
 	}
 
-	// Fetch all orgs of user
-	orgs, err := h.service.GetUserOrganizations(authUser.ID)
+	// Fetch all teams of user
+	teams, err := h.service.GetUserTeams(authUser.ID)
 	if err != nil {return err}
 
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "All user organizations",
-		"organizations"		: orgs,
+		"message"		: "All user teams",
+		"teams"		: teams,
 	})
 	return nil
 }
 
-func (h *Handler) GetUserDefaultOrganization(w http.ResponseWriter, r *http.Request) *errors.Error{
+func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Get the session user
 	userVal:= r.Context().Value(def.ContextKeyUser)
 	if userVal == nil {
@@ -92,15 +92,15 @@ func (h *Handler) GetUserDefaultOrganization(w http.ResponseWriter, r *http.Requ
 		return errors.Internal(fmt.Errorf("invalid session"))
 	}
 
-	// Fetch all orgs of user
-	orgs, err := h.service.GetUserOrganizations(authUser.ID)
+	// Fetch all teams of user
+	teams, err := h.service.GetUserTeams(authUser.ID)
 	if err != nil {return err}
 
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "Default organizations",
-		"organizations"		: orgs,
+		"message"		: "Default teams",
+		"teams"		: teams,
 	})
 	return nil
 }
@@ -108,13 +108,13 @@ func (h *Handler) GetUserDefaultOrganization(w http.ResponseWriter, r *http.Requ
 
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.UpdateOrganizationPayload
+	var payload types.UpdateTeamPayload
 	bolt.ParseBody(w, r, &payload)
 
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "Organization updated",
+		"message"		: "Team updated",
 		"payload"		: payload,
 	})
 	return nil
@@ -123,13 +123,13 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) *errors.Err
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.UpdateOrganizationPayload
+	var payload types.UpdateTeamPayload
 	bolt.ParseBody(w, r, &payload)
 
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
-		"message"		: "Organization deleted",
+		"message"		: "Team deleted",
 	})
 	return nil
 }

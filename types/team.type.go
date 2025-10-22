@@ -2,12 +2,12 @@ package types
 
 import "time"
 
-// Types - data structures for Organization
+// Types - data structures for Team
 // These structs represent requests, responses, and entities
 // that are only meaningful within this api.
 
 
-type Organization struct {
+type Team struct {
     ID              ID          `json:"id"`
     Name            string      `json:"name"`
     Description     string      `json:"description"`
@@ -16,7 +16,7 @@ type Organization struct {
     CreatedAt       time.Time   `json:"created_at"`
 }
 
-type UserOrganization struct {
+type UserTeam struct {
     ID              ID          `json:"id"`
     Name            string      `json:"name"`
     Description     string      `json:"description"`
@@ -28,13 +28,13 @@ type UserOrganization struct {
     JoinedAt        time.Time   `json:"joined_at"`
 }
 
-type NewOrganizationPayload struct {
+type NewTeamPayload struct {
     Name            string      `json:"name"`
     Description     string      `json:"description"`
     Logo            string      `json:"logo"`
 }
 
-type UpdateOrganizationPayload struct {
+type UpdateTeamPayload struct {
     Name            string      `json:"name"`
     Description     string      `json:"description"`
 }

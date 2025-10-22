@@ -7,7 +7,7 @@ import (
 )
 
 
-const UserOrganizationColumns = `
+const UserTeamColumns = `
     o.id,
     o.name,
     o.description,
@@ -18,56 +18,56 @@ const UserOrganizationColumns = `
     uo.joined_at
 `
 
-func UserOrganizationScan(row *sql.Row) (types.UserOrganization, *errors.Error) {
-	var org types.UserOrganization
+func UserTeamScan(row *sql.Row) (types.UserTeam, *errors.Error) {
+	var team types.UserTeam
 	var logo, description sql.NullString
 	var isDefault sql.NullBool
 	var joinedAt sql.NullTime
 
 	err := row.Scan(
-		&org.ID,
-		&org.Name,
+		&team.ID,
+		&team.Name,
 		&description,
 		&logo,
-		&org.UpdatedAt,
-		&org.CreatedAt,
+		&team.UpdatedAt,
+		&team.CreatedAt,
 		&isDefault,
 		&joinedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return types.UserOrganization{}, errors.NotFound("Organization not found")
+			return types.UserTeam{}, errors.NotFound("Team not found")
 		}
-		return types.UserOrganization{}, errors.Internal(err)
+		return types.UserTeam{}, errors.Internal(err)
 	}
 
 	if logo.Valid {
-		org.Logo = logo.String
+		team.Logo = logo.String
 	}
 	if description.Valid {
-		org.Description = description.String
+		team.Description = description.String
 	}
-	org.IsDefault = isDefault.Valid && isDefault.Bool
+	team.IsDefault = isDefault.Valid && isDefault.Bool
 
-	return org, nil
+	return team, nil
 }
 
-func UserOrganizationScanRows(rows *sql.Rows) ([]types.UserOrganization, *errors.Error) {
-	var orgs []types.UserOrganization
+func UserTeamScanRows(rows *sql.Rows) ([]types.UserTeam, *errors.Error) {
+	var teams []types.UserTeam
 
 	for rows.Next() {
-		var org types.UserOrganization
+		var team types.UserTeam
 		var logo, description sql.NullString
 		var isDefault sql.NullBool
 		var joinedAt sql.NullTime
 
 		if err := rows.Scan(
-			&org.ID,
-			&org.Name,
+			&team.ID,
+			&team.Name,
 			&description,
 			&logo,
-			&org.UpdatedAt,
-			&org.CreatedAt,
+			&team.UpdatedAt,
+			&team.CreatedAt,
 			&isDefault,
 			&joinedAt,
 		); err != nil {		
@@ -76,19 +76,19 @@ func UserOrganizationScanRows(rows *sql.Rows) ([]types.UserOrganization, *errors
 		}
 
 		if logo.Valid {
-			org.Logo = logo.String
+			team.Logo = logo.String
 		}
 		if description.Valid {
-			org.Description = description.String
+			team.Description = description.String
 		}
-		org.IsDefault = isDefault.Valid && isDefault.Bool
+		team.IsDefault = isDefault.Valid && isDefault.Bool
 
-		orgs = append(orgs, org)
+		teams = append(teams, team)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, errors.Internal(err)
 	}
 
-	return orgs, nil
+	return teams, nil
 }

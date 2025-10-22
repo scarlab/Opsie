@@ -13,17 +13,17 @@ import (
 type UserService struct {
 	repo *repo.UserRepository
 	authRepo *repo.AuthRepository
-	orgRepo *repo.OrganizationRepository
-	userOrgRepo *repo.UserOrganizationRepository
+	teamRepo *repo.TeamRepository
+	userTeamRepo *repo.UserTeamRepository
 }
 
 // NewService - Constructor for Service
-func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository,orgRepo *repo.OrganizationRepository, userOrgRepo *repo.UserOrganizationRepository) *UserService {
+func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository,teamRepo *repo.TeamRepository, userTeamRepo *repo.UserTeamRepository) *UserService {
 	return &UserService{
 		repo: repo,
 		authRepo: authRepo,
-		orgRepo: orgRepo,
-		userOrgRepo: userOrgRepo,
+		teamRepo: teamRepo,
+		userTeamRepo: userTeamRepo,
 	}
 }
 // CreateOwnerAccount handles business logic for creating the first owner
@@ -47,18 +47,18 @@ func (s *UserService) CreateOwnerAccount(payload types.NewOwnerPayload) (types.U
 		return types.User{}, err
 	}
 
-	// 2️⃣ Create default org
-	orgPayload := types.NewOrganizationPayload{
-		Name:        utils.GenerateOrgName(),
-		Description: "This is your default organization.",
+	// 2️⃣ Create default team
+	teamPayload := types.NewTeamPayload{
+		Name:        utils.GenerateTeamName(),
+		Description: "This is your default team.",
 	}
-	org, orgErr := s.orgRepo.Create(tx, orgPayload)
-	if orgErr != nil {
-		return types.User{}, orgErr
+	team, teamErr := s.teamRepo.Create(tx, teamPayload)
+	if teamErr != nil {
+		return types.User{}, teamErr
 	}
 
-	// 3️⃣ Link user <-> org
-	if addErr := s.userOrgRepo.AddUserToOrg(tx, user.ID, org.ID, true, nil); addErr != nil {
+	// 3️⃣ Link user <-> team
+	if addErr := s.userTeamRepo.AddUserToTeam(tx, user.ID, team.ID, true, nil); addErr != nil {
 		return types.User{}, addErr
 	}
 

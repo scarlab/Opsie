@@ -63,11 +63,11 @@ Cluster Manager
 
 
 ### Directory Layout
-| Purpose                           | Suggested Path                 | Description                  |
-| --------------------------------- | ------------------------------ | ---------------------------- |
-| Binary                            | `/usr/local/bin/opsied`        | Your compiled service binary |
-| Config                            | `/etc/opsie/config.yaml`       | Configuration file           |
-| Logs                              | `/var/log/opsie/opsie.log`     | Main log file                |
-| Uploads (images, org logos, etc.) | `/var/lib/opsie/uploads/`      | Persistent uploaded data     |
-| Database (SQLite, if used)        | `/var/lib/opsie/data/opsie.db` | Internal data store          |
-| Runtime pid/socket                | `/run/opsie/opsie.pid`         | PID or runtime socket        |
+| Purpose                            | Suggested Path                 | Description                  |
+| ---------------------------------- | ------------------------------ | ---------------------------- |
+| Binary                             | `/usr/local/bin/opsied`        | Your compiled service binary |
+| Config                             | `/etc/opsie/config.yaml`       | Configuration file           |
+| Logs                               | `/var/log/opsie/opsie.log`     | Main log file                |
+| Uploads (images, team logos, etc.) | `/var/lib/opsie/uploads/`      | Persistent uploaded data     |
+| Database (SQLite, if used)         | `/var/lib/opsie/data/opsie.db` | Internal data store          |
+| Runtime pid/socket                 | `/run/opsie/opsie.pid`         | PID or runtime socket        |

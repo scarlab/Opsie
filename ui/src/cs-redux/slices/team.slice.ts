@@ -1,9 +1,9 @@
 // Created: 2025/10/20 15:33:22
 
 import { createSlice } from '@reduxjs/toolkit';
-import { OrganizationAction } from '../actions/organization.action';
+import { TeamAction } from '../actions/team.action';
 
-const Organization = new OrganizationAction()
+const Team = new TeamAction()
 
 const initialState: {
     name: string;
@@ -15,8 +15,8 @@ const initialState: {
     notFound: false,
 };
 
-const OrganizationSlice = createSlice({
-    name: "OrganizationSlice",
+const TeamSlice = createSlice({
+    name: "TeamSlice",
     initialState,
     reducers: {
         setName: (state, { payload }) => {
@@ -25,14 +25,14 @@ const OrganizationSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(Organization.Example.pending, (state, _) => {
+            .addCase(Team.Example.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(Organization.Example.fulfilled, (state, { payload }) => {
+            .addCase(Team.Example.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.name = payload.name;
             })
-            .addCase(Organization.Example.rejected, (state, _) => {
+            .addCase(Team.Example.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
             })
@@ -41,7 +41,7 @@ const OrganizationSlice = createSlice({
 
 
 
-export default OrganizationSlice;
+export default TeamSlice;
 
 
 
