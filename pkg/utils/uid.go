@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"opsie/types"
 
 	"github.com/sony/sonyflake"
 )
@@ -13,7 +12,7 @@ var flake = sonyflake.NewSonyflake(sonyflake.Settings{})
 
 const maxInt64 = 1<<63 - 1
 
-func GenerateID() types.ID {
+func GenerateID() int64 {
 	for {
 		id, err := flake.NextID()
 		if err != nil {
@@ -21,7 +20,7 @@ func GenerateID() types.ID {
 		}
 
 		if id <= uint64(maxInt64) {
-			return types.ID(id)
+			return int64(id)
 		}
 		// Retry if overflow
 	}

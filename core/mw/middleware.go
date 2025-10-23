@@ -1,14 +1,15 @@
 package mw
 
 import (
-	"database/sql"
 	"opsie/core/repo"
 	"opsie/types"
+
+	"gorm.io/gorm"
 )
 
 var Auth types.Middleware
 
-func Register(db *sql.DB)  {
+func Register(db *gorm.DB)  {
 	// Repositories
 	authRepo := repo.NewAuthRepository(db)
 	

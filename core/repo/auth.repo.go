@@ -4,28 +4,30 @@ import (
 	"database/sql"
 	"net/http"
 	"opsie/config"
-	"opsie/core/dbutils"
+	"opsie/core/models"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 	"opsie/types"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // AuthRepository - Handles DB operations for auth.
 // Talks only to the database (or other data sources).
 type AuthRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 // NewAuthRepository - Constructor for Repository
-func NewAuthRepository(db *sql.DB) *AuthRepository {
+func NewAuthRepository(db *gorm.DB) *AuthRepository {
 	return &AuthRepository{
 		db: db,
 	}
 }
 
 
-func (r *AuthRepository) CreateSession(userId types.ID, key string, expiry time.Time) (types.Session, *errors.Error) {
+func (r *AuthRepository) CreateSession(userId int64, key string, expiry time.Time) (models.Session, *errors.Error) {
 	query := `
 		INSERT INTO sessions (user_id, key, expiry)
 		VALUES ($1, $2, $3)
@@ -36,7 +38,7 @@ func (r *AuthRepository) CreateSession(userId types.ID, key string, expiry time.
 }
 
 
-func (r *AuthRepository) GetValidSessionByKey(key string) (types.Session, *errors.Error) {
+func (r *AuthRepository) GetValidSessionByKey(key string) (models.Session, *errors.Error) {
 	query := `
 		SELECT id, user_id, key, ip, os, device, browser, is_valid, expiry, created_at
 		FROM sessions
@@ -46,7 +48,7 @@ func (r *AuthRepository) GetValidSessionByKey(key string) (types.Session, *error
 	row := r.db.QueryRow(query, key)
 	session, err := dbutils.SessionScan(row)
 	if err != nil {
-		return types.Session{}, err
+		return models.Session{}, err
 	}
 
 	return session, nil
@@ -124,11 +126,11 @@ func (r *AuthRepository) ExpireSession(key string) *errors.Error {
 
 
 
-func (r *AuthRepository) RegenerateSessionKey(key types.SessionKey) (types.Session, *errors.Error) {
+func (r *AuthRepository) RegenerateSessionKey(key string) (models.Session, *errors.Error) {
 
 	newKey, gskRrr := utils.GenerateSessionKey()
 	if gskRrr != nil {
-		return types.Session{}, errors.Internal(gskRrr)
+		return models.Session{}, errors.Internal(gskRrr)
 	}
 
 	expiry := time.Now().Add(time.Duration(config.App.SessionDays) * 24 * time.Hour)

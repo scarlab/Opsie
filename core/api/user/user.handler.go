@@ -3,11 +3,11 @@ package user
 import (
 	"net/http"
 	"opsie/config"
+	"opsie/core/models"
 	"opsie/core/services"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
-	"opsie/types"
 )
 
 // Handler - Handles HTTP requests & responses.
@@ -30,7 +30,7 @@ func NewHandler(service *services.UserService) *Handler {
 
 func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *errors.Error {
     // Processing Request Body
-	var payload types.NewOwnerPayload
+	var payload models.NewOwnerPayload
 	bolt.ParseBody(w, r, &payload)
 
 	// Handling Business Logics
@@ -72,7 +72,7 @@ func (h *Handler) UpdateAccountDisplayName(w http.ResponseWriter, r *http.Reques
 	if gsuErr!= nil {return gsuErr}
 
 	// Processing Request Body
-	var payload types.UpdateAccountNamePayload
+	var payload models.UpdateAccountNamePayload
 	bolt.ParseBody(w, r, &payload)
 
 
@@ -100,7 +100,7 @@ func (h *Handler) UpdateAccountPassword(w http.ResponseWriter, r *http.Request) 
 	if gsErr!= nil {return gsErr}
 
 	// Processing Request Body
-	var payload types.UpdateAccountPasswordPayload
+	var payload models.UpdateAccountPasswordPayload
 	bolt.ParseBody(w, r, &payload)
 	
 	// Handling Business Logics
@@ -112,7 +112,7 @@ func (h *Handler) UpdateAccountPassword(w http.ResponseWriter, r *http.Request) 
 	// set cookie
     http.SetCookie(w, &http.Cookie{
         Name:     def.CookieNameSession,
-        Value:    newSession.Key.ToString(),
+        Value:    newSession.Key,
         Expires:  newSession.Expiry,
         HttpOnly: true,
         Secure:   !config.IsDev,

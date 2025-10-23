@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
+	"opsie/core/models"
 	"opsie/core/repo"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
-	"opsie/types"
 )
 
 // UserService - Contains all business logic for this api.
@@ -27,9 +27,9 @@ func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository,tea
 	}
 }
 // CreateOwnerAccount handles business logic for creating the first owner
-func (s *UserService) CreateOwnerAccount(payload types.NewOwnerPayload) (types.User, *errors.Error) {
+func (s *UserService) CreateOwnerAccount(payload models.NewOwnerPayload) (models.User, *errors.Error) {
 	if payload.Email == "" || payload.Password == "" {
-		return types.User{}, errors.BadRequest("email and password required")
+		return models.User{}, errors.BadRequest("email and password required")
 	}
 
 	hashedPassword, _ := utils.Hash.Generate(payload.Password)
@@ -37,34 +37,34 @@ func (s *UserService) CreateOwnerAccount(payload types.NewOwnerPayload) (types.U
 
 	tx, txErr := s.repo.BeginTx(context.Background(), nil)
 	if txErr != nil {
-		return types.User{}, txErr
+		return models.User{}, txErr
 	}
 	defer tx.Rollback()
 
 	// 1️⃣ Create user
 	user, err := s.repo.CreateOwnerAccount(tx, payload)
 	if err != nil {
-		return types.User{}, err
+		return models.User{}, err
 	}
 
 	// 2️⃣ Create default team
-	teamPayload := types.NewTeamPayload{
+	teamPayload := models.NewTeamPayload{
 		Name:        utils.GenerateTeamName(),
 		Description: "This is your default team.",
 	}
 	team, teamErr := s.teamRepo.Create(tx, teamPayload)
 	if teamErr != nil {
-		return types.User{}, teamErr
+		return models.User{}, teamErr
 	}
 
 	// 3️⃣ Link user <-> team
 	if addErr := s.userTeamRepo.AddUserToTeam(tx, user.ID, team.ID, true, nil); addErr != nil {
-		return types.User{}, addErr
+		return models.User{}, addErr
 	}
 
 	// ✅ Commit
 	if err := tx.Commit(); err != nil {
-		return types.User{}, errors.Internal(err)
+		return models.User{}, errors.Internal(err)
 	}
 
 	return user, nil
@@ -84,18 +84,18 @@ func (s *UserService) GetOwnerCount() (int, *errors.Error) {
 
 
 
-func (s *UserService) UpdateAccountName(userID types.ID, payload types.UpdateAccountNamePayload) (types.AuthUser, *errors.Error) {
+func (s *UserService) UpdateAccountName(userID int64, payload models.UpdateAccountNamePayload) (models.AuthUser, *errors.Error) {
 	if userID == 0 || payload.DisplayName == "" {
-		return types.AuthUser{}, errors.BadRequest("Invalid user or name")
+		return models.AuthUser{}, errors.BadRequest("Invalid user or name")
 	}
 	
 	user, err := s.repo.UpdateAccountName(userID, payload.DisplayName)
 	if err != nil {
-		return types.AuthUser{}, err
+		return models.AuthUser{}, err
 	}
 
 	
-	authUser := types.AuthUser{
+	authUser := models.AuthUser{
 		ID: user.ID,
 		DisplayName: user.DisplayName,
 		Email: user.Email,
@@ -110,21 +110,21 @@ func (s *UserService) UpdateAccountName(userID types.ID, payload types.UpdateAcc
 
 
 
-func (s *UserService) UpdateAccountPassword(userID types.ID, sessionKey types.SessionKey, payload types.UpdateAccountPasswordPayload) (types.Session, *errors.Error) {
+func (s *UserService) UpdateAccountPassword(userID int64, sessionKey string, payload models.UpdateAccountPasswordPayload) (models.Session, *errors.Error) {
 	if userID == 0 || payload.Password == "" ||payload.NewPassword == "" {
-		return types.Session{}, errors.BadRequest("Invalid user or name")
+		return models.Session{}, errors.BadRequest("Invalid user or name")
 	}
 	
 	// Get the user from db. need password verification
 	user, err := s.repo.GetByID(userID)
 	if err != nil {
-		return types.Session{}, err
+		return models.Session{}, err
 	}
 
 	// Verify password
 	isMatched := utils.Hash.Compare(user.Password, payload.Password)
 	if !isMatched {
-		return types.Session{}, errors.BadRequest("Password doesn't match")
+		return models.Session{}, errors.BadRequest("Password doesn't match")
 	}
 
 	// generate Hashed Password
@@ -133,13 +133,13 @@ func (s *UserService) UpdateAccountPassword(userID types.ID, sessionKey types.Se
 	// Update the password
 	_, uapErr := s.repo.UpdateAccountPassword(userID, hashedPassword)
 	if uapErr != nil {
-		return types.Session{}, uapErr
+		return models.Session{}, uapErr
 	}
 
 	// Regenerate Session key
 	session, rskErr := s.authRepo.RegenerateSessionKey(sessionKey)
 	if rskErr != nil {
-		return types.Session{}, err
+		return models.Session{}, err
 	}
 
 	return session, nil

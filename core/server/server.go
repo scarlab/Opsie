@@ -2,26 +2,27 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"io/fs"
 	"log"
 	"net/http"
 	"opsie/core/socket"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // ApiServer represents the main HTTP server for the application.
 // It contains the listening address and a reference to the database connection.
 type ApiServer struct {
 	addr string   // Address where the server will listen (e.g. ":3905")
-	db   *sql.DB  // Database connection pool
+	db   *gorm.DB  // Database connection pool
 	uiFS fs.FS
 	socketHub *socket.Hub
 }
 
 
 // Constructor: NewApiServer creates and returns a new ApiServer instance.
-func NewApiServer(addr string, db *sql.DB, uiFS fs.FS, socketHub *socket.Hub) *ApiServer {
+func NewApiServer(addr string, db *gorm.DB, uiFS fs.FS, socketHub *socket.Hub) *ApiServer {
 	return &ApiServer{
 		addr: addr,
 		db:   db,

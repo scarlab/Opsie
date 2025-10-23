@@ -1,9 +1,9 @@
 package services
 
 import (
+	"opsie/core/models"
 	"opsie/core/repo"
 	"opsie/pkg/errors"
-	"opsie/types"
 )
 
 // TeamService - Contains all business logic for Team api.
@@ -22,14 +22,14 @@ func NewTeamService(repo *repo.TeamRepository, userTeamRepo *repo.UserTeamReposi
 }
 
 
-func (s *TeamService) Create(payload types.NewTeamPayload) (types.Team, *errors.Error) {
+func (s *TeamService) Create(payload models.NewTeamPayload) (models.Team, *errors.Error) {
 	if payload.Name == "" {
-		return types.Team{}, errors.BadRequest("Team name is required")
+		return models.Team{}, errors.BadRequest("Team name is required")
 	}
 
 	team, err := s.repo.Create(nil, payload)
 	if err != nil {
-		return types.Team{}, err
+		return models.Team{}, err
 	}
 
 	// Add Owner 
@@ -39,14 +39,14 @@ func (s *TeamService) Create(payload types.NewTeamPayload) (types.Team, *errors.
 
 
 
-func (s *TeamService) GetUserTeams(userId types.ID) ([]types.UserTeam, *errors.Error) {
+func (s *TeamService) GetUserTeams(userId int64) ([]models.UserTeam, *errors.Error) {
 	if userId <= 0 {
-		return []types.UserTeam{}, errors.BadRequest("User id is required")
+		return []models.UserTeam{}, errors.BadRequest("User id is required")
 	}
 
 	teams, err := s.userTeamRepo.ListTeamsByUser(userId)
 	if err != nil {
-		return []types.UserTeam{}, err
+		return []models.UserTeam{}, err
 	}
 
     return teams, nil
@@ -54,14 +54,14 @@ func (s *TeamService) GetUserTeams(userId types.ID) ([]types.UserTeam, *errors.E
 
 
 
-func (s *TeamService) GetUserDefaultTeam(userId types.ID) (types.UserTeam, *errors.Error) {
+func (s *TeamService) GetUserDefaultTeam(userId int64) (models.UserTeam, *errors.Error) {
 	if userId <= 0 {
-		return types.UserTeam{}, errors.BadRequest("User id is required")
+		return models.UserTeam{}, errors.BadRequest("User id is required")
 	}
 
 	team, err := s.userTeamRepo.DefaultTeam(userId)
 	if err != nil {
-		return types.UserTeam{}, err
+		return models.UserTeam{}, err
 	}
 
     return team, nil

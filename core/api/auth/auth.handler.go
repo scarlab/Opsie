@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"opsie/config"
+	"opsie/core/models"
 	"opsie/core/services"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
-	"opsie/types"
 )
 
 // Handler - Handles HTTP requests & responses.
@@ -27,7 +27,7 @@ func NewHandler(service *services.AuthService) *Handler {
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
     // Processing Request Body
-	var payload types.LoginPayload
+	var payload models.LoginPayload
 	bolt.ParseBody(w, r, &payload)
 
 	
@@ -45,7 +45,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// set cookie
     http.SetCookie(w, &http.Cookie{
         Name:     "session",
-        Value:    session.Key.ToString(),
+        Value:    session.Key,
         Expires:  session.Expiry,
         HttpOnly: true,
         Secure:   !config.IsDev,
@@ -69,7 +69,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error {
 	if sessionVal == nil {
 		return errors.New(http.StatusUnauthorized, "no active session found")
 	}
-	session, ok := sessionVal.(types.Session)
+	session, ok := sessionVal.(models.Session)
 	if !ok {
 		return errors.Internal(fmt.Errorf("invalid session context type"))
 	}
@@ -107,7 +107,7 @@ func (h *Handler) GetSessionUser(w http.ResponseWriter, r *http.Request) *errors
 	}
 
 	
-	authUser, ok := userVal.(types.AuthUser)
+	authUser, ok := userVal.(models.AuthUser)
 	if !ok {
 		return errors.Internal(fmt.Errorf("invalid session"))
 	}

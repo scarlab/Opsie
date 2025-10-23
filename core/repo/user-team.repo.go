@@ -4,17 +4,19 @@ import (
 	"context"
 	"database/sql"
 	"opsie/core/dbutils"
+	"opsie/core/models"
 	"opsie/pkg/errors"
-	"opsie/types"
+
+	"gorm.io/gorm"
 )
 
 // internal/repository/user_team.go
 type UserTeamRepository struct {
-    db *sql.DB
+    db *gorm.DB
 }
 
 // NewUserTeamRepository creates a new instance of UserTeamRepository.
-func NewUserTeamRepository(db *sql.DB) *UserTeamRepository {
+func NewUserTeamRepository(db *gorm.DB) *UserTeamRepository {
 	return &UserTeamRepository{db: db}
 }
 
@@ -26,7 +28,7 @@ func (r *UserTeamRepository) BeginTx(ctx context.Context, opts *sql.TxOptions) (
     return tx, nil
 }
 
-func (r *UserTeamRepository) AddUserToTeam(tx *sql.Tx, userID, teamID types.ID, isDefault bool, invitedBy *types.ID) *errors.Error {
+func (r *UserTeamRepository) AddUserToTeam(tx *sql.Tx, userID, teamID int64, isDefault bool, invitedBy *int64) *errors.Error {
 	query := `
 		INSERT INTO user_teams (user_id, team_id, invited_by, is_default)
 		VALUES ($1, $2, $3, $4)
@@ -47,7 +49,7 @@ func (r *UserTeamRepository) AddUserToTeam(tx *sql.Tx, userID, teamID types.ID, 
 }
 
 
-func (r *UserTeamRepository) RemoveUserFromTeam(userID, teamID types.ID) *errors.Error {
+func (r *UserTeamRepository) RemoveUserFromTeam(userID, teamID int64) *errors.Error {
     query := `
         DELETE FROM user_teams
         WHERE user_id = $1 AND team_id = $2
@@ -59,7 +61,7 @@ func (r *UserTeamRepository) RemoveUserFromTeam(userID, teamID types.ID) *errors
     return nil
 }
 
-func (r *UserTeamRepository) ListTeamsByUser(userID types.ID) ([]types.UserTeam, *errors.Error) {
+func (r *UserTeamRepository) ListTeamsByUser(userID int64) ([]models.UserTeam, *errors.Error) {
 	query := `
         SELECT ` + dbutils.UserTeamColumns + `
         FROM teams o
@@ -75,7 +77,7 @@ func (r *UserTeamRepository) ListTeamsByUser(userID types.ID) ([]types.UserTeam,
 	return dbutils.UserTeamScanRows(rows)
 }
 
-func (r *UserTeamRepository) DefaultTeam(userID types.ID) (types.UserTeam, *errors.Error) {
+func (r *UserTeamRepository) DefaultTeam(userID int64) (models.UserTeam, *errors.Error) {
     query := `
         SELECT ` + dbutils.UserTeamColumns + `
         FROM teams o
@@ -91,7 +93,7 @@ func (r *UserTeamRepository) DefaultTeam(userID types.ID) (types.UserTeam, *erro
 
 
 
-func (r *UserTeamRepository) SetDefaultTeam(userID, teamID types.ID) *errors.Error {
+func (r *UserTeamRepository) SetDefaultTeam(userID, teamID int64) *errors.Error {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return errors.Internal(err)

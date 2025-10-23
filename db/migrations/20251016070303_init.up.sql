@@ -36,8 +36,8 @@ CREATE TABLE users (
     system_role     user_system_role DEFAULT 'staff',
     preference      JSONB DEFAULT '{}',
     is_active       BOOLEAN DEFAULT true,
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 CREATE INDEX idx_users_email ON users(email);
@@ -66,33 +66,6 @@ CREATE TABLE sessions (
 
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 
-
--- -----------------------------------------------------------------------
--- Nodes
--- -----------------------------------------------------------------------
-CREATE TABLE nodes (
-    id              BIGINT PRIMARY KEY,
-    name            TEXT NOT NULL,
-    hostname        TEXT,
-    ip_address      TEXT,
-    os              TEXT,
-    kernel          TEXT,
-    arch            TEXT,
-    cores           INT,
-    threads         INT,
-    memory          BIGINT,
-    online          BOOLEAN DEFAULT false,
-    token           TEXT,
-    verified        BOOLEAN DEFAULT false,
-    last_seen       TIMESTAMP WITH TIME ZONE,
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
-CREATE TRIGGER set_nodes_updated_at
-BEFORE UPDATE ON nodes
-FOR EACH ROW
-EXECUTE FUNCTION set_updated_at();
 
 
 -- -----------------------------------------------------------------------
@@ -133,68 +106,31 @@ CREATE UNIQUE INDEX ux_user_default_team ON user_teams(user_id) WHERE is_default
 
 
 -- -----------------------------------------------------------------------
--- Roles
+-- Nodes
 -- -----------------------------------------------------------------------
-CREATE TABLE roles (
-    id                BIGINT PRIMARY KEY,
-    team_id   BIGINT REFERENCES teams(id) ON DELETE CASCADE,
-    title             TEXT NOT NULL,
-    color             TEXT,
-    is_default        BOOLEAN DEFAULT false,
-    is_active         BOOLEAN DEFAULT true,
-    updated_at        TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    created_at        TIMESTAMP WITH TIME ZONE DEFAULT now()
+CREATE TABLE nodes (
+    id              BIGINT PRIMARY KEY,
+    name            TEXT NOT NULL,
+    hostname        TEXT,
+    ip_address      TEXT,
+    os              TEXT,
+    kernel          TEXT,
+    arch            TEXT,
+    cores           INT,
+    threads         INT,
+    memory          BIGINT,
+    online          BOOLEAN DEFAULT false,
+    token           TEXT,
+    verified        BOOLEAN DEFAULT false,
+    last_seen       TIMESTAMP WITH TIME ZONE,
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE INDEX idx_roles_team_id ON roles(team_id);
-
-CREATE TRIGGER set_roles_updated_at
-BEFORE UPDATE ON roles
+CREATE TRIGGER set_nodes_updated_at
+BEFORE UPDATE ON nodes
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
-
-
--- -----------------------------------------------------------------------
--- Permissions
--- -----------------------------------------------------------------------
-CREATE TABLE permissions (
-    id              BIGSERIAL PRIMARY KEY,
-    code            TEXT UNIQUE NOT NULL,
-    title           TEXT NOT NULL,
-    description     TEXT,
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
-
--- -----------------------------------------------------------------------
--- Role <-> Permissions
--- -----------------------------------------------------------------------
-CREATE TABLE role_permissions (
-    id              BIGSERIAL PRIMARY KEY,
-    role_id         BIGINT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-    permission_id   BIGINT NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    UNIQUE (role_id, permission_id)
-);
-
-CREATE INDEX idx_role_permissions_role_id ON role_permissions(role_id);
-
-
--- -----------------------------------------------------------------------
--- User <-> Roles
--- -----------------------------------------------------------------------
-CREATE TABLE user_roles (
-    id                BIGSERIAL PRIMARY KEY,
-    user_id           BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    role_id           BIGINT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
-    team_id   BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-    assigned_by       BIGINT REFERENCES users(id) ON DELETE SET NULL,
-    created_at        TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    UNIQUE (user_id, role_id, team_id)
-);
-
-CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
-CREATE INDEX idx_user_roles_team_id ON user_roles(team_id);
 
 
 -- -----------------------------------------------------------------------
@@ -224,20 +160,20 @@ EXECUTE FUNCTION set_updated_at();
 -- Resources
 -- -----------------------------------------------------------------------
 CREATE TABLE resources (
-    id                BIGINT PRIMARY KEY,
-    team_id   BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-    project_id        BIGINT REFERENCES projects(id) ON DELETE CASCADE,
-    name              TEXT NOT NULL,
-    description       TEXT,
-    type              TEXT,
-    ports             JSONB,
-    env               JSONB,
-    replicas          INT DEFAULT 1,
-    status            resource_status DEFAULT 'stopped',
-    is_archived       BOOLEAN DEFAULT false,
-    archived_at       TIMESTAMP,
-    created_at        TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    updated_at        TIMESTAMP WITH TIME ZONE DEFAULT now()
+    id                  BIGINT PRIMARY KEY,
+    team_id             BIGINT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+    project_id          BIGINT REFERENCES projects(id) ON DELETE CASCADE,
+    name                TEXT NOT NULL,
+    description         TEXT,
+    type                TEXT,
+    ports               JSONB,
+    env                 JSONB,
+    replicas            INT DEFAULT 1,
+    status              resource_status DEFAULT 'stopped',
+    is_archived         BOOLEAN DEFAULT false,
+    archived_at         TIMESTAMP,
+    created_at          TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at          TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
 CREATE INDEX idx_resources_team_id ON resources(team_id);

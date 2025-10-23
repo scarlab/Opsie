@@ -10,16 +10,17 @@ import (
 	"opsie/types"
 
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 // UserRepository - Handles DB operations for user.
 // Talks only to the database (or other data sources).
 type UserRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 // NewUserRepository - Constructor for Repository
-func NewUserRepository(db *sql.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{
 		db: db,
 	}
@@ -36,7 +37,7 @@ func (r *UserRepository) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql
 
 
 
-func (r *UserRepository) CreateOwnerAccount(tx *sql.Tx, payload types.NewOwnerPayload) (types.User, *errors.Error) {
+func (r *UserRepository) CreateOwnerAccount(tx *sql.Tx, payload types.NewOwnerPayload) (types.UserModel, *errors.Error) {
 	query := `
 		INSERT INTO users (id, display_name, email, password, system_role)
 		VALUES ($1, $2, $3, $4, $5)
@@ -57,9 +58,9 @@ func (r *UserRepository) CreateOwnerAccount(tx *sql.Tx, payload types.NewOwnerPa
 	if err != nil {
 		// Handle unique constraint violation
 		if pqErr, ok := err.Original().(*pq.Error); ok && pqErr.Code == "23505" {
-			return types.User{}, errors.New(409, "Email already in use")
+			return types.UserModel{}, errors.New(409, "Email already in use")
 		}
-		return types.User{}, err
+		return types.UserModel{}, err
 	}
 
 	return user, nil
@@ -83,7 +84,7 @@ func (r *UserRepository) GetOwnerCount() (int, *errors.Error) {
 }
 
 
-func (r *UserRepository) Delete(userID types.ID) *errors.Error {
+func (r *UserRepository) Delete(userID int64) *errors.Error {
 	query := `DELETE FROM users WHERE id = $1`
 	result, err := r.db.Exec(query, userID)
 	if err != nil {
@@ -101,7 +102,7 @@ func (r *UserRepository) Delete(userID types.ID) *errors.Error {
 
 
 
-func (r *UserRepository) GetByEmail(email string) (types.User, *errors.Error) {
+func (r *UserRepository) GetByEmail(email string) (types.UserModel, *errors.Error) {
 	query := `SELECT ` + dbutils.UserColumns + ` FROM users WHERE email = $1`
 	
 	row := r.db.QueryRow(query, email)
@@ -111,7 +112,7 @@ func (r *UserRepository) GetByEmail(email string) (types.User, *errors.Error) {
 
 
 
-func (r *UserRepository) GetByID(ID types.ID) (types.User, *errors.Error) {
+func (r *UserRepository) GetByID(ID int64) (types.UserModel, *errors.Error) {
 	query := `SELECT ` + dbutils.UserColumns + ` FROM users WHERE id = $1`
 
 	row := r.db.QueryRow(query, ID)
@@ -122,7 +123,7 @@ func (r *UserRepository) GetByID(ID types.ID) (types.User, *errors.Error) {
 
 
 
-func (r *UserRepository) UpdateAccountName(userID types.ID, name string) (types.User, *errors.Error) {
+func (r *UserRepository) UpdateAccountName(userID int64, name string) (types.UserModel, *errors.Error) {
 	query := `UPDATE users SET display_name = $1 WHERE id = $2 RETURNING ` + dbutils.UserColumns 
 
 
@@ -133,7 +134,7 @@ func (r *UserRepository) UpdateAccountName(userID types.ID, name string) (types.
 
 
 
-func (r *UserRepository) UpdateAccountPassword(userID types.ID, password string) (bool, *errors.Error) {
+func (r *UserRepository) UpdateAccountPassword(userID int64, password string) (bool, *errors.Error) {
 	query := ` UPDATE users SET password = $1 WHERE id = $2`
 
 	res, err := r.db.Exec(query, password, userID)

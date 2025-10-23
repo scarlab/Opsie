@@ -24,3 +24,16 @@ const (
 const (
     CookieNameSession string = "session"
 )
+
+
+
+// ---
+type ResourceStatus string
+const (
+	StatusStopped    ResourceStatus = "stopped"
+	StatusStarting   ResourceStatus = "starting"
+	StatusRunning    ResourceStatus = "running"
+	StatusRestarting ResourceStatus = "restarting"
+	StatusDegraded   ResourceStatus = "degraded"
+	StatusFailed     ResourceStatus = "failed"
+)

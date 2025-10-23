@@ -3,12 +3,12 @@ package team
 import (
 	"fmt"
 	"net/http"
+	"opsie/core/models"
 	"opsie/core/services"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
 	"opsie/pkg/logger"
-	"opsie/types"
 )
 
 // Team Handler - Handles HTTP requests & responses.
@@ -28,7 +28,7 @@ func NewHandler(service *services.TeamService) *Handler {
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.NewTeamPayload
+	var payload models.NewTeamPayload
 	bolt.ParseBody(w, r, &payload)
 logger.Debug("%s",payload)
 	// Create Team
@@ -62,7 +62,7 @@ func (h *Handler) GetUserTeams(w http.ResponseWriter, r *http.Request) *errors.E
 		return errors.Internal(fmt.Errorf("session user not found"))
 	}
 	
-	authUser, ok := userVal.(types.AuthUser)
+	authUser, ok := userVal.(models.AuthUser)
 	if !ok {
 		return errors.Internal(fmt.Errorf("invalid session"))
 	}
@@ -87,7 +87,7 @@ func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *er
 		return errors.Internal(fmt.Errorf("session user not found"))
 	}
 	
-	authUser, ok := userVal.(types.AuthUser)
+	authUser, ok := userVal.(models.AuthUser)
 	if !ok {
 		return errors.Internal(fmt.Errorf("invalid session"))
 	}
@@ -108,7 +108,7 @@ func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *er
 
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.UpdateTeamPayload
+	var payload models.UpdateTeamPayload
 	bolt.ParseBody(w, r, &payload)
 
 
@@ -123,7 +123,7 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) *errors.Err
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Processing Request Body
-	var payload types.UpdateTeamPayload
+	var payload models.UpdateTeamPayload
 	bolt.ParseBody(w, r, &payload)
 
 

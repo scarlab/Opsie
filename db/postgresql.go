@@ -1,46 +1,62 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
+	"log"
 	"opsie/config"
 	"opsie/pkg/logger"
+	"time"
 
-	_ "github.com/lib/pq" // PostgreSQL driver
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	gorm_logger "gorm.io/gorm/logger"
 )
 
-// Postgres initializes a PostgreSQL connection using environment variables
-// defined in config.ENV. It logs connection progress and returns the DB handle.
-//
-// Note: this function should be called once at startup and the returned
-// *sql.DB should be shared throughout the application.
-func Postgres() (*sql.DB, error) {
-	// log.Println("🔌 Connecting to PostgreSQL...")
+// Postgres initializes and returns a GORM DB instance.
+// Call this once at startup and reuse the *gorm.DB across your app.
+func Postgres() (*gorm.DB, error) {
+	env := config.ENV
 
-	// Build DSN (connection string)
 	dsn := fmt.Sprintf(
-		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
-		config.ENV.PG_User,
-		config.ENV.PG_Password,
-		config.ENV.PG_Host,
-		config.ENV.PG_Port,
-		config.ENV.PG_Database,
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Kolkata",
+		env.PG_Host,
+		env.PG_User,
+		env.PG_Password,
+		env.PG_Database,
+		env.PG_Port,
 	)
 
-	// Establish connection
-	db, err := sql.Open("postgres", dsn)
+	// Configure GORM logger (optional)
+	newLogger := gorm_logger.New(
+		log.New(log.Writer(), "\r\n", log.LstdFlags),
+		gorm_logger.Config{
+			SlowThreshold:             time.Second,
+			LogLevel:                  gorm_logger.Info,
+			IgnoreRecordNotFoundError: true,
+			Colorful:                  true,
+		},
+	)
+
+	// Connect to Postgres via GORM
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: newLogger,
+	})
 	if err != nil {
-		logger.Fatalf("Failed to open PostgreSQL connection: %v", err)
+		logger.Fatalf("❌ Failed to connect to PostgreSQL: %v", err)
 		return nil, err
 	}
 
-	// Verify connection
-	if err := db.Ping(); err != nil {
-		logger.Fatalf("Failed to ping PostgreSQL: %v", err)
+	// Check connection
+	sqlDB, err := db.DB()
+	if err != nil {
+		logger.Fatalf("❌ Failed to get generic DB: %v", err)
+		return nil, err
+	}
+	if err := sqlDB.Ping(); err != nil {
+		logger.Fatalf("❌ Failed to ping PostgreSQL: %v", err)
 		return nil, err
 	}
 
-	logger.Info("✅ PostgreSQL connected → [%s:%s/%s]\n", config.ENV.PG_Host, config.ENV.PG_Port, config.ENV.PG_Database)
-
+	logger.Info("✅ PostgreSQL connected → [%s:%s/%s]", env.PG_Host, env.PG_Port, env.PG_Database)
 	return db, nil
 }

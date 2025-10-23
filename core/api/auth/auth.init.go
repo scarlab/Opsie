@@ -3,11 +3,11 @@
 package auth
 
 import (
-	"database/sql"
 	"opsie/core/repo"
 	"opsie/core/services"
 
 	"github.com/go-chi/chi/v5"
+	"gorm.io/gorm"
 )
 
 // Init - Entry point for initializing api - auth
@@ -19,7 +19,7 @@ import (
 //
 // Usage:
 //   packagename.Register(router, db)
-func Register(r chi.Router, db *sql.DB) {
+func Register(r chi.Router, db *gorm.DB) {
 	// Step 1: Create repository (DB layer)
 	repository := repo.NewAuthRepository(db)
 	userRepository := repo.NewUserRepository(db)
