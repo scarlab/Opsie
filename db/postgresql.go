@@ -31,7 +31,7 @@ func Postgres() (*gorm.DB, error) {
 		log.New(log.Writer(), "\r\n", log.LstdFlags),
 		gorm_logger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  gorm_logger.Info,
+			LogLevel:                  gorm_logger.Warn,
 			IgnoreRecordNotFoundError: true,
 			Colorful:                  true,
 		},

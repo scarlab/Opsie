@@ -27,7 +27,7 @@ func (s *TeamService) Create(payload models.NewTeamPayload) (models.Team, *error
 		return models.Team{}, errors.BadRequest("Team name is required")
 	}
 
-	team, err := s.repo.Create(nil, payload)
+	team, err := s.repo.Create(payload)
 	if err != nil {
 		return models.Team{}, err
 	}

@@ -2,7 +2,9 @@ package def
 
 // SystemRole represents the role of a user in the system.
 type SystemRole string
-
+func (k SystemRole) ToString() string  {
+	return string(k)
+}
 const (
 	SystemRoleOwner SystemRole = "owner"
 	SystemRoleAdmin SystemRole = "admin"
@@ -13,7 +15,9 @@ const (
 
 // Define a private type for context keys
 type ContextKey string
-
+func (k ContextKey) ToString() string  {
+	return string(k)
+}
 const (
     ContextKeySession ContextKey = "session"
     ContextKeyUser    ContextKey = "user"

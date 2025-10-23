@@ -3,6 +3,9 @@ package errors
 import (
 	"errors"
 	"net/http"
+	"strings"
+
+	"github.com/lib/pq"
 )
 
 type Error struct {
@@ -76,14 +79,11 @@ func ServiceUnavailable(msg string) *Error {
 }
 
 // ---- Utilities ----
-
-// Is checks if error matches a specific code.
-func Is(err error, code int) bool {
-	var e *Error
-	if errors.As(err, &e) {
-		return e.Code == code
-	}
-	return false
+func IsPgConflict(err error) bool {
+    var pgErr *pq.Error
+    if errors.As(err, &pgErr) {
+        return pgErr.Code == "23505"
+    }
+    // sometimes GORM wraps the pq.Error in a string, fallback
+    return strings.Contains(err.Error(), "duplicate key value")
 }
-
-

@@ -7,7 +7,6 @@ import (
 	"opsie/pkg/logger"
 	"opsie/types"
 	"reflect"
-	"runtime"
 )
 
 
@@ -35,12 +34,6 @@ func Recoverer(next types.HandlerFunc) types.HandlerFunc {
 
 
 		if err.Err != nil {
-			file, line := getCaller()
-
-			if err.Code ==500 {
-				logger.Error("%s", err.Err)
-				logger.Printf("%s at %d", file, line)
-			}
 			bolt.WriteErrorResponse(w, err.Code, msg, err.Err)
 		} else {
 			bolt.WriteErrorResponse(w, err.Code, msg)
@@ -51,11 +44,30 @@ func Recoverer(next types.HandlerFunc) types.HandlerFunc {
 }
 
 
-// helper to get caller file:line
-func getCaller() (string, int) {
-    _, file, line, ok := runtime.Caller(2) // 2 to skip runtime + logger function
-    if !ok {
-        return "unknown", 0
-    }
-    return file, line
-}
+// // helper to get caller file:line
+// func getCaller(s int) (string, int) {
+//     _, file, line, ok := runtime.Caller(s) // 2 to skip runtime + logger function
+//     if !ok {
+//         return "unknown", 0
+//     }
+//     return file, line
+// }
+
+// // getErrorOrigin returns the file and line of the first caller outside runtime/logging packages
+// func getErrorOrigin() (file string, line int) {
+//     // skip 0 = this function, 1 = caller, 2 = caller's caller...
+//     for i := 1; i < 20; i++ {
+//         pc, f, l, ok := runtime.Caller(i)
+//         if !ok {
+//             break
+//         }
+//         funcName := runtime.FuncForPC(pc).Name()
+//         // skip standard library / logging / error helper frames
+//         if !strings.Contains(funcName, "runtime.") &&
+//             !strings.Contains(funcName, "log") &&
+//             !strings.Contains(funcName, "errors") {
+//             return f, l
+//         }
+//     }
+//     return "unknown", 0
+// }

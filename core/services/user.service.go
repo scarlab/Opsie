@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"opsie/core/models"
 	"opsie/core/repo"
 	"opsie/pkg/errors"
@@ -35,14 +34,9 @@ func (s *UserService) CreateOwnerAccount(payload models.NewOwnerPayload) (models
 	hashedPassword, _ := utils.Hash.Generate(payload.Password)
 	payload.Password = hashedPassword
 
-	tx, txErr := s.repo.BeginTx(context.Background(), nil)
-	if txErr != nil {
-		return models.User{}, txErr
-	}
-	defer tx.Rollback()
 
 	// 1️⃣ Create user
-	user, err := s.repo.CreateOwnerAccount(tx, payload)
+	user, err := s.repo.CreateOwnerAccount(payload)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -52,19 +46,14 @@ func (s *UserService) CreateOwnerAccount(payload models.NewOwnerPayload) (models
 		Name:        utils.GenerateTeamName(),
 		Description: "This is your default team.",
 	}
-	team, teamErr := s.teamRepo.Create(tx, teamPayload)
+	team, teamErr := s.teamRepo.Create( teamPayload)
 	if teamErr != nil {
 		return models.User{}, teamErr
 	}
 
 	// 3️⃣ Link user <-> team
-	if addErr := s.userTeamRepo.AddUserToTeam(tx, user.ID, team.ID, true, nil); addErr != nil {
+	if addErr := s.userTeamRepo.AddUserToTeam(user.ID, team.ID, true, nil); addErr != nil {
 		return models.User{}, addErr
-	}
-
-	// ✅ Commit
-	if err := tx.Commit(); err != nil {
-		return models.User{}, errors.Internal(err)
 	}
 
 	return user, nil

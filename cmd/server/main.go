@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"io/fs"
-	"log"
 	"net"
 	embedui "opsie"
 	"opsie/config"
@@ -46,49 +45,52 @@ func main() {
 
 
 	// -------------------------------------------------------------------
-	// Embed React UI
-	// -------------------------------------------------------------------
+	// Embed React UI ----------------------------------------------------
 	uiFS, err := fs.Sub(embedui.EmbeddedUI, "ui/dist")
 	if err != nil {
-		log.Fatalf("💀 Web UI Embedding failed: %v", err)
+		logger.Fatalf("💀 Web UI Embedding failed: %v", err)
 	}
 	logger.Info("✅ Web UI ready")
 	
 	// -------------------------------------------------------------------
-	// Initialize Database
-	// -------------------------------------------------------------------
+	// Database Section --------------------------------------------------
 	database, err := db.Postgres()
 	if err != nil {
-		logger.Error("💀 Database connection failed: %v", err)
+		panic( err)
 	}
+
+	// Handel Auto Migration
+	dbErr := db.Migrate(database)
+	if dbErr != nil {
+		panic( dbErr)
+	}
+
 
 	
 	// -------------------------------------------------------------------
-	// Initialize WebSocket Hub
-	// -------------------------------------------------------------------
+	// WebSocket Hub -----------------------------------------------------
 	socketHub := socket.NewHub()
 	logger.Info("✅ WebSocket hub ready")
 
 
 	// -------------------------------------------------------------------
-	// Setup Context & Signal Handling (graceful shutdown)
-	// -------------------------------------------------------------------
+	// Setup Context & Signal Handling (graceful shutdown) ---------------
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 
 
 	// -------------------------------------------------------------------
-	// Start API Server
-	// -------------------------------------------------------------------
+	// Initialize API Server ---------------------------------------------
 	apiServer := server.NewApiServer(config.ENV.Addr, database, uiFS, socketHub)
 
 	logger.Info("🌍 Server listening on http://%s%s\n", GetLocalIP(),config.ENV.Addr)
 
 
+	// -------------------------------------------------------------------
 	// Blocking call — will run until context is cancelled
 	if err := apiServer.Run(ctx); err != nil {
-		log.Fatalf("Server encountered an error: %v", err)
+		logger.Fatalf("💀 Server encountered an error: %v", err)
 	}
 
 	logger.Info("Server shutdown complete. Goodbye 👋")

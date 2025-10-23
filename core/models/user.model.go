@@ -13,7 +13,7 @@ type User struct {
 	Email       string         `gorm:"uniqueIndex;not null" json:"email"`
 	Password    string         `gorm:"not null" json:"-"`
 	Avatar      string         `json:"avatar"`
-	SystemRole  string 			`gorm:"type:user_system_role;default:'staff'" json:"system_role"`
+	SystemRole  string 			`gorm:"default:'staff'" json:"system_role"`
 	Preference  datatypes.JSON `gorm:"type:jsonb;default:'{}'" json:"preference"`
 	IsActive    bool           `gorm:"default:true" json:"is_active"`
 
@@ -56,7 +56,7 @@ type AuthUser struct {
     Avatar string               `json:"avatar"`
     SystemRole string           `json:"system_role"`
     IsActive bool               `json:"is_active"`
-    Preference map[string]any   `json:"preference"`
+    Preference  datatypes.JSON `json:"preference"`
 }
 
 

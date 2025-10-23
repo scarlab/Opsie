@@ -1,13 +1,10 @@
 package repo
 
 import (
-	"database/sql"
-	"net/http"
 	"opsie/config"
 	"opsie/core/models"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
-	"opsie/types"
 	"time"
 
 	"gorm.io/gorm"
@@ -28,120 +25,105 @@ func NewAuthRepository(db *gorm.DB) *AuthRepository {
 
 
 func (r *AuthRepository) CreateSession(userId int64, key string, expiry time.Time) (models.Session, *errors.Error) {
-	query := `
-		INSERT INTO sessions (user_id, key, expiry)
-		VALUES ($1, $2, $3)
-		RETURNING ` + dbutils.SessionColumns + `;`
+    session := models.Session{
+        UserID:   userId,
+        Key:      key,
+        Expiry:   expiry,
+        IsValid:  true,
+    }
 
-	row := r.db.QueryRow(query, userId, key, expiry)
-	return dbutils.SessionScan(row)
+    if err := r.db.Create(&session).Error; err != nil {
+        // Handle Postgres conflict if needed
+        return models.Session{}, errors.Internal(err)
+    }
+
+    return session, nil
 }
+
 
 
 func (r *AuthRepository) GetValidSessionByKey(key string) (models.Session, *errors.Error) {
-	query := `
-		SELECT id, user_id, key, ip, os, device, browser, is_valid, expiry, created_at
-		FROM sessions
-		WHERE key=$1 AND is_valid=true AND expiry > now()
-	`
-
-	row := r.db.QueryRow(query, key)
-	session, err := dbutils.SessionScan(row)
-	if err != nil {
-		return models.Session{}, err
-	}
-
-	return session, nil
+    var session models.Session
+    if err := r.db.Where("key = ? AND is_valid = ? AND expiry > NOW()", key, true).First(&session).Error; err != nil {
+        if err == gorm.ErrRecordNotFound {
+            return models.Session{}, errors.Unauthorized("invalid session")
+        }
+        return models.Session{}, errors.Internal(err)
+    }
+    return session, nil
 }
 
 
 
 
-func (r *AuthRepository) GetValidSessionWithAuthUser(key string) (types.SessionWithUser, *errors.Error) {
-    var su types.SessionWithUser
-    var ip, os, device, browser sql.NullString
 
-    query := `
-        SELECT s.id, s.user_id, s.key, s.ip, s.os, s.device, s.browser, s.is_valid, s.expiry, s.created_at,
-               u.id, u.display_name, u.email, u.system_role, u.is_active
-        FROM sessions s
-        JOIN users u ON u.id = s.user_id
-        WHERE s.key = $1 AND s.is_valid = true AND s.expiry > NOW() AND u.is_active = true
-    `
-
-    err := r.db.QueryRow(query, key).Scan(
-        &su.Session.ID,
-        &su.Session.UserID,
-        &su.Session.Key,
-        &ip, &os, &device, &browser,
-        &su.Session.IsValid,
-        &su.Session.Expiry,
-        &su.Session.CreatedAt,
-        &su.AuthUser.ID,
-        &su.AuthUser.DisplayName,
-        &su.AuthUser.Email,
-        &su.AuthUser.SystemRole,
-        &su.AuthUser.IsActive,
-    )
-    if err != nil {
-		if err == sql.ErrNoRows {
-			return types.SessionWithUser{}, errors.Unauthorized("invalid session")
-		}
-        return types.SessionWithUser{}, errors.Internal(err)
+func (r *AuthRepository) GetValidSessionWithAuthUser(key string) (models.SessionWithUser, *errors.Error) {
+    var session models.Session
+    if err := r.db.Preload("User").
+        Where("key = ? AND is_valid = ? AND expiry > NOW()", key, true).
+        Joins("JOIN users ON users.id = sessions.user_id AND users.is_active = true").
+        First(&session).Error; err != nil {
+        if err == gorm.ErrRecordNotFound {
+            return models.SessionWithUser{}, errors.Unauthorized("invalid session")
+        }
+        return models.SessionWithUser{}, errors.Internal(err)
     }
 
-    // convert NullStrings
-    su.Session.IP = ip.String
-    su.Session.OS = os.String
-    su.Session.Device = device.String
-    su.Session.Browser = browser.String
+	authUser := models.AuthUser{
+		ID: session.User.ID,
+		DisplayName: session.User.DisplayName,
+		Email: session.User.Email,
+		Avatar: session.User.Avatar,
+		SystemRole: session.User.SystemRole,
+		IsActive: session.User.IsActive,
+		Preference: session.User.Preference,
+	}
 
-    if !su.AuthUser.IsActive {
-        return types.SessionWithUser{}, errors.New(http.StatusForbidden, "user is inactive")
-    }
-
-    return su, nil
+    return models.SessionWithUser{
+        Session:  session,
+        AuthUser: authUser,
+    }, nil
 }
 
 
 func (r *AuthRepository) ExpireSession(key string) *errors.Error {
-	query := `
-		UPDATE sessions
-		SET is_valid = false, expiry = NOW()
-		WHERE key = $1 AND is_valid = true
-	`
-	result, err := r.db.Exec(query, key)
-	if err != nil {
-		return errors.Internal(err)
-	}
-
-	// Optional: check if any row was actually updated
-	rowsAffected, _ := result.RowsAffected()
-	if rowsAffected == 0 {
-		return errors.NotFound("No active session found")
-	}
-
-	return nil
+    res := r.db.Model(&models.Session{}).
+        Where("key = ? AND is_valid = ?", key, true).
+        Updates(map[string]interface{}{
+            "is_valid": false,
+            "expiry":   time.Now(),
+        })
+    if err := res.Error; err != nil {
+        return errors.Internal(err)
+    }
+    if res.RowsAffected == 0 {
+        return errors.NotFound("No active session found")
+    }
+    return nil
 }
 
 
 
 func (r *AuthRepository) RegenerateSessionKey(key string) (models.Session, *errors.Error) {
+    var session models.Session
+    if err := r.db.Where("key = ? AND is_valid = ?", key, true).First(&session).Error; err != nil {
+        if err == gorm.ErrRecordNotFound {
+            return models.Session{}, errors.NotFound("session not found")
+        }
+        return models.Session{}, errors.Internal(err)
+    }
 
-	newKey, gskRrr := utils.GenerateSessionKey()
-	if gskRrr != nil {
-		return models.Session{}, errors.Internal(gskRrr)
-	}
+    newKey, err := utils.GenerateSessionKey()
+    if err != nil {
+        return models.Session{}, errors.Internal(err)
+    }
 
-	expiry := time.Now().Add(time.Duration(config.App.SessionDays) * 24 * time.Hour)
+    session.Key = newKey
+    session.Expiry = time.Now().Add(time.Duration(config.App.SessionDays) * 24 * time.Hour)
 
-	query := `
-		UPDATE sessions
-		SET key = $2, expiry = $3
-		WHERE key = $1 AND is_valid = true
-		RETURNING ` + dbutils.SessionColumns + `;
-	`
+    if err := r.db.Save(&session).Error; err != nil {
+        return models.Session{}, errors.Internal(err)
+    }
 
-	row := r.db.QueryRow(query, key, newKey, expiry)
-	return dbutils.SessionScan(row)
+    return session, nil
 }

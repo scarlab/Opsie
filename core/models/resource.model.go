@@ -17,7 +17,7 @@ type Resource struct {
 	Ports      datatypes.JSON  		`gorm:"type:jsonb" json:"ports"`
 	Env        datatypes.JSON  		`gorm:"type:jsonb" json:"env"`
 	Replicas   int             		`gorm:"default:1" json:"replicas"`
-	Status     string				`gorm:"type:resource_status;default:'stopped'" json:"status"`
+	Status     string				`gorm:"default:'stopped'" json:"status"`
 	IsArchived bool            		`gorm:"default:false" json:"is_archived"`
 	ArchivedAt *time.Time      		`json:"archived_at"`
 

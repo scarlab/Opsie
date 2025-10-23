@@ -3,17 +3,11 @@ package db
 import (
 	"opsie/core/models"
 
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func InitGorm(dsn string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.AutoMigrate(
+func Migrate(db *gorm.DB) error {
+	return db.AutoMigrate(
 		&models.User{},
 		&models.Session{},
 		&models.Team{},
@@ -23,5 +17,5 @@ func InitGorm(dsn string) (*gorm.DB, error) {
 		&models.Resource{},
 		&models.ResourceNode{},
 	)
-	return db, err
 }
+
