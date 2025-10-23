@@ -16,12 +16,13 @@ func NewUserTeamRepository(db *gorm.DB) *UserTeamRepository {
 }
 
 // AddUserToTeam adds a user to a team
-func (r *UserTeamRepository) AddUserToTeam(userID, teamID int64, isDefault bool, invitedBy *int64) *errors.Error {
+func (r *UserTeamRepository) AddUserToTeam(userID, teamID int64, isDefault bool, invitedBy *int64, isAdmin bool) *errors.Error {
 	ut := models.UserTeam{
 		UserID:    userID,
 		TeamID:    teamID,
 		InvitedBy: invitedBy,
 		IsDefault: isDefault,
+		IsAdmin: isAdmin,
 	}
 
 	if err := r.db.Create(&ut).Error; err != nil {

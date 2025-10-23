@@ -35,13 +35,13 @@ func (s *UserService) CreateOwnerAccount(payload models.NewOwnerPayload) (models
 	payload.Password = hashedPassword
 
 
-	// 1️⃣ Create user
+	// Create user
 	user, err := s.repo.CreateOwnerAccount(payload)
 	if err != nil {
 		return models.User{}, err
 	}
 
-	// 2️⃣ Create default team
+	// Create default team
 	teamPayload := models.NewTeamPayload{
 		Name:        utils.GenerateTeamName(),
 		Description: "This is your default team.",
@@ -51,8 +51,8 @@ func (s *UserService) CreateOwnerAccount(payload models.NewOwnerPayload) (models
 		return models.User{}, teamErr
 	}
 
-	// 3️⃣ Link user <-> team
-	if addErr := s.userTeamRepo.AddUserToTeam(user.ID, team.ID, true, nil); addErr != nil {
+	// Link user <-> team
+	if addErr := s.userTeamRepo.AddUserToTeam(user.ID, team.ID, true, nil, true); addErr != nil {
 		return models.User{}, addErr
 	}
 

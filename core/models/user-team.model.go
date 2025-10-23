@@ -11,6 +11,7 @@ type UserTeam struct {
 	InvitedBy  *int64    `json:"invited_by"`
 	JoinedAt   time.Time  `gorm:"autoCreateTime" json:"joined_at"`
 	IsDefault  bool       `gorm:"default:false" json:"is_default"`
+	IsAdmin  bool       `gorm:"default:false" json:"is_admin"`
 
 	User     User `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Team     Team `gorm:"foreignKey:TeamID" json:"team,omitempty"`
