@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// [chi-v0.0.2] new chi router implementation
 // HTTP Method for Api
 type HTTPMethod string
 
@@ -27,8 +26,7 @@ func (k HTTPMethod) ToString() string  {
 	return string(k)
 }
 
-// [chi-v0.0.2] new chi router implementation
-// 🧩 Chi version of your Api helper
+// Api helper
 func Api(r chi.Router, method HTTPMethod, pattern string, handler types.HandlerFunc, middlewares ...types.Middleware) {
 	final := HandleMiddleware(handler, middlewares...)
 
@@ -65,14 +63,14 @@ func HandleMiddleware(final types.HandlerFunc, middlewares ...types.Middleware) 
 	}
 	
 	// --- Default Middlewares
-	// 0. HttpLogger
-	// 1. Recover
+	// --- 0. HttpLogger
+	// --- 1. Recover
 	middlewares = append([]types.Middleware{mw.HTTPLogger, mw.Recoverer}, middlewares...) // 1th
 		
 
-	// Execute the middleware in the same order and return the final func.
-	// This is a confusing and tricky construct :)
-	// We need to use the reverse order since we are chaining inwards.
+	// --- Execute the middleware in the same order and return the final func.
+	// --- This is a confusing and tricky construct :)
+	// --- We need to use the reverse order since we are chaining inwards.
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		final = middlewares[i](final) // mw1(mw2(mw3(final)))
 	}
@@ -105,9 +103,9 @@ func checkPattern(pattern string) string {
 	return pattern
 }
 
-// ----------------------------------------------------------------------
-// Individual helpers
-// ----------------------------------------------------------------------
+/// ______________________________________________________________________
+/// Individual helpers ---------------------------------------------------
+/// --- 
 
 func Get(r chi.Router, pattern string, handler types.HandlerFunc, middlewares ...types.Middleware) {
 	final := HandleMiddleware(handler, middlewares...)
@@ -143,3 +141,9 @@ func Head(r chi.Router, pattern string, handler types.HandlerFunc, middlewares .
 	final := HandleMiddleware(handler, middlewares...)
 	r.Head(checkPattern(pattern), final)
 }
+
+
+/// __________________________________
+/// --- Here it is [24.10.25] --------
+/// --- Find it
+/// --- 

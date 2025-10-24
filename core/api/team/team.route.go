@@ -8,15 +8,25 @@ import (
 )
 
 // HandleRoutes - Defines all HTTP endpoints for auth.
+// Team Route ---
 func HandleRoutes(r chi.Router, h *Handler) {
-	// Stuff [Auth] 
+	/// _________________________________________________________________________________________________
+	/// Protected [Auth] --------------------------------------------------------------------------------
+	/// For Staff
 	api.Get(r,  			"/get/user/all", 				h.GetUserTeams, 			mw.Auth)
 	api.Get(r,  			"/get/user/default", 			h.GetUserDefaultTeam, 		mw.Auth)
 
-	// Owner/Admin [Auth, Admin]
-	api.Post(r,  			"/create", 						h.Create,							mw.Auth)
-	api.Patch(r,  			"/updated/info", 				h.UpdateInfo,						mw.Auth)
-	api.Get(r,  			"/get", 						h.GetAllTeams, 				mw.Auth)
-	api.Delete(r,  			"/delete", 						h.Delete,							mw.Auth)
+
+
+	/// _________________________________________________________________________________________________
+	/// Protected [Auth, Admin] -------------------------------------------------------------------------
+	/// Team maintenance
+	api.Post(r,  			"/create", 						h.Create,					mw.Auth, mw.Admin) 
+	api.Get(r,  			"/get", 						h.GetAll, 					mw.Auth, mw.Admin) // pending...
+	api.Get(r,  			"/get/{id}", 					h.GetById, 					mw.Auth, mw.Admin) // pending...
+	api.Get(r,  			"/get/user/{user_id}", 			h.GetAllByUserId, 			mw.Auth, mw.Admin) // pending...
+	api.Patch(r,  			"/update/{id}", 				h.Update,					mw.Auth, mw.Admin) // pending...
+	api.Delete(r,  			"/delete/{id}", 				h.Delete,					mw.Auth, mw.Admin) // pending...
 }
 
+ 

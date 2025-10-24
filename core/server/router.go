@@ -21,57 +21,67 @@ import (
 
 
 func (s *ApiServer) Router() chi.Router {
-	// -------------------------------------------------------------------
+	// ___________________________________________________________________
 	// Root Router -------------------------------------------------------
+	/// --- 
 	var router = chi.NewRouter()
 
 
 	
-	// -------------------------------------------------------------------
-	// Web UI ------------------------------------------------------------
-	// Dev : Proxy vite app
-	// Prod: Embed vite build app
+	/// ___________________________________________________________________
+	/// Web UI ------------------------------------------------------------
+	/// Dev : Proxy vite app
+	/// Prod: Embed vite build app
 	setupUI(router, s.uiFS)
 
 
 
-	// -------------------------------------------------------------------
-	// File Server -------------------------------------------------------
-	// Serves static files for the `static_dir` dir
-	// Dev : "./uploads"
-	// Prod: "/var/lib/opsie/static"
+	/// ___________________________________________________________________
+	/// File Server -------------------------------------------------------
+	/// Serves static files for the `static_dir` dir
+	/// Dev : "./uploads"
+	/// Prod: "/var/lib/opsie/static"
 	setupFileServer(router)
 
 
 
-	// -------------------------------------------------------------------
-	// Middlewares -------------------------------------------------------
+	/// ___________________________________________________________________
+	/// Middlewares -------------------------------------------------------
+	/// --- 
 	mw.Register(s.db)
 
 
 
-	// -------------------------------------------------------------------
-	// API Gateway [v1] --------------------------------------------------
+	/// ___________________________________________________________________
+	/// API Gateway [v1] --------------------------------------------------
+	/// --- 
 	router.Route("/api/v1", func(apiRoute chi.Router) {
 		// Api Home Root
 		api.Get(apiRoute, "", apiHome)
 
 
 
-		// Register APIs
+		/// API: ___________________________________________________________
+		
+		// Authentication Routes 
 		apiRoute.Route("/auth",func(r chi.Router){
 			auth.Register(r, s.db)
 		})
+		
+		// User Routes
 		apiRoute.Route("/user",func(r chi.Router){
 			user.Register(r, s.db)
 		})
+		
+		// Team Routes
 		apiRoute.Route("/team",func(r chi.Router){
 			team.Register(r, s.db)
 		})
 
 
-		
-		// Handle Unknown API endpoint: 404!
+		/// ___________________________________________________________________
+		/// Handle Unknown API endpoint: 404! ---------------------------------
+		/// --- 
 		apiRoute.NotFound(notFound)
 	})
 
@@ -81,8 +91,7 @@ func (s *ApiServer) Router() chi.Router {
 
 
 
-// -------------------------------------------------------------------
-// healthHandler returns a simple apiHome status as JSON.-------------
+// healthHandler returns a simple apiHome status as JSON.
 func apiHome(w http.ResponseWriter, r *http.Request) *errors.Error{
 	msg := map[string]interface{}{"status": "ok", "id":utils.GenerateID()}
 	w.Header().Set("Content-Type", "application/json")
@@ -92,8 +101,7 @@ func apiHome(w http.ResponseWriter, r *http.Request) *errors.Error{
 }
 
 
-// -------------------------------------------------------------------
-// Not Found: 404 Handler --------------------------------------------
+// Not Found: 404 Handler
 func notFound(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
@@ -111,8 +119,8 @@ func notFound(w http.ResponseWriter, r *http.Request){
 
 
 
-// -------------------------------------------------------------------
-// Proxy/Embed UI ----------------------------------------------------
+
+// Proxy/Embed UI
 func setupUI(router chi.Router, uiFS fs.FS) {
 	if config.IsDev {
 		// Dev: Proxy to Vite server

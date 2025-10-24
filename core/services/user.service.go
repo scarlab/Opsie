@@ -26,7 +26,7 @@ func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository,tea
 	}
 }
 // CreateOwnerAccount handles business logic for creating the first owner
-func (s *UserService) CreateOwnerAccount(payload models.NewOwnerPayload) (models.User, *errors.Error) {
+func (s *UserService) CreateOwnerAccount(payload models.NewUserPayload) (models.User, *errors.Error) {
 	if payload.Email == "" || payload.Password == "" {
 		return models.User{}, errors.BadRequest("email and password required")
 	}

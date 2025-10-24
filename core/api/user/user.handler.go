@@ -24,13 +24,13 @@ func NewHandler(service *services.UserService) *Handler {
 }
 
 
-// --------------------------------------------------------------------------------
-// Public Routes
-// --------------------------------------------------------------------------------
+/// ______________________________________________________________________________________________________
+/// Public Routes ----------------------------------------------------------------------------------------
+/// --- 
 
 func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *errors.Error {
     // Processing Request Body
-	var payload models.NewOwnerPayload
+	var payload models.NewUserPayload
 	bolt.ParseBody(w, r, &payload)
 
 	// Handling Business Logics
@@ -62,12 +62,12 @@ func (h *Handler) GetOwnerCount(w http.ResponseWriter, r *http.Request) *errors.
 }
 
 
-// --------------------------------------------------------------------------------
-// Protected Routes [Auth] 
-// --------------------------------------------------------------------------------
+/// ______________________________________________________________________________________________________
+/// Protected Routes [Auth] ------------------------------------------------------------------------------
+/// User Account: Every user can access. 
 
 func (h *Handler) UpdateAccountDisplayName(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Get the request/session user
+	// Get the request/session user 
 	sessionUser, gsuErr := bolt.GetSessionUser(r)
 	if gsuErr!= nil {return gsuErr}
 
@@ -124,6 +124,126 @@ func (h *Handler) UpdateAccountPassword(w http.ResponseWriter, r *http.Request) 
 	bolt.WriteResponse(w, 200, map[string]any{
 		"message": "Password Updated",
 		"session_key":    newSession.Key,
+	})
+
+	return nil
+}
+
+
+
+/// ______________________________________________________________________________________________________
+/// Protected Routes [Auth, Admin] -----------------------------------------------------------------------
+/// User Maintenance: Only can be accessed by Owner & Admin 
+
+
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User Created",
+		"user": nil,
+	})
+
+	return nil
+}
+
+
+func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "List of all users",
+		"all_user": nil,
+	})
+
+	return nil
+}
+
+func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User by id",
+		"all_user": nil,
+	})
+
+	return nil
+}
+
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User updated!",
+		"all_user": nil,
+	})
+
+	return nil
+}
+
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User deleted!",
+		"all_user": nil,
+	})
+
+	return nil
+}
+
+func (h *Handler) AddToTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User deleted!",
+		"all_user": nil,
+	})
+
+	return nil
+}
+
+func (h *Handler) RemoveFromTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing Request Body
+	var payload models.NewUserPayload
+	bolt.ParseBody(w, r, &payload)
+
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User deleted!",
+		"all_user": nil,
 	})
 
 	return nil

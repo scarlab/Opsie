@@ -9,10 +9,14 @@ import (
 
 // HandleRoutes - Defines all HTTP endpoints for auth.
 func HandleRoutes(r chi.Router, h *Handler) {
-	// Public
+	
+	// ____________________________________________________________________________
+	// Public Routes --------------------------------------------------------------
 	api.Post(r, 		"/login", 			h.Login)
 	
-	// MW - [Auth]
+	/// ___________________________________________________________________________
+	/// Protected [Auth] ----------------------------------------------------------
+	/// User Account Routes
 	api.Get(r, 			"/session", 		h.GetSessionUser, 		mw.Auth)
 	api.Get(r, 			"/logout", 			h.Logout, 				mw.Auth)
 }

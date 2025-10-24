@@ -18,7 +18,6 @@ type Resource struct {
 	Env        datatypes.JSON  		`gorm:"type:jsonb" json:"env"`
 	Replicas   int             		`gorm:"default:1" json:"replicas"`
 	Status     string				`gorm:"default:'stopped'" json:"status"`
-	IsArchived bool            		`gorm:"default:false" json:"is_archived"`
 	ArchivedAt *time.Time      		`json:"archived_at"`
 
 	Team          Team           	`gorm:"foreignKey:TeamID" json:"team,omitempty"`

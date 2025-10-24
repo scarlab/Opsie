@@ -4,19 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
-
-// [v0.0.1-beta] legacy mux router implementation
-// func  Api(router *mux.Router, method HTTPMethod, path string, handler HandlerFunc, middlewares ...Middleware) *mux.Router {
-// 	// Apply user middlewares + bolt logger
-// 	final := HandleMiddleware(handler, middlewares...)
-
-// 	router.HandleFunc(path, func(w http.ResponseWriter, req *http.Request) {
-// 		final(w, req)
-// 	}).Methods(string(method))
-
-// 	return router
-// }
 
 // ParseBody reads the JSON body of an HTTP request into the given payload.
 // It returns an error if the body is missing, contains invalid JSON,
@@ -31,6 +22,20 @@ func ParseBody(w http.ResponseWriter, r *http.Request, payload any) {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	decoder.Decode(payload)
+}
+
+
+// ParseParams parses the URL parameter "id" into int64 and optionally
+func ParseParamId(w http.ResponseWriter, r *http.Request, param string) int64 {
+	idStr := chi.URLParam(r, param)
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	
+	if err != nil {
+		WriteErrorResponse(w, http.StatusBadRequest, "Invalid id")
+	}
+
+	return id
 }
 
 

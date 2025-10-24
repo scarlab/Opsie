@@ -35,5 +35,5 @@ func Register(r chi.Router, db *gorm.DB) {
 	// router := r.PathPrefix("/auth").Subrouter()
 
 	// Step 5: Register routes for this api
-	HandleRoutes(r, handler) // [chi-v0.0.2] new chi router implementation
+	HandleRoutes(r, handler) 
 }

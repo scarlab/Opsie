@@ -20,7 +20,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 
 // CreateOwnerAccount - inserts a new owner user
 // CreateOwnerAccount inserts a new owner user
-func (r *UserRepository) CreateOwnerAccount( payload models.NewOwnerPayload) (models.User, *errors.Error) {
+func (r *UserRepository) CreateOwnerAccount( payload models.NewUserPayload) (models.User, *errors.Error) {
 	user := models.User{
 		BaseModel: models.BaseModel{
 			ID: utils.GenerateID(),
