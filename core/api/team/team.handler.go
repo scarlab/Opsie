@@ -191,9 +191,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 
 	// Delete the team
-	_, err1 := h.service.Delete(id)
-	if err1 != nil {return err1}
-
+	if e := h.service.Delete(id); e != nil {return e}
 
 
 	bolt.WriteResponse(w, http.StatusOK, map[string]any{

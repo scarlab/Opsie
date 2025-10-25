@@ -28,7 +28,7 @@ func NewAuthService(repo *repo.AuthRepository, userRepo *repo.UserRepository) *A
 func (s *AuthService) AuthenticateUser(payload models.LoginPayload) (models.AuthUser, *errors.Error) {
 	// Basic validation
 	if payload.Email == "" || payload.Password == "" {
-		return models.AuthUser{}, errors.BadRequest("email and password required")
+		return models.AuthUser{}, errors.BadRequest("Email and password required")
 	}
 	
 	

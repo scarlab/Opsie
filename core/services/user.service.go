@@ -3,6 +3,7 @@ package services
 import (
 	"opsie/core/models"
 	"opsie/core/repo"
+	"opsie/def"
 	"opsie/pkg/errors"
 	"opsie/pkg/utils"
 )
@@ -25,18 +26,26 @@ func NewUserService(repo *repo.UserRepository, authRepo *repo.AuthRepository,tea
 		userTeamRepo: userTeamRepo,
 	}
 }
+
+/// _____________________________________________________________________________________________________________
+/// Onboarding --------------------------------------------------------------------------------------------------
+/// ---
+
 // CreateOwnerAccount handles business logic for creating the first owner
 func (s *UserService) CreateOwnerAccount(payload models.NewUserPayload) (models.User, *errors.Error) {
 	if payload.Email == "" || payload.Password == "" {
-		return models.User{}, errors.BadRequest("email and password required")
+		return models.User{}, errors.BadRequest("Email and password required")
 	}
 
-	hashedPassword, _ := utils.Hash.Generate(payload.Password)
-	payload.Password = hashedPassword
+	hashedPassword, _ 	:= utils.Hash.Generate(payload.Password)
+	
+	payload.Password 	= hashedPassword
+	payload.SystemRole 	= def.SystemRoleOwner.ToString()
+	payload.ResetPass	= false
 
 
 	// Create user
-	user, err := s.repo.CreateOwnerAccount(payload)
+	user, err := s.repo.Create(payload)
 	if err != nil {
 		return models.User{}, err
 	}
@@ -60,7 +69,6 @@ func (s *UserService) CreateOwnerAccount(payload models.NewUserPayload) (models.
 }
 
 
-
 // GetOwnerCount
 func (s *UserService) GetOwnerCount() (int, *errors.Error) {
 	count, err := s.repo.GetOwnerCount()
@@ -72,6 +80,10 @@ func (s *UserService) GetOwnerCount() (int, *errors.Error) {
 }
 
 
+
+/// _____________________________________________________________________________________________________________
+/// User Account ------------------------------------------------------------------------------------------------
+/// ---
 
 func (s *UserService) UpdateAccountName(userID int64, payload models.UpdateAccountNamePayload) (models.AuthUser, *errors.Error) {
 	if userID == 0 || payload.DisplayName == "" {
@@ -134,3 +146,84 @@ func (s *UserService) UpdateAccountPassword(userID int64, sessionKey string, pay
 	return session, nil
 }
 
+
+
+
+
+/// _____________________________________________________________________________________________________________
+/// Admin Only --------------------------------------------------------------------------------------------------
+/// ---
+
+func (s *UserService) CreateUser(payload models.NewUserPayload) (models.User, *errors.Error) {
+	if payload.Email == "" || payload.Password == "" {
+		return models.User{}, errors.BadRequest("Email and password required")
+	}
+
+	hashedPassword, _ := utils.Hash.Generate(payload.Password)
+	payload.Password = hashedPassword
+
+	// Create user
+	user, err := s.repo.Create(payload)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}
+
+
+
+func (s *UserService) GetAllUser() ([]models.User, *errors.Error) {
+	
+	// Create user
+	users, err := s.repo.GetAll()
+	if err != nil {
+		return []models.User{}, err
+	}
+
+	return users, nil
+}
+
+
+
+func (s *UserService) GetUserById(id int64) (models.User, *errors.Error) {
+	
+	// get the user of ID
+	user, err := s.repo.GetByID(id)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}
+
+
+
+func (s *UserService) UpdateUser(id int64, payload models.UpdateUserPayload) (models.User, *errors.Error) {
+	
+
+	return models.User{}, nil
+}
+
+
+
+func (s *UserService) DeleteUser(id int64,)  *errors.Error {
+	// Delete the user
+	return s.repo.Delete(id)
+}
+
+
+
+func (s *UserService) AddUserToTeam(userId, teamId int64) *errors.Error {
+	
+
+	return nil
+}
+
+
+
+func (s *UserService) RemoveUserFromTeam(userId, teamId int64) *errors.Error {
+	
+
+	return  nil
+}

@@ -18,9 +18,42 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 
-// CreateOwnerAccount - inserts a new owner user
-// CreateOwnerAccount inserts a new owner user
-func (r *UserRepository) CreateOwnerAccount( payload models.NewUserPayload) (models.User, *errors.Error) {
+
+/// ____________________________________________________________________________________________________________
+/// User Account -----------------------------------------------------------------------------------------------
+/// --- For all auth user
+
+
+// UpdateAccountName - updates display name
+func (r *UserRepository) UpdateAccountName(userID int64, name string) (models.User, *errors.Error) {
+	var user models.User
+	if err := r.db.Model(&models.User{}).Where("id = ?", userID).Update("display_name", name).First(&user, "id = ?", userID).Error; err != nil {
+		return user, errors.Internal(err)
+	}
+	return user, nil
+}
+
+
+
+// UpdateAccountPassword - updates password
+func (r *UserRepository) UpdateAccountPassword(userID int64, password string) (bool, *errors.Error) {
+	res := r.db.Model(&models.User{}).Where("id = ?", userID).Update("password", password)
+	if res.Error != nil {
+		return false, errors.Internal(res.Error)
+	}
+	return res.RowsAffected > 0, nil
+}
+
+
+
+/// ____________________________________________________________________________________________________________
+/// User Management ---------------------------------------------------------------------------------------------
+/// --- For Admin/Owner usage
+
+
+
+// Create inserts a new user
+func (r *UserRepository) Create( payload models.NewUserPayload) (models.User, *errors.Error) {
 	user := models.User{
 		BaseModel: models.BaseModel{
 			ID: utils.GenerateID(),
@@ -28,8 +61,8 @@ func (r *UserRepository) CreateOwnerAccount( payload models.NewUserPayload) (mod
 		DisplayName: payload.DisplayName,
 		Email:       payload.Email,
 		Password:    payload.Password,
-		SystemRole:  def.SystemRoleOwner.ToString(),
-		IsActive:    true,
+		SystemRole:  payload.SystemRole,
+		ResetPass:	 payload.ResetPass,
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {
@@ -53,29 +86,32 @@ func (r *UserRepository) GetOwnerCount() (int, *errors.Error) {
 	return int(count), nil
 }
 
-// Delete - deletes a user
-func (r *UserRepository) Delete(userID int64) *errors.Error {
-	result := r.db.Delete(&models.User{}, userID)
-	if result.Error != nil {
-		return errors.Internal(result.Error)
-	}
-	if result.RowsAffected == 0 {
-		return errors.NotFound("user not found")
-	}
-	return nil
+
+
+// Get all users
+func (r *UserRepository) GetAll() ([]models.User, *errors.Error) {
+	var user []models.User
+	if err := r.db.Find(&user).Error; err != nil {
+        return nil, errors.Internal(err)
+    }
+	return user, nil
 }
+
+
 
 // GetByEmail - fetch user by email
 func (r *UserRepository) GetByEmail(email string) (models.User, *errors.Error) {
 	var user models.User
 	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, errors.NotFound("user not found")
+			return user, errors.NotFound("User not found")
 		}
 		return user, errors.Internal(err)
 	}
 	return user, nil
 }
+
+
 
 // GetByID - fetch user by ID
 func (r *UserRepository) GetByID(ID int64) (models.User, *errors.Error) {
@@ -89,20 +125,32 @@ func (r *UserRepository) GetByID(ID int64) (models.User, *errors.Error) {
 	return user, nil
 }
 
-// UpdateAccountName - updates display name
-func (r *UserRepository) UpdateAccountName(userID int64, name string) (models.User, *errors.Error) {
-	var user models.User
-	if err := r.db.Model(&models.User{}).Where("id = ?", userID).Update("display_name", name).First(&user, "id = ?", userID).Error; err != nil {
-		return user, errors.Internal(err)
-	}
-	return user, nil
+
+
+
+// Delete - deletes a user
+func (r *UserRepository) Update(userID int64, payload models.UpdateUserPayload) (models.User, *errors.Error) {
+	// result := r.db.Update(&models.User{}, userID)
+	
+	// if result.Error != nil {
+	// 	return models.User{}, errors.Internal(result.Error)
+	// }
+	// if result.RowsAffected == 0 {
+	// 	return models.User{}, errors.NotFound("User not found")
+	// }
+	return models.User{}, nil
 }
 
-// UpdateAccountPassword - updates password
-func (r *UserRepository) UpdateAccountPassword(userID int64, password string) (bool, *errors.Error) {
-	res := r.db.Model(&models.User{}).Where("id = ?", userID).Update("password", password)
-	if res.Error != nil {
-		return false, errors.Internal(res.Error)
+
+// Delete - deletes a user
+func (r *UserRepository) Delete(userID int64) *errors.Error {
+	result := r.db.Delete(&models.User{}, userID)
+	if result.Error != nil {
+		return errors.Internal(result.Error)
 	}
-	return res.RowsAffected > 0, nil
+	if result.RowsAffected == 0 {
+		return errors.NotFound("User not found")
+	}
+	return nil
 }
+

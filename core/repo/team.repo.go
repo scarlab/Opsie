@@ -126,11 +126,15 @@ func (r *TeamRepository) Update(id int64, payload models.UpdateTeamPayload) (mod
 
 
 // Delete removes a team by ID
-func (r *TeamRepository) Delete(id int64) (bool, *errors.Error) {
-	if err := r.db.Delete(&models.Team{}, id).Error; err != nil {
-		return false, errors.Internal(err)
+func (r *TeamRepository) Delete(id int64) *errors.Error {
+	result := r.db.Delete(&models.Team{}, id)
+	if result.Error != nil {
+		return  errors.Internal(result.Error)
 	}
-	return true, nil
+	if result.RowsAffected == 0 {
+		return  errors.NotFound("User not found")
+	}
+	return nil
 }
 
 

@@ -116,12 +116,12 @@ func (s *TeamService) Update(id int64, payload models.UpdateTeamPayload) (models
 }
 
 
-func (s *TeamService) Delete(teamId int64) (bool, *errors.Error) {
+func (s *TeamService) Delete(teamId int64) *errors.Error {
 	// Get total team count
 	teamCount, err := s.repo.Count()
-	if err != nil {return false, err}
+	if err != nil {return err}
 	if teamCount <= 1 {
-		return false, errors.Conflict("Cannot delete the only existing team")
+		return  errors.Conflict("Cannot delete the only existing team")
 	}
 
 	// Get project count
@@ -139,17 +139,10 @@ func (s *TeamService) Delete(teamId int64) (bool, *errors.Error) {
 	// Remove All user from the team
 	removeErr := s.userTeamRepo.RemoveAllUserFromTeam(teamId)
 	if removeErr != nil {
-		return false, removeErr
+		return  removeErr
 	}
 
-
-	// Delete the team
-	team, dltErr := s.repo.Delete(teamId)
-	if dltErr != nil {
-		return false, dltErr
-	}
-
-    return team, nil
+    return s.repo.Delete(teamId)
 }
 
 

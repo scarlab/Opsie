@@ -141,12 +141,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
 	var payload models.NewUserPayload
 	bolt.ParseBody(w, r, &payload)
 
-	
+	user, err := h.service.CreateUser(payload)
+	if err != nil {return err}
 
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
 		"message": "User Created",
-		"user": nil,
+		"user": user,
 	})
 
 	return nil
@@ -154,90 +155,104 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
 
 
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing Request Body
-	var payload models.NewUserPayload
-	bolt.ParseBody(w, r, &payload)
+	// Get all users
+	users, err := h.service.GetAllUser()
+	if err != nil {return err}
 
-	
 
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
 		"message": "List of all users",
-		"all_user": nil,
+		"users": users,
 	})
 
 	return nil
 }
 
-func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing Request Body
-	var payload models.NewUserPayload
-	bolt.ParseBody(w, r, &payload)
 
-	
+func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing id from URL params
+	id := bolt.ParseParamId(w, r, "id")
+
+	// Get the user with ID
+	user, err := h.service.GetUserById(id)
+	if err != nil {return err}
 
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
 		"message": "User by id",
-		"all_user": nil,
+		"user": user,
 	})
 
 	return nil
 }
+
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Processing Request Body
-	var payload models.NewUserPayload
+	var payload models.UpdateUserPayload
 	bolt.ParseBody(w, r, &payload)
 
-	
+	// Processing id from URL params
+	id := bolt.ParseParamId(w, r, "id")
+
+	// Update the user with ID
+	user, err := h.service.GetUserById(id)
+	if err != nil {return err}
 
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
-		"message": "User updated!",
-		"all_user": nil,
+		"message"		: "User updated!",
+		"user"			: user,
 	})
 
 	return nil
 }
+
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing Request Body
-	var payload models.NewUserPayload
-	bolt.ParseBody(w, r, &payload)
+	// Processing id from URL params
+	id := bolt.ParseParamId(w, r, "id")
 
+	// Delete the team
+	if e := h.service.DeleteUser(id); e != nil {return e}
 	
-
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
 		"message": "User deleted!",
-		"all_user": nil,
+		"deleted": true,
 	})
 
 	return nil
 }
+
 
 func (h *Handler) AddToTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing Request Body
-	var payload models.NewUserPayload
-	bolt.ParseBody(w, r, &payload)
+	// Processing id from URL params
+	userId := bolt.ParseParamId(w, r, "user_id")
+	teamId := bolt.ParseParamId(w, r, "team_id")
 
-	
+
+	// Create team User
+	if e := h.service.AddUserToTeam(userId, teamId); e != nil {return e}
 
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
-		"message": "User deleted!",
-		"all_user": nil,
+		"message"		: "User added to the team",
 	})
 
 	return nil
 }
 
-func (h *Handler) RemoveFromTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing Request Body
-	var payload models.NewUserPayload
-	bolt.ParseBody(w, r, &payload)
 
+func (h *Handler) RemoveFromTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing id from URL params
+	userId := bolt.ParseParamId(w, r, "user_id")
+	teamId := bolt.ParseParamId(w, r, "team_id")
+
+
+	// Delete UserTeam record
+	if e := h.service.AddUserToTeam(userId, teamId); e != nil {return e}
 	
 
 	// Send the final response 
