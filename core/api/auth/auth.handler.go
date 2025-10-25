@@ -5,22 +5,26 @@ import (
 	"net/http"
 	"opsie/config"
 	"opsie/core/models"
-	"opsie/core/services"
+	"opsie/core/repo"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
+	"opsie/pkg/utils"
+	"time"
 )
 
 // Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *services.AuthService
+	repo *repo.AuthRepository
+	userRepo *repo.UserRepository
 }
 
 // NewHandler - Constructor for Handler
-func NewHandler(service *services.AuthService) *Handler {
+func NewHandler(repo *repo.AuthRepository, userRepo *repo.UserRepository) *Handler {
 	return &Handler{
-		service: service,
+		repo: repo,
+		userRepo: userRepo,
 	}
 }
 
@@ -32,14 +36,42 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 	
 	// Handling Business Logics
-	authUser, err := h.service.AuthenticateUser(payload)
-	if err != nil { return err }
+	// authUser, err := h.service.AuthenticateUser(payload)
+	// Get Request User By Email
+	reqUser, err := h.userRepo.GetByEmail(payload.Email)
+	if err != nil {
+		return err
+	}
+
+	// Compare Password
+	isMatched := utils.Hash.Compare(reqUser.Password, payload.Password)
+	
+	if !isMatched {
+	  return  errors.Unauthorized("invalid email or password")
+	}
 
 
 	// Create Session
-	session, err := h.service.CreateSession(authUser.ID)
-	if err != nil { return err }
+	// session, err := h.service.CreateSession(authUser.ID)
+	key, sKeyErr := utils.GenerateSessionKey()
+	if sKeyErr != nil {	errors.Internal(sKeyErr) }
+
+	expiry := time.Now().Add(time.Duration(config.App.SessionDays) * 24 * time.Hour)
+
+	session, err1 := h.repo.CreateSession(reqUser.ID, key, expiry)
+	if err1 != nil { return err1 }
 	
+
+	// Generate Auth user
+	authUser := models.AuthUser{
+		ID: reqUser.ID,
+		DisplayName: reqUser.DisplayName,
+		Email: reqUser.Email,
+		Avatar: reqUser.Avatar,
+		SystemRole: reqUser.SystemRole,
+		Preference: reqUser.Preference,
+	}
+
 
 	// Set Headers/Cookies
 	// set cookie
@@ -75,7 +107,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) *errors.Error {
 	}
 
 	// 2. Call service to invalidate the session
-	if err := h.service.HandleLogout(session.Key); err != nil {
+	if err := h.repo.ExpireSession(session.Key); err != nil {
 		return err
 	}
 

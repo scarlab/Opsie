@@ -4,7 +4,6 @@ package auth
 
 import (
 	"opsie/core/repo"
-	"opsie/core/services"
 
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
@@ -13,27 +12,18 @@ import (
 // Init - Entry point for initializing api - auth
 //
 // Responsibilities:
-// 1. Create repository, service, and handler instances.
+// 1. Create repository(s), handler instances.
 // 2. Wire dependencies in the correct order.
 // 3. Register api-specific routes.
-//
-// Usage:
-//   packagename.Register(router, db)
+
 func Register(r chi.Router, db *gorm.DB) {
 	// Step 1: Create repository (DB layer)
 	repository := repo.NewAuthRepository(db)
 	userRepository := repo.NewUserRepository(db)
 
-	// Step 2: Create service (Business logic layer)
-	service := services.NewAuthService(repository, userRepository)
+	// Step 2: Create handler (HTTP layer)
+	handler := NewHandler(repository, userRepository)
 
-	// Step 3: Create handler (HTTP layer)
-	handler := NewHandler(service)
-
-	// Step 4: Create the sub-router for this api (modify if required)
-	// [v0.0.1-beta] legacy mux router implementation
-	// router := r.PathPrefix("/auth").Subrouter()
-
-	// Step 5: Register routes for this api
+	// Step 3: Register routes for this api
 	HandleRoutes(r, handler) 
 }

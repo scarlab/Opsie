@@ -17,3 +17,12 @@ type UserTeam struct {
 	Team     Team `gorm:"foreignKey:TeamID" json:"team,omitempty"`
 	Inviter  *User `gorm:"foreignKey:InvitedBy" json:"inviter,omitempty"`
 }
+
+
+type AddUserToTeamPayload struct {
+	UserID    int64   `json:"user_id" validate:"required"`
+	TeamID    int64   `json:"team_id" validate:"required"`
+	IsDefault bool    `json:"is_default"`
+	IsAdmin   bool    `json:"is_admin"`
+	InvitedBy *int64  `json:"invited_by"`
+}

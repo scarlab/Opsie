@@ -4,22 +4,34 @@ import (
 	"net/http"
 	"opsie/config"
 	"opsie/core/models"
-	"opsie/core/services"
+	"opsie/core/repo"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
+	"opsie/pkg/utils"
 )
 
 // Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *services.UserService
+	repo *repo.UserRepository
+	authRepo *repo.AuthRepository
+	teamRepo *repo.TeamRepository
+	userTeamRepo *repo.UserTeamRepository
 }
  
 // NewHandler - Constructor for Handler
-func NewHandler(service *services.UserService) *Handler {
+func NewHandler(
+	repo *repo.UserRepository, 
+	authRepo *repo.AuthRepository,
+	teamRepo *repo.TeamRepository, 
+	userTeamRepo *repo.UserTeamRepository,
+	) *Handler {
 	return &Handler{
-		service: service,
+		repo: repo,
+		authRepo: authRepo,
+		teamRepo: teamRepo,
+		userTeamRepo: userTeamRepo,
 	}
 }
 
@@ -33,9 +45,49 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *er
 	var payload models.NewUserPayload
 	bolt.ParseBody(w, r, &payload)
 
-	// Handling Business Logics
-	user, err := h.service.CreateOwnerAccount(payload)
+	// validate payload
+	if payload.Email == "" || payload.Password == "" {
+		return  errors.BadRequest("Email and password required")
+	}
+
+	// Generate the hashed password
+	hashedPassword, _ 	:= utils.Hash.Generate(payload.Password)
+
+
+	// Update Owner Payload
+	payload.Password 	= hashedPassword
+	payload.SystemRole 	= def.SystemRoleOwner.ToString()
+	payload.ResetPass	= false
+
+
+	// Create the Owner account
+	user, err := h.repo.Create(payload)
 	if err != nil { return err}
+
+
+	// Create default team of owner
+	teamPayload := models.NewTeamPayload{
+		Name:        utils.GenerateTeamName(),
+		Description: "This is your default team.",
+	}
+	team, teamErr := h.teamRepo.Create( teamPayload)
+	if teamErr != nil {
+		return  teamErr
+	}
+
+	userTeamPayload := models.AddUserToTeamPayload{
+		UserID: user.ID,
+		TeamID: team.ID,
+		IsDefault: true,
+		IsAdmin: true,
+		InvitedBy: nil,
+	}
+
+	// Link user <-> team
+	if addErr := h.userTeamRepo.AddUserToTeam(userTeamPayload); addErr != nil {
+		return  addErr
+	}
+
 
 
 	// Send the final response 
@@ -49,7 +101,7 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *er
 
 func (h *Handler) GetOwnerCount(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Handling Business Logics
-	count, err := h.service.GetOwnerCount()
+	count, err := h.repo.GetOwnerCount()
 	if err != nil { return err}
 
 	// Send the final response 
@@ -77,7 +129,7 @@ func (h *Handler) UpdateAccountDisplayName(w http.ResponseWriter, r *http.Reques
 
 
 	// Handling Business Logics
-	authUser, err := h.service.UpdateAccountName(sessionUser.ID, payload)
+	authUser, err := h.repo.UpdateAccountName(sessionUser.ID, payload.DisplayName)
 	if err != nil { return err}
 
 	
@@ -92,11 +144,11 @@ func (h *Handler) UpdateAccountDisplayName(w http.ResponseWriter, r *http.Reques
 
 func (h *Handler) UpdateAccountPassword(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Get the request/session user
-	sessionUser, gsuErr := bolt.GetSessionUser(r)
+	reqUser, gsuErr := bolt.GetSessionUser(r)
 	if gsuErr!= nil {return gsuErr}
 
 	// Get the session
-	session, gsErr := bolt.GetSession(r)
+	reqSession, gsErr := bolt.GetSession(r)
 	if gsErr!= nil {return gsErr}
 
 	// Processing Request Body
@@ -104,9 +156,15 @@ func (h *Handler) UpdateAccountPassword(w http.ResponseWriter, r *http.Request) 
 	bolt.ParseBody(w, r, &payload)
 	
 	// Handling Business Logics
-	newSession, err := h.service.UpdateAccountPassword(sessionUser.ID, session.Key, payload)
+	_, err := h.repo.UpdateAccountPassword(reqUser.ID, payload.NewPassword)
 	if err != nil { return err}
 
+
+	// Regenerate Session key
+	newSession, rskErr := h.authRepo.RegenerateSessionKey(reqSession.Key)
+	if rskErr != nil {
+		return err
+	}
 
 	// Set Headers/Cookies
 	// set cookie
@@ -141,7 +199,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
 	var payload models.NewUserPayload
 	bolt.ParseBody(w, r, &payload)
 
-	user, err := h.service.CreateUser(payload)
+	user, err := h.repo.Create(payload)
 	if err != nil {return err}
 
 	// Send the final response 
@@ -156,7 +214,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
 
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Get all users
-	users, err := h.service.GetAllUser()
+	users, err := h.repo.GetAll()
 	if err != nil {return err}
 
 
@@ -175,7 +233,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) *errors.Error 
 	id := bolt.ParseParamId(w, r, "id")
 
 	// Get the user with ID
-	user, err := h.service.GetUserById(id)
+	user, err := h.repo.GetByID(id)
 	if err != nil {return err}
 
 	// Send the final response 
@@ -197,7 +255,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error {
 	id := bolt.ParseParamId(w, r, "id")
 
 	// Update the user with ID
-	user, err := h.service.GetUserById(id)
+	user, err := h.repo.GetByID(id)
 	if err != nil {return err}
 
 	// Send the final response 
@@ -215,7 +273,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error {
 	id := bolt.ParseParamId(w, r, "id")
 
 	// Delete the team
-	if e := h.service.DeleteUser(id); e != nil {return e}
+	if e := h.repo.Delete(id); e != nil {return e}
 	
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
@@ -228,13 +286,13 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error {
 
 
 func (h *Handler) AddToTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing id from URL params
-	userId := bolt.ParseParamId(w, r, "user_id")
-	teamId := bolt.ParseParamId(w, r, "team_id")
-
+	// Processing ids from URL params
+	var payload models.AddUserToTeamPayload
+	bolt.ParseBody(w, r, &payload)
+	
 
 	// Create team User
-	if e := h.service.AddUserToTeam(userId, teamId); e != nil {return e}
+	if e := h.userTeamRepo.AddUserToTeam(payload); e != nil {return e}
 
 	// Send the final response 
 	bolt.WriteResponse(w, 200, map[string]any{
@@ -246,13 +304,33 @@ func (h *Handler) AddToTeam(w http.ResponseWriter, r *http.Request) *errors.Erro
 
 
 func (h *Handler) RemoveFromTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
-	// Processing id from URL params
+	// Processing ids from URL params
 	userId := bolt.ParseParamId(w, r, "user_id")
 	teamId := bolt.ParseParamId(w, r, "team_id")
 
 
 	// Delete UserTeam record
-	if e := h.service.AddUserToTeam(userId, teamId); e != nil {return e}
+	if e := h.userTeamRepo.RemoveUserFromTeam(userId, teamId); e != nil {return e}
+	
+
+	// Send the final response 
+	bolt.WriteResponse(w, 200, map[string]any{
+		"message": "User deleted!",
+		"all_user": nil,
+	})
+
+	return nil
+}
+
+
+
+func (h *Handler) RemoveAllUserFromTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
+	// Processing id from URL params
+	teamId := bolt.ParseParamId(w, r, "team_id")
+
+
+	// Delete UserTeam record
+	if e := h.userTeamRepo.RemoveAllUserFromTeam(teamId); e != nil {return e}
 	
 
 	// Send the final response 

@@ -4,7 +4,6 @@ package user
 
 import (
 	"opsie/core/repo"
-	"opsie/core/services"
 
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
@@ -26,16 +25,9 @@ func Register(r chi.Router, db *gorm.DB) {
 	teamRepository := repo.NewTeamRepository(db)
 	userTeamRepository := repo.NewUserTeamRepository(db)
 
-	// Step 2: Create service (Business logic layer)
-	service := services.NewUserService(repository, authRepository, teamRepository, userTeamRepository)
+	// Step 2: Create handler (HTTP layer)
+	handler := NewHandler(repository, authRepository, teamRepository, userTeamRepository)
 
-	// Step 3: Create handler (HTTP layer)
-	handler := NewHandler(service)
-
-	// Step 4: Create the sub-router for this api (modify if required)
-	// [v0.0.1-beta] legacy mux router implementation
-	// router := r.PathPrefix("/team").Subrouter()
-
-	// Step 5: Register routes for this api
+	// Step 3: Register routes for this api
 	HandleRoutes(r, handler) 
 }

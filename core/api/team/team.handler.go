@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"opsie/core/models"
-	"opsie/core/services"
+	"opsie/core/repo"
 	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
@@ -13,13 +13,18 @@ import (
 // Team Handler - Handles HTTP requests & responses.
 // Talks only to the Service layer, not directly to Repository.
 type Handler struct {
-	service *services.TeamService
+	repo *repo.TeamRepository
+	userTeamRepo *repo.UserTeamRepository
 }
 
 // NewHandler - Constructor for Team Handler
-func NewHandler(service *services.TeamService) *Handler {
+func NewHandler(
+	repo *repo.TeamRepository, 
+	userTeamRepo *repo.UserTeamRepository,
+	) *Handler {
 	return &Handler{
-		service: service,
+		repo: repo,
+		userTeamRepo: userTeamRepo,
 	}
 }
 
@@ -44,9 +49,8 @@ func (h *Handler) GetUserTeams(w http.ResponseWriter, r *http.Request) *errors.E
 	}
 
 	// Fetch all teams of user
-	teams, err := h.service.GetUserTeams(authUser.ID)
+	teams, err := h.userTeamRepo.ListTeamsByUser(authUser.ID)
 	if err != nil {return err}
-
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
@@ -55,6 +59,9 @@ func (h *Handler) GetUserTeams(w http.ResponseWriter, r *http.Request) *errors.E
 	})
 	return nil
 }
+
+
+
 
 func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Get the session user
@@ -69,7 +76,7 @@ func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *er
 	}
 
 	// Fetch all teams of user
-	team, err := h.service.GetUserDefaultTeam(authUser.ID)
+	team, err := h.userTeamRepo.DefaultTeam(authUser.ID)
 	if err != nil {return err}
 
 
@@ -94,10 +101,9 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error{
 	bolt.ParseBody(w, r, &payload)
 
 	// Create Team
-	team, err := h.service.Create(payload)
-	if err != nil {
-		return err
-	}
+	team, err := h.repo.Create(payload)
+	if err != nil { return err }
+
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message"		: "Team created",
@@ -112,7 +118,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error{
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 	// Fetch all teams 
-	teams, err := h.service.GetAll()
+	teams, err := h.repo.GetAll()
 	if err != nil {return err}
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
@@ -132,7 +138,7 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 
 	// Fetch team by id 
-	team, err1 := h.service.GetById(id)
+	team, err1 := h.repo.GetById(id)
 	if err1 != nil {return err1}
 
 
@@ -150,7 +156,7 @@ func (h *Handler) GetAllByUserId(w http.ResponseWriter, r *http.Request) *errors
 	userId := bolt.ParseParamId(w, r, "user_id")
 
 	// Fetch all teams of user
-	teams, err1 := h.service.GetAllByUserId(userId)
+	teams, err1 := h.repo.GetAllByUserId(userId)
 	if err1 != nil {return err1}
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
@@ -171,7 +177,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error{
 	bolt.ParseBody(w, r, &payload)
 
 	// 
-	team, err1 := h.service.Update(id, payload)
+	team, err1 := h.repo.Update(id, payload)
 	if err1 != nil {return err1}
 
 
@@ -191,7 +197,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *errors.Error{
 
 
 	// Delete the team
-	if e := h.service.Delete(id); e != nil {return e}
+	if e := h.repo.Delete(id); e != nil {return e}
 
 
 	bolt.WriteResponse(w, http.StatusOK, map[string]any{

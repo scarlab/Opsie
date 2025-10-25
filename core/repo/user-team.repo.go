@@ -16,13 +16,13 @@ func NewUserTeamRepository(db *gorm.DB) *UserTeamRepository {
 }
 
 // AddUserToTeam adds a user to a team
-func (r *UserTeamRepository) AddUserToTeam(userID, teamID int64, isDefault bool, invitedBy *int64, isAdmin bool) *errors.Error {
+func (r *UserTeamRepository) AddUserToTeam(payload models.AddUserToTeamPayload) *errors.Error {
 	ut := models.UserTeam{
-		UserID:    userID,
-		TeamID:    teamID,
-		InvitedBy: invitedBy,
-		IsDefault: isDefault,
-		IsAdmin: isAdmin,
+		UserID:    payload.UserID,
+		TeamID:    payload.TeamID,
+		IsDefault: payload.IsDefault,
+		IsAdmin:   payload.IsAdmin,
+		InvitedBy: payload.InvitedBy,
 	}
 
 	if err := r.db.Create(&ut).Error; err != nil {
@@ -30,6 +30,7 @@ func (r *UserTeamRepository) AddUserToTeam(userID, teamID int64, isDefault bool,
 	}
 	return nil
 }
+
 
 
 // RemoveUserFromTeam removes a user from a team
