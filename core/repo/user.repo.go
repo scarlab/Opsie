@@ -128,18 +128,27 @@ func (r *UserRepository) GetByID(ID int64) (models.User, *errors.Error) {
 
 
 
-// Delete - deletes a user
+// Update
 func (r *UserRepository) Update(userID int64, payload models.UpdateUserPayload) (models.User, *errors.Error) {
-	// result := r.db.Update(&models.User{}, userID)
-	
-	// if result.Error != nil {
-	// 	return models.User{}, errors.Internal(result.Error)
-	// }
-	// if result.RowsAffected == 0 {
-	// 	return models.User{}, errors.NotFound("User not found")
-	// }
-	return models.User{}, nil
+	var user models.User
+
+	// Find user by ID first
+	if err := r.db.First(&user, userID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return models.User{}, errors.NotFound("User not found")
+		}
+		return models.User{}, errors.Internal(err)
+	}
+
+	// Apply updates
+	if err := r.db.Model(&user).Updates(payload).Error; err != nil {
+		return models.User{}, errors.Internal(err)
+	}
+
+	// Return the updated record
+	return user, nil
 }
+
 
 
 // Delete - deletes a user

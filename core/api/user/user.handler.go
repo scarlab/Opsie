@@ -40,7 +40,7 @@ func NewHandler(
 /// Public Routes ----------------------------------------------------------------------------------------
 /// --- 
 
-func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *errors.Error {
+func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *errors.Error { 
     // Processing Request Body
 	var payload models.NewUserPayload
 	bolt.ParseBody(w, r, &payload)
@@ -198,6 +198,16 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Processing Request Body
 	var payload models.NewUserPayload
 	bolt.ParseBody(w, r, &payload)
+
+	// validate payload
+	if payload.Email == "" || payload.Password == "" {
+		return  errors.BadRequest("Email and password required")
+	}
+
+	// Generate the hashed password
+	hashedPassword, _ 	:= utils.Hash.Generate(payload.Password)
+	payload.Password = hashedPassword
+	
 
 	user, err := h.repo.Create(payload)
 	if err != nil {return err}
