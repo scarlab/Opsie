@@ -52,6 +52,30 @@ func (r *UserRepository) UpdateAccountPassword(userID int64, password string) (b
 
 
 
+// Create the owner (onboarding)
+func (r *UserRepository) CreateOwner( payload models.NewOwnerPayload) (models.User, *errors.Error) {
+	user := models.User{
+		BaseModel: models.BaseModel{
+			ID: utils.GenerateID(),
+		},
+		DisplayName: payload.DisplayName,
+		Email:       payload.Email,
+		Password:    payload.Password,
+		SystemRole:  def.SystemRoleOwner.ToString(),
+		ResetPass:	 false,
+	}
+
+	if err := r.db.Create(&user).Error; err != nil {
+		// Handle duplicate email (Postgres unique constraint)
+		if errors.IsPgConflict(err) {
+			return models.User{}, errors.Conflict("Email already in use")
+		}
+		return models.User{}, errors.Internal(err)
+	}
+
+	return user, nil
+}
+
 // Create inserts a new user
 func (r *UserRepository) Create( payload models.NewUserPayload) (models.User, *errors.Error) {
 	user := models.User{
@@ -62,7 +86,7 @@ func (r *UserRepository) Create( payload models.NewUserPayload) (models.User, *e
 		Email:       payload.Email,
 		Password:    payload.Password,
 		SystemRole:  payload.SystemRole,
-		ResetPass:	 payload.ResetPass,
+		
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {

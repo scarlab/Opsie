@@ -29,12 +29,17 @@ type User struct {
 
 // ---
 
+type NewOwnerPayload struct {
+    DisplayName     string          `json:"display_name"`
+    Email           string          `json:"email"`
+    Password        string          `json:"password"`
+}
+
 type NewUserPayload struct {
     DisplayName     string          `json:"display_name"`
     Email           string          `json:"email"`
     Password        string          `json:"password"`
     SystemRole      string          `json:"system_role"`
-    ResetPass       bool            `json:"reset_pass"`
 }
 
 type UpdateUserPayload struct {

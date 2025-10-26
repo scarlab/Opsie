@@ -42,7 +42,7 @@ func NewHandler(
 
 func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *errors.Error { 
     // Processing Request Body
-	var payload models.NewUserPayload
+	var payload models.NewOwnerPayload
 	bolt.ParseBody(w, r, &payload)
 
 	// validate payload
@@ -56,12 +56,10 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *er
 
 	// Update Owner Payload
 	payload.Password 	= hashedPassword
-	payload.SystemRole 	= def.SystemRoleOwner.ToString()
-	payload.ResetPass	= false
 
 
 	// Create the Owner account
-	user, err := h.repo.Create(payload)
+	user, err := h.repo.CreateOwner(payload)
 	if err != nil { return err}
 
 
@@ -207,7 +205,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Generate the hashed password
 	hashedPassword, _ 	:= utils.Hash.Generate(payload.Password)
 	payload.Password = hashedPassword
-	
+
 
 	user, err := h.repo.Create(payload)
 	if err != nil {return err}
