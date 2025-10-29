@@ -4,21 +4,42 @@ VERSION := $(shell grep '^version:' app.config.yaml | awk '{print $$2}')
 v:
 	@echo ${PROJECT_NAME} $(VERSION)
 
+serve:
+	OPSIE_ENV=production
+	@./bin/server/opsie
+
 dev:
-	@docker compose up
+	@docker compose -f docker-compose.dev.yml up -d
 	
-log-server:
+dev-down:
+	@docker stop opsie-server-1 opsie-ui-1
+	
+slog:
 	@docker logs opsie-server-1 -f
 
-log-ui:
+ulog:
 	@docker logs opsie-ui-1 -f
 
 
 agent:
 	@go run ./cmd/agent/main.go
 
+
 build-agent:
-	@echo "Building agent $(VERSION)"
+	@echo "Building Agent $(VERSION)"
+	@go build -o bin/agent/opsie-agent cmd/agent/main.go
+
+
+build-server:
+	@echo "Building Server $(VERSION)"
+	@cd ui && VITE_APP_VERSION=$(VERSION) VITE_APP_ENV=production npm run build && cd ..
+	@go build -o bin/server/opsie cmd/server/main.go
+
+
+build:
+	@echo "Building Opsie $(VERSION)"
+	@cd ui && VITE_APP_VERSION=$(VERSION) VITE_APP_ENV=production npm run build && cd ..
+	@go build -o bin/server/opsie cmd/server/main.go
 	@go build -o bin/agent/opsie-agent cmd/agent/main.go
 
 
@@ -32,19 +53,3 @@ api-ws:
 api-delete:
 	@go run cmd/cli/main.go api delete $(filter-out $@,$(MAKECMDGOALS))
 
-
-migration:
-	@migrate create -ext sql -dir db/migrations $(filter-out $@,$(MAKECMDGOALS))
-
-mg-force:
-	@go run cmd/cli/main.go migrate force $(filter-out $@,$(MAKECMDGOALS))
-
-mg-up:
-	@go run cmd/cli/main.go migrate up
-
-mg-down:
-	@go run cmd/cli/main.go migrate down
-
-mg-reset:
-	@go run cmd/cli/main.go migrate down
-	@go run cmd/cli/main.go migrate up

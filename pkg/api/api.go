@@ -62,15 +62,17 @@ func HandleMiddleware(final types.HandlerFunc, middlewares ...types.Middleware) 
 		// Or return a default handler.
 	}
 	
-	// --- Default Middlewares
-	// --- 0. HttpLogger
-	// --- 1. Recover
+	/// _______________________________________________________________________________________________
+	/// --- Default Middlewares -----------------------------------------------------------------------
+	/// --- 0. HttpLogger
+	/// --- 1. Recover
 	middlewares = append([]types.Middleware{mw.HTTPLogger, mw.Recoverer}, middlewares...) // 1th
 		
 
-	// --- Execute the middleware in the same order and return the final func.
-	// --- This is a confusing and tricky construct :)
-	// --- We need to use the reverse order since we are chaining inwards.
+	/// _______________________________________________________________________________________________
+	/// --- Execute the middleware in the same order and return the final func. -----------------------
+	/// --- This is a confusing and tricky construct :)
+	/// --- We need to use the reverse order since we are chaining inwards.
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		final = middlewares[i](final) // mw1(mw2(mw3(final)))
 	}

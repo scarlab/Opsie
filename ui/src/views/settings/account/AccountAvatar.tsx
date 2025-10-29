@@ -10,7 +10,7 @@ export default function AccountAvatar() {
                     Click on the avatar to upload a custom one from your files.
                 </CardDescription>
                 <CardAction className="aspect-square w-22 rounded-full overflow-hidden">
-                    <img width={200} height={200} src={CsImage.user} alt="" />
+                    <img width={200} height={200} src={CsImage.avatar.a10} alt="" />
                 </CardAction>
             </CardHeader>
         </Card>

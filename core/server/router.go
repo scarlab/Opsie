@@ -27,6 +27,7 @@ func (s *ApiServer) Router() chi.Router {
 	var router = chi.NewRouter()
 
 
+
 	
 	/// ___________________________________________________________________
 	/// Web UI ------------------------------------------------------------
@@ -54,6 +55,7 @@ func (s *ApiServer) Router() chi.Router {
 
 	/// ___________________________________________________________________
 	/// API Gateway [v1] --------------------------------------------------
+	/// Register all domains here 
 	/// --- 
 	router.Route("/api/v1", func(apiRoute chi.Router) {
 		// Api Home Root
@@ -61,8 +63,10 @@ func (s *ApiServer) Router() chi.Router {
 
 
 
-		/// API: ___________________________________________________________
-		
+		/// ___________________________________________________________________
+		/// API/Domain: -------------------------------------------------------
+		/// --- 
+
 		// Authentication Routes 
 		apiRoute.Route("/auth",func(r chi.Router){
 			auth.Register(r, s.db)
@@ -117,9 +121,6 @@ func notFound(w http.ResponseWriter, r *http.Request){
 }
 
 
-
-
-
 // Proxy/Embed UI
 func setupUI(router chi.Router, uiFS fs.FS) {
 	if config.IsDev {
@@ -129,7 +130,7 @@ func setupUI(router chi.Router, uiFS fs.FS) {
 		router.Handle("/*", viteProxy)
 	} else if config.IsProd {
 		// Prod: Serve static assets
-		router.Handle("/assets/*", http.StripPrefix("/assets/", http.FileServer(http.FS(uiFS))))
+		router.Handle("/assets/*", http.FileServer(http.FS(uiFS)))
 
 		// SPA fallback → serve index.html for all other routes
 		router.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -154,3 +155,28 @@ func setupFileServer(router chi.Router) {
 
 	router.Handle("/_static/*", staticHandler) // Chi uses Handle with wildcard
 }
+
+// func rootMW(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		path := r.URL.Path
+
+// 		// Skip API and static asset routes
+// 		if strings.HasPrefix(path, "/api/") ||
+// 			strings.HasPrefix(path, "/assets/") ||
+// 			strings.HasPrefix(path, "/_static/") {
+// 			next.ServeHTTP(w, r)
+// 			return
+// 		}
+
+// 		// Everything else is a UI route — e.g. "/", "/nodes", "/users", etc.
+// 		fmt.Println("UI Path:", path)
+
+// 		// Example: you can perform auth checks or redirect here
+// 		// if !isAuthenticated(r) {
+// 		//     http.Redirect(w, r, "/login", http.StatusFound)
+// 		//     return
+// 		// }
+
+// 		next.ServeHTTP(w, r)
+// 	})
+// }

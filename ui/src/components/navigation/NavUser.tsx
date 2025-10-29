@@ -14,7 +14,6 @@ import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/cn/popover';
 import { Link, useNavigate } from 'react-router-dom';
 import { Theme } from '../theme';
-import CsImage from '@/constants/image';
 import { Actions, useCsDispatch, useCsSelector } from '@/cs-redux';
 import { toast } from 'sonner';
 
@@ -43,8 +42,8 @@ export default function NavUserMenu() {
     }
     return (
         <>
-            <Button size={'icon'} variant={'outline'} className='overflow-hidden' onClick={() => { setOpen(true) }}>
-                <img src={authUser?.avatar ? authUser?.avatar : CsImage.user} alt={authUser?.display_name} />
+            <Button size={'icon'} variant={'ghost'} className='overflow-hidden !rounded-full' onClick={() => { setOpen(true) }}>
+                <img src={authUser?.avatar} alt={authUser?.display_name} />
             </Button>
 
             <Popover open={open} onOpenChange={() => { setOpen(false) }}>
@@ -56,8 +55,8 @@ export default function NavUserMenu() {
 
                         <div className='mb-3'>
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                <Button size={'icon'} variant={'outline'} className='overflow-hidden' onClick={() => { setOpen(true) }}>
-                                    <img src={authUser?.avatar ? authUser?.avatar : CsImage.user} alt={authUser?.display_name} />
+                                <Button size={'icon'} variant={'ghost'} className='overflow-hidden !rounded-full' onClick={() => { setOpen(true) }}>
+                                    <img src={authUser?.avatar} alt={authUser?.display_name} />
                                 </Button>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-semibold">{authUser?.display_name}</span>

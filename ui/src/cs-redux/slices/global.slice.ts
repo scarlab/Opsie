@@ -20,7 +20,7 @@ const GlobalSlice = createSlice({
             state.query = payload;
         },
     },
-    extraReducers: (builder) => {
+    extraReducers: (_) => {
     }
 });
 

@@ -9,6 +9,9 @@ const __dirname = path.dirname(__filename)
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    chunkSizeWarningLimit: 1024 * 10      // 10MB
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
