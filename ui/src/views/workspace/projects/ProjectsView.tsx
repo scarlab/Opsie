@@ -1,6 +1,7 @@
+import View from "@/components/utils/View";
 
 export default function ProjectsView() {
     return (
-        <div>ProjectsView</div>
+        <View title="Projects">ProjectsView</View>
     )
 }

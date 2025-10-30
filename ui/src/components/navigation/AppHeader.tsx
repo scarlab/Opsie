@@ -7,19 +7,35 @@ import AddNew from './AddNew'
 import { Link } from 'react-router-dom'
 import TeamSwitcher from './TeamSwitcher'
 import { Theme } from '../theme'
+import { useViewContext } from '@/hooks/useViewContext'
 
 export default function AppHeader() {
+    const { title, subtitle, } = useViewContext();
+
+
     return (
         <nav className="bg-secondary border-b px-3 gap-3 flex items-center py-2 h-[var(--header-height)] sticky top-0 z-50">
             <Link to={'/'} className="w-8 ">
                 <img className='drop-shadow' width={400} height={400} src={CsImage.logo} alt={Config.projectName} />
             </Link>
 
-            <div className="mx-2 h-7 w-0.5 bg-accent rotate-12"></div>
+            <div className="mx-2 h-7 w-0.5 bg-accent rotate-12" />
 
             <div className="grow flex gap-2 items-center">
                 <TeamSwitcher />
+
+
+                {title && <div className="mx-2 h-7 w-0.5 bg-accent rotate-12" />}
+
+                {
+                    title &&
+                    <div className='ms-2'>
+                        <h1 className="text-lg font-bold">{title}</h1>
+                        {subtitle && <p className="text-xs text-muted-foreground/80">{subtitle}</p>}
+                    </div>
+                }
             </div>
+
 
             <div className='flex gap-3 items-center'>
                 {Config.isDev && <Theme />}

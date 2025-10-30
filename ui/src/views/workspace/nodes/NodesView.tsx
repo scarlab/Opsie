@@ -1,8 +1,9 @@
+import View from "@/components/utils/View";
 
 export default function NodesView() {
     return (
-        <div className="">
-            Nodes
-        </div>
+        <View title="Nodes" className="">
+            Nodes View...
+        </View>
     )
 }

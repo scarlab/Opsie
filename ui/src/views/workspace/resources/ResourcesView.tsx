@@ -1,6 +1,7 @@
+import View from "@/components/utils/View";
 
 export default function ResourcesView() {
     return (
-        <div>ResourcesView</div>
+        <View title="Resources">ResourcesView</View>
     )
 }
