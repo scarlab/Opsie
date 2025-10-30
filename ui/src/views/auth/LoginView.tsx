@@ -6,7 +6,7 @@ import Config from "@/config";
 import { Lock } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import type { LoginPayload } from "@/types/auth";
+import type { LoginPayload } from "@/types/auth.type";
 import { Actions, useCsDispatch } from "@/cs-redux";
 import { toast } from "sonner";
 

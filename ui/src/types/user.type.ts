@@ -19,3 +19,18 @@ export interface NewOwnerPayload {
     password: string;
     confirm_password: string;
 }
+
+
+export interface NewUserPayload {
+    display_name: string;
+    email: string;
+    password: string;
+    system_role: string
+}
+
+
+export interface UpdateUserPayload {
+    display_name: string;
+    email: string;
+    system_role: string
+}

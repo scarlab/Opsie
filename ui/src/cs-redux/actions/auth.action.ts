@@ -1,5 +1,5 @@
 import ApiManager from "@/configs/api.config";
-import type { LoginPayload } from "@/types/auth";
+import type { LoginPayload } from "@/types/auth.type";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export class AuthAction {

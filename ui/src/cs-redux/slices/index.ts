@@ -1,5 +1,5 @@
-import TeamSlice from "./team.slice";
 import { combineReducers } from "@reduxjs/toolkit";
+import TeamSlice from "./team.slice";
 import GlobalSlice from "./global.slice";
 import AuthSlice from "./auth.slice";
 import UserSlice from "./user.slice";

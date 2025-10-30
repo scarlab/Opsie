@@ -3,7 +3,7 @@ import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
 import { InputPassword } from "@/components/cn/input-password";
 import CsImage from "@/constants/image";
-import type { NewOwnerPayload } from "@/types/user";
+import type { NewOwnerPayload } from "@/types/user.type";
 import { useState } from "react";
 import { motion } from "framer-motion"
 import { toast } from "sonner";

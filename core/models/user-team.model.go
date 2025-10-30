@@ -26,3 +26,9 @@ type AddUserToTeamPayload struct {
 	IsAdmin   bool    `json:"is_admin"`
 	InvitedBy *int64  `json:"invited_by"`
 }
+
+
+type RemoveUserToTeamPayload struct {
+	UserID    int64   `json:"user_id" validate:"required"`
+	TeamID    int64   `json:"team_id" validate:"required"`
+}

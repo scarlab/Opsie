@@ -1,5 +1,5 @@
 import { LocalStorageKey } from "@/constants";
-import type { AuthUser } from "@/types/auth";
+import type { AuthUser } from "@/types/auth.type";
 
 // how long cache stays valid (e.g., 3 min)
 const CACHE_TTL_MS = 1 * 60 * 1000;

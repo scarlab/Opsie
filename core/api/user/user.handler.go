@@ -313,12 +313,12 @@ func (h *Handler) AddToTeam(w http.ResponseWriter, r *http.Request) *errors.Erro
 
 func (h *Handler) RemoveFromTeam(w http.ResponseWriter, r *http.Request) *errors.Error {
 	// Processing ids from URL params
-	userId := bolt.ParseParamId(w, r, "user_id")
-	teamId := bolt.ParseParamId(w, r, "team_id")
+	var payload models.RemoveUserToTeamPayload
+	bolt.ParseBody(w, r, &payload)
 
 
 	// Delete UserTeam record
-	if e := h.userTeamRepo.RemoveUserFromTeam(userId, teamId); e != nil {return e}
+	if e := h.userTeamRepo.RemoveUserFromTeam(payload.UserID, payload.TeamID); e != nil {return e}
 	
 
 	// Send the final response 

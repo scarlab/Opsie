@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { AuthAction } from '../actions/auth.action';
-import type { AuthUser } from '@/types/auth';
+import type { AuthUser } from '@/types/auth.type';
 import { removeLocalAuthUser, setLocalAuthUser } from '@/helpers/auth.helper';
 
 const Auth = new AuthAction()
