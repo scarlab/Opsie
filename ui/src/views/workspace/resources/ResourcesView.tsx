@@ -1,7 +1,11 @@
-import View from "@/components/utils/View";
+import ViewHeader from "@/components/utils/ViewHeader";
 
 export default function ResourcesView() {
     return (
-        <View title="Resources">ResourcesView</View>
+        <div>
+            <ViewHeader title="Resources" />
+            Resources...
+
+        </div>
     )
 }

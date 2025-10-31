@@ -2,13 +2,12 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import { useViewContext } from "@/hooks/useViewContext";
-import { cn } from "@/lib/utils";
+
 
 type ViewProps = React.HTMLAttributes<HTMLDivElement> & {
     title: string;
     subtitle?: string;
     icon?: LucideIcon;
-    children?: React.ReactNode;
 };
 
 /**
@@ -21,7 +20,7 @@ type ViewProps = React.HTMLAttributes<HTMLDivElement> & {
  *   <DashboardContent />
  * </View>
  */
-export default function View({ title, subtitle, icon, children, className }: ViewProps) {
+export default function ViewHeader({ title, subtitle, icon, }: ViewProps) {
     const { setView } = useViewContext();
     const location = useLocation();
 
@@ -33,5 +32,5 @@ export default function View({ title, subtitle, icon, children, className }: Vie
         return () => setView({ title: "", subtitle: "", icon: null });
     }, [location.pathname, title, subtitle, icon, setView]);
 
-    return <div className={cn("page-root", className)}>{children}</div>;
+    return null
 }

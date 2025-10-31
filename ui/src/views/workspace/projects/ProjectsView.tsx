@@ -1,7 +1,13 @@
-import View from "@/components/utils/View";
+import ViewHeader from "@/components/utils/ViewHeader";
+
 
 export default function ProjectsView() {
     return (
-        <View title="Projects">ProjectsView</View>
+        <div>
+            <ViewHeader title="Projects" />
+            projects
+
+        </div>
+
     )
 }

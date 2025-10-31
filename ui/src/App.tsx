@@ -54,6 +54,16 @@ export default function App() {
             <Route path="resources" element={<ResourcesView />} />
             <Route path="apps" element={<AppsView />} />
 
+            <Route path="settings/*" element={<SettingsLayout />}>
+              <Route index element={<NotFoundView />} />
+              <Route path="general" element={<GeneralSettingsView />} />
+              <Route path="account" element={<AccountSettingsView />} />
+              <Route path="team" element={<TeamSettingsView />} />
+
+
+              {/* Add more nested routes later */}
+              <Route path="*" element={<div className=""><NotFoundView /></div>} />
+            </Route>
 
             {/* Add more nested routes later */}
             <Route path="*" element={<div className=""><NotFoundView /></div>} />
@@ -62,16 +72,7 @@ export default function App() {
           {/* =====================
               App routes (protected)
           ====================== */}
-          <Route path="settings/*" element={<SettingsLayout />}>
-            <Route index element={<NotFoundView />} />
-            <Route path="general" element={<GeneralSettingsView />} />
-            <Route path="account" element={<AccountSettingsView />} />
-            <Route path="team" element={<TeamSettingsView />} />
 
-
-            {/* Add more nested routes later */}
-            <Route path="*" element={<div className=""><NotFoundView /></div>} />
-          </Route>
 
 
 
