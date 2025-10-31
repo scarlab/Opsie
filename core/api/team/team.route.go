@@ -13,8 +13,9 @@ func HandleRoutes(r chi.Router, h *Handler) {
 	/// _________________________________________________________________________________________________
 	/// Protected [Auth] --------------------------------------------------------------------------------
 	/// For Staff
-	api.Get(r,  			"/get/user/all", 				h.GetUserTeams, 			mw.Auth)
-	api.Get(r,  			"/get/user/default", 			h.GetUserDefaultTeam, 		mw.Auth)
+	api.Get(r,  			"/user/get/all", 				h.GetUserTeams, 			mw.Auth)
+	api.Get(r,  			"/user/get/default", 			h.GetUserDefaultTeam, 		mw.Auth)
+	api.Patch(r,  			"/user/set/default/{id}", 		h.SetUserDefaultTeam, 		mw.Auth)
 
 
 

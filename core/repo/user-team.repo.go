@@ -90,9 +90,10 @@ func (r *UserTeamRepository) DefaultTeam(userID int64) (models.TeamWithMeta, *er
 	return teamMeta, nil
 }
 
+// SetDefaultTeam sets a user's default team and returns the updated team (transaction-safe)
+func (r *UserTeamRepository) SetDefaultTeam(userID, teamID int64) (*models.Team, *errors.Error) {
+	var team models.Team
 
-// SetDefaultTeam sets a user's default team (transaction-safe)
-func (r *UserTeamRepository) SetDefaultTeam(userID, teamID int64) *errors.Error {
 	err := r.db.Transaction(func(tx *gorm.DB) error {
 		// Unset existing default
 		if err := tx.Model(&models.UserTeam{}).
@@ -108,11 +109,20 @@ func (r *UserTeamRepository) SetDefaultTeam(userID, teamID int64) *errors.Error 
 			return err
 		}
 
+		// Fetch and return the team details (optional join for richer data)
+		if err := tx.Model(&models.Team{}).
+			Where("id = ?", teamID).
+			First(&team).Error; err != nil {
+			return err
+		}
+
 		return nil
 	})
 
 	if err != nil {
-		return errors.Internal(err)
+		return nil, errors.Internal(err)
 	}
-	return nil
+
+	return &team, nil
 }
+

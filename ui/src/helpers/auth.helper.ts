@@ -8,6 +8,8 @@ const CACHE_TTL_MS = 1 * 60 * 1000;
  * Save auth user + timestamp to localStorage
  */
 export function setLocalAuthUser(data: AuthUser) {
+    if (!data) return;
+
     try {
         localStorage.setItem(LocalStorageKey.User, JSON.stringify(data));
         localStorage.setItem(LocalStorageKey.UserCachedOn, Date.now().toString());

@@ -30,7 +30,7 @@ export default function AppHeader() {
                 {
                     title &&
                     <div className='ms-2'>
-                        <h1 className="text-lg font-bold">{title}</h1>
+                        <h1 className="text-lg font-medium">{title}</h1>
                         {subtitle && <p className="text-xs text-muted-foreground/80">{subtitle}</p>}
                     </div>
                 }

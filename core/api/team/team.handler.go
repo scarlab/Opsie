@@ -1,11 +1,9 @@
 package team
 
 import (
-	"fmt"
 	"net/http"
 	"opsie/core/models"
 	"opsie/core/repo"
-	"opsie/def"
 	"opsie/pkg/bolt"
 	"opsie/pkg/errors"
 )
@@ -37,19 +35,12 @@ func NewHandler(
 /// Accessed by all authenticated user
 
 func (h *Handler) GetUserTeams(w http.ResponseWriter, r *http.Request) *errors.Error{
-	// Get the session user
-	userVal:= r.Context().Value(def.ContextKeyUser)
-	if userVal == nil {
-		return errors.Internal(fmt.Errorf("session user not found"))
-	}
-	
-	authUser, ok := userVal.(models.AuthUser)
-	if !ok {
-		return errors.Internal(fmt.Errorf("invalid session"))
-	}
+	// Get the request/session user 
+	sessionUser, gsuErr := bolt.GetSessionUser(r)
+	if gsuErr!= nil {return gsuErr}
 
 	// Fetch all teams of user
-	teams, err := h.userTeamRepo.ListTeamsByUser(authUser.ID)
+	teams, err := h.userTeamRepo.ListTeamsByUser(sessionUser.ID)
 	if err != nil {return err}
 
 
@@ -64,25 +55,38 @@ func (h *Handler) GetUserTeams(w http.ResponseWriter, r *http.Request) *errors.E
 
 
 func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *errors.Error{
-	// Get the session user
-	userVal:= r.Context().Value(def.ContextKeyUser)
-	if userVal == nil {
-		return errors.Internal(fmt.Errorf("session user not found"))
-	}
-	
-	authUser, ok := userVal.(models.AuthUser)
-	if !ok {
-		return errors.Internal(fmt.Errorf("invalid session"))
-	}
+	// Get the request/session user 
+	sessionUser, gsuErr := bolt.GetSessionUser(r)
+	if gsuErr!= nil {return gsuErr}
 
 	// Fetch all teams of user
-	team, err := h.userTeamRepo.DefaultTeam(authUser.ID)
+	team, err := h.userTeamRepo.DefaultTeam(sessionUser.ID)
 	if err != nil {return err}
 
 
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message"		: "Default teams",
+		"team"			: team,
+	})
+	return nil
+}
+
+func (h *Handler) SetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *errors.Error{
+	// Get the request/session user 
+	sessionUser, gsuErr := bolt.GetSessionUser(r)
+	if gsuErr!= nil {return gsuErr}
+
+	id := bolt.ParseParamId(w, r, "id")
+
+	// Fetch all teams of user
+	team, err := h.userTeamRepo.SetDefaultTeam(sessionUser.ID, id)
+	if err != nil {return err}
+
+
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "Team switched",
 		"team"			: team,
 	})
 	return nil

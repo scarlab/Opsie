@@ -1,6 +1,6 @@
 
 
-export interface User {
+export interface UserModel {
     id: number;
     display_name: string;
     email: string;
