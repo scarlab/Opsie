@@ -65,6 +65,7 @@ func (h *Handler) GetUserDefaultTeam(w http.ResponseWriter, r *http.Request) *er
 
 
 
+
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message"		: "Default teams",
 		"team"			: team,
@@ -154,6 +155,25 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) *errors.Error{
 }
 
 
+func (h *Handler) GetAllMembersOfTeam(w http.ResponseWriter, r *http.Request) *errors.Error{
+
+	// Get the team id form url
+	team_id := bolt.ParseParamId(w, r, "team_id")
+
+
+	// Fetch team by id 
+	members, err1 := h.userTeamRepo.ListTeamMembers(team_id)
+	if err1 != nil {return err1}
+
+
+   	bolt.WriteResponse(w, http.StatusOK, map[string]any{
+		"message"		: "Team members",
+		"members"		:  members,
+	})
+	return nil
+}
+
+
 
 func (h *Handler) GetAllByUserId(w http.ResponseWriter, r *http.Request) *errors.Error{
 	// Get the `user_id` from the URL
@@ -177,7 +197,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) *errors.Error{
 	id := bolt.ParseParamId(w, r, "id")
 
 	// Processing Request Body
-	var payload models.UpdateTeamPayload
+	var payload models.NewTeamPayload
 	bolt.ParseBody(w, r, &payload)
 
 	// 

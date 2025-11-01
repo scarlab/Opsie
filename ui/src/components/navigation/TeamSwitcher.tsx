@@ -3,16 +3,18 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
+    DropdownMenuShortcut,
     DropdownMenuTrigger
 } from "../cn/dropdown-menu";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { Actions, useCsDispatch, useCsSelector } from "@/cs-redux";
 import { useEffect, useState } from "react";
 import { SystemRoles } from "@/constants";
 import type { TeamModel } from "@/types/team.type";
 import { getLocalTeam } from "@/helpers/team.helper";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
+import NewTeam from "@/views/settings/team/NewTeam";
 
 
 export default function TeamSwitcher() {
@@ -20,7 +22,7 @@ export default function TeamSwitcher() {
     const { authUser } = useCsSelector(state => state.auth);
 
     const dispatch = useCsDispatch();
-
+    const [_, setSearchParams] = useSearchParams();
     const [team, setTeam] = useState<TeamModel | null>(getLocalTeam());
 
 
@@ -38,9 +40,11 @@ export default function TeamSwitcher() {
 
     async function handleAddTeam() {
         if (authUser?.system_role === SystemRoles.Staff) return toast.info("You do not have permission to create a team.");
+
+        setSearchParams({ "new-team": "true" })
     }
 
-    async function handleSwitchTeam(id: number) {
+    async function handleSwitchTeam(id: string) {
         if (id === user_default_team?.id) return;
         dispatch(Actions.team.SetDefaultTeamOfUser({ id }))
     }
@@ -61,7 +65,7 @@ export default function TeamSwitcher() {
                     <div className="hover:bg-accent- dark:hover:bg-accent/40 border-b border-transparent hover:border-accent cursor-pointer flex items-center gap-2 transition-all rounded px-4 py-1">
                         <div className="space-x-3">
                             <span className="truncate font-medium">{team?.name}</span>
-                            {/* <span className="truncate text-xs border rounded-2xl px-2.5 bg-accent/60">{user_default_team.id}</span> */}
+                            {/* <span className="truncate text-xs border rounded-2xl px-2.5 bg-accent/60">{team?.id}</span> */}
                         </div>
                         <ChevronsUpDown size={17} />
                     </div>
@@ -73,7 +77,7 @@ export default function TeamSwitcher() {
                     sideOffset={4}
                 >
                     <DropdownMenuLabel className="text-muted-foreground text-xs">
-                        Teams
+                        Year Teams
                     </DropdownMenuLabel>
                     {user_teams.map((team, i) => (
                         <DropdownMenuItem
@@ -82,18 +86,23 @@ export default function TeamSwitcher() {
                             className="gap-2 p-2"
                         >
                             {team.name}
-
+                            {team.is_default &&
+                                <DropdownMenuShortcut>
+                                    <Check />
+                                </DropdownMenuShortcut>
+                            }
                         </DropdownMenuItem>
                     ))}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleAddTeam} className="gap-2 p-2">
+                    {/* <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleAddTeam} className="gap-2 p-2" >
                         <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                             <Plus className="size-4" />
                         </div>
                         <div className="text-muted-foreground font-medium">Add team</div>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                 </DropdownMenuContent>
             </DropdownMenu>
+
         </div>
     )
 }

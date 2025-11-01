@@ -21,8 +21,6 @@ func (r *UserTeamRepository) AddUserToTeam(payload models.AddUserToTeamPayload) 
 		UserID:    payload.UserID,
 		TeamID:    payload.TeamID,
 		IsDefault: payload.IsDefault,
-		IsAdmin:   payload.IsAdmin,
-		InvitedBy: payload.InvitedBy,
 	}
 
 	if err := r.db.Create(&ut).Error; err != nil {
@@ -57,7 +55,7 @@ func (r *UserTeamRepository) ListTeamsByUser(userID int64) ([]models.TeamWithMet
 	
 	err := r.db.
 		Table("teams").
-		Select("teams.*, ut.is_default, ut.is_admin").
+		Select("teams.*, ut.is_default, ut.joined_at").
 		Joins("JOIN user_teams ut ON ut.team_id = teams.id").
 		Where("ut.user_id = ?", userID).
 		Scan(&teams).Error
@@ -68,6 +66,35 @@ func (r *UserTeamRepository) ListTeamsByUser(userID int64) ([]models.TeamWithMet
 
 	return teams, nil
 }
+// ListTeamMembers returns all users belonging to a team
+func (r *UserTeamRepository) ListTeamMembers(teamID int64) ([]models.TeamMember, *errors.Error) {
+	var members []models.TeamMember
+
+	query := `
+		SELECT
+		ut.user_id AS id,
+		ut.team_id,
+		u.display_name,
+		u.email,
+		u.avatar,
+		u.system_role,
+		u.is_active,
+		ut.joined_at
+	FROM user_teams AS ut
+	JOIN users AS u ON u.id = ut.user_id
+	WHERE ut.team_id = ?;
+	`
+
+
+	if err := r.db.Raw(query, teamID).Scan(&members).Error; err != nil {
+		return nil, errors.Internal(err)
+	}
+
+	return members, nil
+}
+
+
+
 
 // DefaultTeam returns the default team for a user along with metadata
 func (r *UserTeamRepository) DefaultTeam(userID int64) (models.TeamWithMeta, *errors.Error) {
@@ -75,7 +102,7 @@ func (r *UserTeamRepository) DefaultTeam(userID int64) (models.TeamWithMeta, *er
 
 	err := r.db.
 		Table("teams").
-		Select("teams.*, ut.is_default, ut.is_admin").
+		Select("teams.*, ut.is_default, ut.joined_at").
 		Joins("JOIN user_teams ut ON ut.team_id = teams.id").
 		Where("ut.user_id = ? AND ut.is_default = true", userID).
 		Scan(&teamMeta).Error

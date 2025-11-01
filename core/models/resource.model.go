@@ -9,8 +9,8 @@ import (
 type Resource struct {
 	BaseModel
 
-	TeamID     int64          	`gorm:"not null;index" json:"team_id"`
-	ProjectID  *int64         	`gorm:"index" json:"project_id"`
+	TeamID     int64          	`gorm:"not null;index" json:"team_id,string"`
+	ProjectID  *int64         	`gorm:"index" json:"project_id,string"`
 	Name       string          		`gorm:"not null" json:"name"`
 	Description string         		`json:"description"`
 	Type       string          		`json:"type"`

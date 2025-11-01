@@ -63,6 +63,7 @@ func (r *UserRepository) CreateOwner( payload models.NewOwnerPayload) (models.Us
 		Password:    payload.Password,
 		SystemRole:  def.SystemRoleOwner.ToString(),
 		ResetPass:	 false,
+		Avatar: "/_static/default/avatars/avatar_25.png",
 	}
 
 	if err := r.db.Create(&user).Error; err != nil {

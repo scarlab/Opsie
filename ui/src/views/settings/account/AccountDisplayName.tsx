@@ -34,16 +34,15 @@ export default function AccountDisplayName() {
         <Card>
             <CardHeader>
                 <CardTitle>Display Name</CardTitle>
-                <CardDescription>This will be displayed on your profile and in the workspace.
-                </CardDescription>
-                <CardContent className="mt-3">
-                    <Label className="mb-2" htmlFor="display_name">Display Name</Label>
-                    <Input value={display_name} onChange={e => setDisplayName(e.target.value)} id="display_name" type="text" name="display_name" placeholder="Display Name" />
-                </CardContent>
-                <CardFooter className="border-t flex justify-end">
-                    <Button onClick={onSave} size={'sm'}>Save</Button>
-                </CardFooter>
+                <CardDescription>This will be displayed on your profile and in the workspace.</CardDescription>
             </CardHeader>
+            <CardContent className="mt-3">
+                <Label className="mb-2" htmlFor="display_name">Display Name</Label>
+                <Input value={display_name} onChange={e => setDisplayName(e.target.value)} id="display_name" type="text" name="display_name" placeholder="Display Name" />
+            </CardContent>
+            <CardFooter className="border-t flex justify-end">
+                <Button onClick={onSave} size={'sm'}>Save</Button>
+            </CardFooter>
         </Card>
     )
 }

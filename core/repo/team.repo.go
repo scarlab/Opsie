@@ -30,7 +30,6 @@ func (r *TeamRepository) Create(payload models.NewTeamPayload) (models.Team, *er
         Name:        payload.Name,
         Slug:        utils.Text.Slugify(payload.Name),
         Description: payload.Description,
-        Icon:        payload.Icon,
     }
 
     if err := r.db.Create(&team).Error; err != nil {
@@ -91,7 +90,7 @@ func (r *TeamRepository) GetAllByUserId(userId int64) ([]models.Team, *errors.Er
 
 
 // Update updates an existing team by ID with the provided payload
-func (r *TeamRepository) Update(id int64, payload models.UpdateTeamPayload) (models.Team, *errors.Error) {
+func (r *TeamRepository) Update(id int64, payload models.NewTeamPayload) (models.Team, *errors.Error) {
 	var team models.Team
 
 	// Find existing team
@@ -105,7 +104,6 @@ func (r *TeamRepository) Update(id int64, payload models.UpdateTeamPayload) (mod
     // Update fields
 	team.Name = payload.Name
 	team.Description = payload.Description
-	team.Icon = payload.Icon
 
 	// Regenerate slug if name changed
 	if payload.Name != "" {

@@ -6,7 +6,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import OverviewView from "@/views/workspace/overview/OverviewView";
 import OnboardingView from "@/views/onboarding/OnboardingView";
 import LoginView from "@/views/auth/LoginView";
-import NotFoundView from "@/views/NotFoundView";
+import NotFound from "@/components/utils/NotFound";
 import NodesView from "./views/workspace/nodes/NodesView";
 import AppsView from "./views/workspace/apps/AppsView";
 import ResourcesView from "./views/workspace/resources/ResourcesView";
@@ -37,7 +37,7 @@ export default function App() {
 
 
             {/* fallback for /auth or /auth/anything */}
-            <Route path="*" element={<NotFoundView />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
 
 
@@ -47,6 +47,7 @@ export default function App() {
               App routes (protected)
           ====================== */}
           <Route path="/*" element={<AppLayout />}>
+            {/* WORKSPACE */}
             <Route index element={<OverviewView />} />
             <Route path="nodes" element={<NodesView />} />
             <Route path="users" element={<UsersView />} />
@@ -54,33 +55,27 @@ export default function App() {
             <Route path="resources" element={<ResourcesView />} />
             <Route path="apps" element={<AppsView />} />
 
+            {/* SETTINGS */}
             <Route path="settings/*" element={<SettingsLayout />}>
-              <Route index element={<NotFoundView />} />
+              <Route index element={<NotFound />} />
               <Route path="general" element={<GeneralSettingsView />} />
               <Route path="account" element={<AccountSettingsView />} />
               <Route path="team" element={<TeamSettingsView />} />
 
-
-              {/* Add more nested routes later */}
-              <Route path="*" element={<div className=""><NotFoundView /></div>} />
+              {/* Not Found (settings) */}
+              <Route path="*" element={<div className=""><NotFound /></div>} />
             </Route>
 
-            {/* Add more nested routes later */}
-            <Route path="*" element={<div className=""><NotFoundView /></div>} />
+            {/* Not Found (app)*/}
+            <Route path="*" element={<div className=""><NotFound /></div>} />
           </Route>
-
-          {/* =====================
-              App routes (protected)
-          ====================== */}
-
-
 
 
 
           {/* =====================
               Global 404 (outside layouts)
           ====================== */}
-          <Route path="*" element={<NotFoundView />} />
+          <Route path="*" element={<NotFound />} />
 
         </Route>
       </Routes>

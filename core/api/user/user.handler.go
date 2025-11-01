@@ -77,8 +77,6 @@ func (h *Handler) CreateOwnerAccount(w http.ResponseWriter, r *http.Request) *er
 		UserID: user.ID,
 		TeamID: team.ID,
 		IsDefault: true,
-		IsAdmin: true,
-		InvitedBy: nil,
 	}
 
 	// Link user <-> team

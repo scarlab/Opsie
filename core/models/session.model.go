@@ -5,8 +5,8 @@ import (
 )
 
 type Session struct {
-	ID        int64    `gorm:"primaryKey" json:"id"`
-	UserID    int64    `gorm:"not null;index" json:"user_id"`
+	ID        int64    `gorm:"primaryKey" json:"id,string"`
+	UserID    int64    `gorm:"not null;index" json:"user_id,string"`
 	Key       string    `gorm:"uniqueIndex;not null" json:"key"`
 	IP        string    `json:"ip"`
 	OS        string    `json:"os"`

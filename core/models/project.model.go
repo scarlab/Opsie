@@ -7,7 +7,7 @@ import (
 type Project struct {
 	BaseModel
 
-	TeamID      int64 `gorm:"not null;index" json:"team_id"`
+	TeamID      int64 `gorm:"not null;index" json:"team_id,string"`
 	Name        string `gorm:"not null" json:"name"`
 	Description string `json:"description"`
 	Status      string `json:"status"`

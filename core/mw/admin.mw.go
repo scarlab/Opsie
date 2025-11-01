@@ -17,7 +17,7 @@ func Admin(next types.HandlerFunc) types.HandlerFunc {
 
 			// Check if the user has admin privilege or not
 			if sessionUser.SystemRole == def.SystemRoleStaff.ToString() {
-				return errors.Forbidden("I think you do not suppose to be here...")
+				return errors.Forbidden("I think you're not supposed to be here...")
 			}
 
 			// 4. Call next middleware/handler

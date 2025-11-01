@@ -9,7 +9,7 @@ export default function NotFoundView() {
                     width={400}
                     height={400}
                     src={CsImage.pageNotFound}
-                    alt=""
+                    alt="Opsie | 404 Not Found"
                 />
                 <h1 className="text-primary text-3xl font-black">404 - Not Found!</h1>
                 <p className="text-muted-foreground">The page you are trying to reach is not found!</p>

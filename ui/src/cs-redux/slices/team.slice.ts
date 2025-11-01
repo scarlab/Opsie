@@ -2,16 +2,18 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 import { TeamAction } from '../actions/team.action';
-import type { TeamModel } from '@/types/team.type';
+import type { TeamModel, UserTeam } from '@/types/team.type';
 import { setLocalTeam } from '@/helpers/team.helper';
+import type { TeamMember } from '@/types/user-team.type';
 
 const Team = new TeamAction()
 
 const initialState: {
     team: TeamModel | undefined;
     teams: TeamModel[] | undefined;
-    user_default_team: TeamModel | undefined;
-    user_teams: TeamModel[] | undefined;
+    user_default_team: UserTeam | undefined;
+    user_teams: UserTeam[] | undefined;
+    team_members: TeamMember[] | undefined;
     loading: boolean;
     notFound: boolean;
 } = {
@@ -20,7 +22,8 @@ const initialState: {
     team: undefined,
     teams: undefined,
     user_default_team: undefined,
-    user_teams: undefined
+    user_teams: undefined,
+    team_members: undefined
 };
 
 const TeamSlice = createSlice({
@@ -32,6 +35,10 @@ const TeamSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
+        /// _______________________________________________________________________________________________
+        /// Auth User -------------------------------------------------------------------------------------
+        /// ---
+
         builder
             .addCase(Team.GetAllTeamOfUser.pending, (state, _) => {
                 state.loading = true;
@@ -77,6 +84,42 @@ const TeamSlice = createSlice({
                 state.loading = false;
                 state.notFound = true;
             })
+
+
+
+        /// _______________________________________________________________________________________________
+        /// Protected Section [Auth, Admin] ---------------------------------------------------------------
+        /// ---
+
+        builder
+            .addCase(Team.GetTeamMembers.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.GetTeamMembers.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.team_members = payload.members;
+
+                // ---
+                setLocalTeam(payload.team);
+            })
+            .addCase(Team.GetTeamMembers.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
+        builder
+            .addCase(Team.CreateTeam.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.CreateTeam.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.teams?.unshift(payload.team);
+            })
+            .addCase(Team.CreateTeam.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
     }
 });
 

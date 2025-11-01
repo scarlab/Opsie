@@ -21,7 +21,6 @@ type User struct {
 	// Relations
 	Sessions   []Session            `gorm:"foreignKey:UserID" json:"sessions,omitempty"`
 	UserTeams  []UserTeam           `gorm:"foreignKey:UserID" json:"user_teams,omitempty"`
-	Invitations []UserTeam          `gorm:"foreignKey:InvitedBy" json:"invitations,omitempty"`
 }
 
 
@@ -65,7 +64,7 @@ type LoginPayload struct {
 
 
 type AuthUser struct {
-    ID int64                       `json:"id"`
+    ID int64                    `json:"id,string"`
     DisplayName string          `json:"display_name"`
     Email string                `json:"email"`
     Avatar string               `json:"avatar"`

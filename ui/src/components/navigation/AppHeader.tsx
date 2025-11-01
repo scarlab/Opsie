@@ -15,8 +15,9 @@ export default function AppHeader() {
 
     return (
         <nav className="bg-secondary border-b px-3 gap-3 flex items-center py-2 h-[var(--header-height)] sticky top-0 z-50">
-            <Link to={'/'} className="w-8 ">
-                <img className='drop-shadow' width={400} height={400} src={CsImage.logo} alt={Config.projectName} />
+            <Link to={'/'} className="flex items-center gap-1">
+                <img className='drop-shadow w-8' width={400} height={400} src={CsImage.logo} alt={Config.projectName} />
+                <h1 className='font-bold text-lg text-primary'> Opsie</h1>
             </Link>
 
             <div className="mx-2 h-7 w-0.5 bg-accent rotate-12" />
