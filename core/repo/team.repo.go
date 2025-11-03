@@ -78,17 +78,6 @@ func (r *TeamRepository) GetById(id int64) (models.Team, *errors.Error) {
 
 
 
-func (r *TeamRepository) GetAllByUserId(userId int64) ([]models.Team, *errors.Error) {
-    var team []models.Team
-
-    if err := r.db.Find(&team).Where("user_id = ?", userId).Error; err != nil {
-        return [] models.Team{}, errors.Internal(err)
-    }
-
-    return team, nil
-}
-
-
 // Update updates an existing team by ID with the provided payload
 func (r *TeamRepository) Update(id int64, payload models.NewTeamPayload) (models.Team, *errors.Error) {
 	var team models.Team

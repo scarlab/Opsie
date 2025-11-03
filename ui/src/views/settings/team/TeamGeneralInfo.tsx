@@ -1,14 +1,15 @@
 import { Button } from "@/components/cn/button";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/cn/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/cn/card";
 import { Input } from "@/components/cn/input";
 import { Label } from "@/components/cn/label";
 import { Clipboard, ClipboardCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import copy from 'copy-to-clipboard';
-import { useCsSelector } from "@/cs-redux";
-import { getInitials } from "@/lib/text";
+import { Actions, useCsDispatch, useCsSelector } from "@/cs-redux";
+import { toast } from "sonner";
 
 export default function TeamGeneralInfo() {
+    const dispatch = useCsDispatch();
     const [teamId, setTeamId] = useState<string>("");
     const [name, setName] = useState<string>("");
     const [description, setDescription] = useState<string>("");
@@ -33,14 +34,27 @@ export default function TeamGeneralInfo() {
             console.error('Failed to copy: ', err);
         }
     }
+
+    async function onSave() {
+        if (!teamId || !team) return;
+        if (team.name === name && team.description === description) return;
+
+        if (!name) return toast.error("Team name is required");
+
+        const res = await dispatch(Actions.team.Update({ id: teamId, data: { name, description } }));
+        if (res.meta.requestStatus === "fulfilled") {
+            toast.success(res.payload.message);
+        }
+        else if (res.meta.requestStatus === "rejected") {
+            toast.error(res.payload.error);
+        }
+    }
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle>General Info</CardTitle>
                 <CardDescription>This is general info of default team.</CardDescription>
-                <CardAction className="bg-accent w-14 aspect-square rounded-full grid place-items-center">
-                    <span className="font-black text-xl text-primary">{getInitials(team?.name!)}</span>
-                </CardAction>
             </CardHeader>
 
             <CardContent className="">
@@ -67,7 +81,7 @@ export default function TeamGeneralInfo() {
                 </div>
             </CardContent>
             <CardFooter className="border-t flex justify-end items-center">
-                <Button size={'sm'} >Save</Button>
+                <Button onClick={onSave} size={'sm'} >Save</Button>
             </CardFooter>
         </Card>
     )

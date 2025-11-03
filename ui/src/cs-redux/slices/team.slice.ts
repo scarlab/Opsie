@@ -9,11 +9,17 @@ import type { TeamMember } from '@/types/user-team.type';
 const Team = new TeamAction()
 
 const initialState: {
+    // Auth User
+    auth_default_team: UserTeam | undefined;
+    auth_teams: UserTeam[] | undefined;
+
+    // Admin
     team: TeamModel | undefined;
     teams: TeamModel[] | undefined;
-    user_default_team: UserTeam | undefined;
     user_teams: UserTeam[] | undefined;
     team_members: TeamMember[] | undefined;
+
+    // Utils
     loading: boolean;
     notFound: boolean;
 } = {
@@ -21,17 +27,21 @@ const initialState: {
     notFound: false,
     team: undefined,
     teams: undefined,
-    user_default_team: undefined,
-    user_teams: undefined,
-    team_members: undefined
+    auth_default_team: undefined,
+    auth_teams: undefined,
+    team_members: undefined,
+    user_teams: undefined
 };
 
 const TeamSlice = createSlice({
     name: "TeamSlice",
     initialState,
     reducers: {
-        setName: (state, { payload }) => {
-            state.team = payload;
+        removeTeamMembers: (state, _) => {
+            state.team_members = undefined;
+        },
+        removeTeam: (state, _) => {
+            state.team = undefined;
         },
     },
     extraReducers: (builder) => {
@@ -45,7 +55,7 @@ const TeamSlice = createSlice({
             })
             .addCase(Team.GetAllTeamOfUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.user_teams = payload.teams;
+                state.auth_teams = payload.teams;
             })
             .addCase(Team.GetAllTeamOfUser.rejected, (state, _) => {
                 state.loading = false;
@@ -59,7 +69,7 @@ const TeamSlice = createSlice({
             })
             .addCase(Team.GetDefaultTeamOfUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.user_default_team = payload.team;
+                state.auth_default_team = payload.team;
 
                 // ---
                 setLocalTeam(payload.team);
@@ -75,7 +85,7 @@ const TeamSlice = createSlice({
             })
             .addCase(Team.SetDefaultTeamOfUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.user_default_team = payload.team;
+                state.auth_default_team = payload.team;
 
                 // ---
                 setLocalTeam(payload.team);
@@ -91,21 +101,6 @@ const TeamSlice = createSlice({
         /// Protected Section [Auth, Admin] ---------------------------------------------------------------
         /// ---
 
-        builder
-            .addCase(Team.GetTeamMembers.pending, (state, _) => {
-                state.loading = true;
-            })
-            .addCase(Team.GetTeamMembers.fulfilled, (state, { payload }) => {
-                state.loading = false;
-                state.team_members = payload.members;
-
-                // ---
-                setLocalTeam(payload.team);
-            })
-            .addCase(Team.GetTeamMembers.rejected, (state, _) => {
-                state.loading = false;
-                state.notFound = true;
-            })
 
         builder
             .addCase(Team.CreateTeam.pending, (state, _) => {
@@ -119,6 +114,91 @@ const TeamSlice = createSlice({
                 state.loading = false;
                 state.notFound = true;
             })
+
+
+        builder
+            .addCase(Team.GetAllTeams.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.GetAllTeams.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.teams = payload.teams;
+            })
+            .addCase(Team.GetAllTeams.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
+
+        builder
+            .addCase(Team.GetTeamById.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.GetTeamById.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.team = payload.team;
+            })
+            .addCase(Team.GetTeamById.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
+
+        builder
+            .addCase(Team.GetTeamMembers.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.GetTeamMembers.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.team_members = payload.members;
+            })
+            .addCase(Team.GetTeamMembers.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
+
+        builder
+            .addCase(Team.GetAllTeamsOfUser.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.GetAllTeamsOfUser.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.user_teams = payload.teams;
+            })
+            .addCase(Team.GetAllTeamsOfUser.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
+
+        builder
+            .addCase(Team.Update.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.Update.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.team = payload.team;
+            })
+            .addCase(Team.Update.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
+
+        builder
+            .addCase(Team.Delete.pending, (state, _) => {
+                state.loading = true;
+            })
+            .addCase(Team.Delete.fulfilled, (state, _) => {
+                state.loading = false;
+                state.team = undefined;
+            })
+            .addCase(Team.Delete.rejected, (state, _) => {
+                state.loading = false;
+                state.notFound = true;
+            })
+
 
     }
 });

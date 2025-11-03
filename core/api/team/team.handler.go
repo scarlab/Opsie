@@ -180,7 +180,7 @@ func (h *Handler) GetAllByUserId(w http.ResponseWriter, r *http.Request) *errors
 	userId := bolt.ParseParamId(w, r, "user_id")
 
 	// Fetch all teams of user
-	teams, err1 := h.repo.GetAllByUserId(userId)
+	teams, err1 := h.userTeamRepo.ListTeamsByUser(userId)
 	if err1 != nil {return err1}
 
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{

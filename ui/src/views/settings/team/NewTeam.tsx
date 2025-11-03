@@ -1,4 +1,3 @@
-import { useSearchParams } from 'react-router-dom';
 import {
     Dialog,
     DialogBody,
@@ -21,8 +20,8 @@ import { Plus } from 'lucide-react';
 
 export default function NewTeam() {
     const dispatch = useCsDispatch();
-    const [searchParams, setSearchParams] = useSearchParams();
-    const isNewTeam = searchParams.get("new-team") === "true";
+
+    const [isNewTeam, setIsNewTeam] = useState<boolean>(false)
 
     const { authUser } = useCsSelector(state => state.auth);
     const [payload, setPayload] = useState<NewTeamPayload>({ name: '', description: '' });
@@ -40,8 +39,7 @@ export default function NewTeam() {
             toast.success(res.payload.message);
             setPayload({ name: '', description: '' })
 
-            searchParams.delete("new-team");
-            setSearchParams(searchParams);
+            setIsNewTeam(false)
         }
         else if (res.meta.requestStatus === "rejected") {
             toast.error(res.payload.error);
@@ -51,13 +49,12 @@ export default function NewTeam() {
     if (!authUser || authUser?.system_role === SystemRoles.Staff) return null;
     return (
         <div>
-            <Button size={'sm'} variant={"outline"} onClick={() => setSearchParams({ "new-team": "true" })}><Plus />New Team</Button>
+            <Button size={'sm'} variant={"outline"} onClick={() => setIsNewTeam(true)}><Plus />New Team</Button>
 
             <Dialog
                 open={isNewTeam}
                 onOpenChange={() => {
-                    searchParams.delete("new-team");
-                    setSearchParams(searchParams);
+                    setIsNewTeam(false);
                     setPayload({ name: '', description: '' })
                 }}
             >

@@ -6,23 +6,19 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger
 } from "../cn/dropdown-menu";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Actions, useCsDispatch, useCsSelector } from "@/cs-redux";
 import { useEffect, useState } from "react";
-import { SystemRoles } from "@/constants";
 import type { TeamModel } from "@/types/team.type";
 import { getLocalTeam } from "@/helpers/team.helper";
-import { toast } from "sonner";
-import { useSearchParams } from "react-router-dom";
-import NewTeam from "@/views/settings/team/NewTeam";
 
 
 export default function TeamSwitcher() {
-    const { user_default_team, user_teams } = useCsSelector(state => state.team);
-    const { authUser } = useCsSelector(state => state.auth);
+    const { auth_default_team: user_default_team, auth_teams: user_teams } = useCsSelector(state => state.team);
+
 
     const dispatch = useCsDispatch();
-    const [_, setSearchParams] = useSearchParams();
+
     const [team, setTeam] = useState<TeamModel | null>(getLocalTeam());
 
 
@@ -38,11 +34,6 @@ export default function TeamSwitcher() {
 
 
 
-    async function handleAddTeam() {
-        if (authUser?.system_role === SystemRoles.Staff) return toast.info("You do not have permission to create a team.");
-
-        setSearchParams({ "new-team": "true" })
-    }
 
     async function handleSwitchTeam(id: string) {
         if (id === user_default_team?.id) return;

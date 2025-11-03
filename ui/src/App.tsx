@@ -50,7 +50,6 @@ export default function App() {
             {/* WORKSPACE */}
             <Route index element={<OverviewView />} />
             <Route path="nodes" element={<NodesView />} />
-            <Route path="users" element={<UsersView />} />
             <Route path="projects" element={<ProjectsView />} />
             <Route path="resources" element={<ResourcesView />} />
             <Route path="apps" element={<AppsView />} />
@@ -59,6 +58,7 @@ export default function App() {
             <Route path="settings/*" element={<SettingsLayout />}>
               <Route index element={<NotFound />} />
               <Route path="general" element={<GeneralSettingsView />} />
+              <Route path="user" element={<UsersView />} />
               <Route path="account" element={<AccountSettingsView />} />
               <Route path="team" element={<TeamSettingsView />} />
 

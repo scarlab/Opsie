@@ -5,6 +5,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 
 const data = [
     { label: 'General', to: '/settings/general' },
+    { label: 'User', to: '/settings/user' },
     { label: 'Account', to: '/settings/account' },
     { label: 'Team', to: '/settings/team' },
     { label: 'Integrations', to: '/settings/integrations' },

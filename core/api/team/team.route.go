@@ -26,7 +26,7 @@ func HandleRoutes(r chi.Router, h *Handler) {
 	api.Get(r,  			"/get", 						h.GetAll, 					mw.Auth, mw.Admin)
 	api.Get(r,  			"/get/{id}", 					h.GetById, 					mw.Auth, mw.Admin)
 	api.Get(r,  			"/get/members/{team_id}", 		h.GetAllMembersOfTeam,		mw.Auth, mw.Admin)
-	api.Get(r,  			"/get/user/{user_id}", 			h.GetAllByUserId, 			mw.Auth, mw.Admin)
+	api.Get(r,  			"/get/user/{user_id}", 			h.GetAllByUserId, 			mw.Auth, mw.Admin) // Move to user route?
 	api.Patch(r,  			"/update/{id}", 				h.Update,					mw.Auth, mw.Admin)
 	api.Delete(r,  			"/delete/{id}", 				h.Delete,					mw.Auth, mw.Admin) // pending...
 }

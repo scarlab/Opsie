@@ -27,7 +27,7 @@ export class TeamAction {
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.get(`/team/user/get/default`);
-                console.log(data);
+
                 return fulfillWithValue(data)
             } catch (error: any) {
                 return rejectWithValue(error.response.data);
@@ -52,6 +52,45 @@ export class TeamAction {
     /// Protected Section [Auth, Admin] ---------------------------------------------------------------
     /// ---
 
+    CreateTeam = createAsyncThunk(
+        "Team/CreateTeam",
+        async (payload: NewTeamPayload, { rejectWithValue, fulfillWithValue }) => {
+            try {
+                const { data } = await ApiManager.post(`/team/create`, payload);
+
+                return fulfillWithValue(data)
+            } catch (error: any) {
+                return rejectWithValue(error.response.data);
+            }
+        }
+    )
+
+    GetAllTeams = createAsyncThunk(
+        "Team/GetAllTeams",
+        async (_, { rejectWithValue, fulfillWithValue }) => {
+            try {
+                const { data } = await ApiManager.get(`/team/get`);
+
+                return fulfillWithValue(data)
+            } catch (error: any) {
+                return rejectWithValue(error.response.data);
+            }
+        }
+    )
+
+    GetTeamById = createAsyncThunk(
+        "Team/GetTeamById",
+        async (payload: { id: string }, { rejectWithValue, fulfillWithValue }) => {
+            try {
+                const { data } = await ApiManager.get(`/team/get/${payload.id}`);
+
+                return fulfillWithValue(data)
+            } catch (error: any) {
+                return rejectWithValue(error.response.data);
+            }
+        }
+    )
+
     GetTeamMembers = createAsyncThunk(
         "Team/GetTeamMembers",
         async (payload: { id: string }, { rejectWithValue, fulfillWithValue }) => {
@@ -65,11 +104,11 @@ export class TeamAction {
         }
     )
 
-    CreateTeam = createAsyncThunk(
-        "Team/CreateTeam",
-        async (payload: NewTeamPayload, { rejectWithValue, fulfillWithValue }) => {
+    GetAllTeamsOfUser = createAsyncThunk(
+        "Team/GetAllTeamsOfUser",
+        async (payload: { user_id: string }, { rejectWithValue, fulfillWithValue }) => {
             try {
-                const { data } = await ApiManager.post(`/team/create`, payload);
+                const { data } = await ApiManager.get(`/team/get/user/${payload.user_id}`);
 
                 return fulfillWithValue(data)
             } catch (error: any) {
@@ -77,4 +116,31 @@ export class TeamAction {
             }
         }
     )
+
+    Update = createAsyncThunk(
+        "Team/Update",
+        async (payload: { id: string, data: NewTeamPayload }, { rejectWithValue, fulfillWithValue }) => {
+            try {
+                const { data } = await ApiManager.patch(`/team/update/${payload.id}`, payload.data);
+
+                return fulfillWithValue(data)
+            } catch (error: any) {
+                return rejectWithValue(error.response.data);
+            }
+        }
+    )
+
+    Delete = createAsyncThunk(
+        "Team/Delete",
+        async (payload: { id: string }, { rejectWithValue, fulfillWithValue }) => {
+            try {
+                const { data } = await ApiManager.delete(`/team/delete/${payload.id}`);
+
+                return fulfillWithValue(data)
+            } catch (error: any) {
+                return rejectWithValue(error.response.data);
+            }
+        }
+    )
+
 }
