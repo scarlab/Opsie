@@ -23,8 +23,8 @@ export default function TeamSwitcher() {
 
 
     useEffect(() => {
-        dispatch(Actions.team.GetAllTeamOfUser());
-        dispatch(Actions.team.GetDefaultTeamOfUser());
+        dispatch(Actions.team.GetAllTeamOfAuthUser());
+        dispatch(Actions.team.GetDefaultTeamOfAuthUser());
     }, [dispatch]);
 
 
@@ -37,7 +37,7 @@ export default function TeamSwitcher() {
 
     async function handleSwitchTeam(id: string) {
         if (id === user_default_team?.id) return;
-        dispatch(Actions.team.SetDefaultTeamOfUser({ id }))
+        dispatch(Actions.team.SetDefaultTeamOfAuthUser({ id }))
     }
 
 

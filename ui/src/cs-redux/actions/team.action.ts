@@ -9,8 +9,8 @@ export class TeamAction {
     /// User ------------------------------------------------------------------------------------------
     /// ---
 
-    GetAllTeamOfUser = createAsyncThunk(
-        "Team/GetAllTeamOfUser",
+    GetAllTeamOfAuthUser = createAsyncThunk(
+        "Team/GetAllTeamOfAuthUser",
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.get(`/team/user/get/all`);
@@ -22,8 +22,8 @@ export class TeamAction {
         }
     )
 
-    GetDefaultTeamOfUser = createAsyncThunk(
-        "Team/GetDefaultTeamOfUser",
+    GetDefaultTeamOfAuthUser = createAsyncThunk(
+        "Team/GetDefaultTeamOfAuthUser",
         async (_, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.get(`/team/user/get/default`);
@@ -35,8 +35,8 @@ export class TeamAction {
         }
     )
 
-    SetDefaultTeamOfUser = createAsyncThunk(
-        "Team/SetDefaultTeamOfUser",
+    SetDefaultTeamOfAuthUser = createAsyncThunk(
+        "Team/SetDefaultTeamOfAuthUser",
         async (payload: { id: string }, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.get(`/team/user/set/default/${payload.id}`);

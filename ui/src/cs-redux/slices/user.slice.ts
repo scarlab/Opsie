@@ -23,7 +23,10 @@ const UserSlice = createSlice({
     reducers: {
         restoreUserUser: (state, { payload }) => {
             state.user = payload
-        }
+        },
+        removeUser: (state, _) => {
+            state.user = undefined
+        },
     },
     extraReducers: (builder) => {
 
@@ -37,9 +40,7 @@ const UserSlice = createSlice({
             })
             .addCase(UserModel.CreateUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.user = payload.user;
-
-                state.users.unshift(payload.user);
+                state.users.push(payload.user);
             })
             .addCase(UserModel.CreateUser.rejected, (state, _) => {
                 state.loading = false;

@@ -54,6 +54,7 @@ func (r *UserRepository) UpdateAccountPassword(userID int64, password string) (b
 
 // Create the owner (onboarding)
 func (r *UserRepository) CreateOwner( payload models.NewOwnerPayload) (models.User, *errors.Error) {
+	resetPass := false
 	user := models.User{
 		BaseModel: models.BaseModel{
 			ID: utils.GenerateID(),
@@ -62,7 +63,7 @@ func (r *UserRepository) CreateOwner( payload models.NewOwnerPayload) (models.Us
 		Email:       payload.Email,
 		Password:    payload.Password,
 		SystemRole:  def.SystemRoleOwner.ToString(),
-		ResetPass:	 false,
+		ResetPass:	 &resetPass,
 		Avatar: "/_static/default/avatars/avatar_25.png",
 	}
 
@@ -87,6 +88,7 @@ func (r *UserRepository) Create( payload models.NewUserPayload) (models.User, *e
 		Email:       payload.Email,
 		Password:    payload.Password,
 		SystemRole:  payload.SystemRole,
+		Avatar: payload.Avatar,
 		
 	}
 

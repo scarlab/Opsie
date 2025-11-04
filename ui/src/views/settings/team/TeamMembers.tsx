@@ -1,9 +1,7 @@
 
 import { Button } from "@/components/cn/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/cn/card";
-import { Spinner } from "@/components/cn/spinner";
 import { Actions, useCsDispatch, useCsSelector } from "@/cs-redux";
-import TeamSlice from "@/cs-redux/slices/team.slice";
 import { formattedDate } from "@/lib/time";
 import { EllipsisVertical, Plus } from "lucide-react";
 import { useEffect } from "react";

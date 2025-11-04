@@ -11,7 +11,7 @@ import NodesView from "./views/workspace/nodes/NodesView";
 import AppsView from "./views/workspace/apps/AppsView";
 import ResourcesView from "./views/workspace/resources/ResourcesView";
 import ProjectsView from "./views/workspace/projects/ProjectsView";
-import UsersView from "./views/workspace/users/UsersView";
+import UsersView from "./views/settings/users/UsersView";
 import SettingsLayout from "./layouts/SettingsLayout";
 import AccountSettingsView from "./views/settings/account/AccountSettingsView";
 import TeamSettingsView from "./views/settings/team/TeamSettingsView";

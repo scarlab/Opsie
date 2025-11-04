@@ -99,7 +99,7 @@ export class UserAction {
 
     GetUserById = createAsyncThunk(
         "User/GetUserById",
-        async (payload: { id: number }, { rejectWithValue, fulfillWithValue }) => {
+        async (payload: { id: string }, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.get(`/user/get/${payload.id}`);
 
@@ -112,7 +112,7 @@ export class UserAction {
 
     UpdateUser = createAsyncThunk(
         "User/UpdateUser",
-        async (payload: { id: number; data: UpdateUserPayload }, { rejectWithValue, fulfillWithValue }) => {
+        async (payload: { id: string; data: UpdateUserPayload }, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.patch(`/user/update/${payload.id}`, payload.data);
 
@@ -126,7 +126,7 @@ export class UserAction {
 
     DeleteUser = createAsyncThunk(
         "User/DeleteUser",
-        async (payload: { id: number; }, { rejectWithValue, fulfillWithValue }) => {
+        async (payload: { id: string; }, { rejectWithValue, fulfillWithValue }) => {
             try {
                 const { data } = await ApiManager.delete(`/user/delete/${payload.id}`);
 

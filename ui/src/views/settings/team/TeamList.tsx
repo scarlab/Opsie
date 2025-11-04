@@ -18,6 +18,12 @@ export default function TeamList() {
         <div>
 
             <div className="mt-3 space-y-">
+                <div className="grid grid-cols-12 gap-2 px-3 pb-1 text-muted-foreground text-sm border-b">
+                    <p className="col-span-1 text-center pe-3">###</p>
+                    <p className="col-span-5">Name</p>
+                    <p className="col-span-5">Description</p>
+                </div>
+
                 {teams ?
                     teams.map((team, i) => (
                         <Link to={`/settings/team?team=${team.id}`} key={i} className="grid grid-cols-12 hover:bg-accent/20 transition-all py-1.5 border-b px-3">

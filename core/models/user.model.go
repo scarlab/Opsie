@@ -16,7 +16,7 @@ type User struct {
 	SystemRole  string              `gorm:"default:'staff'" json:"system_role"`
 	Preference  datatypes.JSON      `gorm:"type:jsonb;default:'{}'" json:"preference"`
 	IsActive    bool                `gorm:"default:true" json:"is_active"`
-	ResetPass   bool                `gorm:"default:true" json:"reset_pass"`
+	ResetPass   *bool                `gorm:"default:true" json:"reset_pass"`
 
 	// Relations
 	Sessions   []Session            `gorm:"foreignKey:UserID" json:"sessions,omitempty"`
@@ -39,6 +39,7 @@ type NewUserPayload struct {
     Email           string          `json:"email"`
     Password        string          `json:"password"`
     SystemRole      string          `json:"system_role"`
+    Avatar          string          `json:"avatar"`
 }
 
 type UpdateUserPayload struct {

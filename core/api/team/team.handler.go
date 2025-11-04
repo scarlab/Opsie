@@ -1,6 +1,7 @@
 package team
 
 import (
+	"fmt"
 	"net/http"
 	"opsie/core/models"
 	"opsie/core/repo"
@@ -182,7 +183,7 @@ func (h *Handler) GetAllByUserId(w http.ResponseWriter, r *http.Request) *errors
 	// Fetch all teams of user
 	teams, err1 := h.userTeamRepo.ListTeamsByUser(userId)
 	if err1 != nil {return err1}
-
+fmt.Println("teams",teams)
    	bolt.WriteResponse(w, http.StatusOK, map[string]any{
 		"message"		: "All teams of user",
 		"teams"			: teams,

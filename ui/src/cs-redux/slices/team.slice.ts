@@ -50,47 +50,47 @@ const TeamSlice = createSlice({
         /// ---
 
         builder
-            .addCase(Team.GetAllTeamOfUser.pending, (state, _) => {
+            .addCase(Team.GetAllTeamOfAuthUser.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(Team.GetAllTeamOfUser.fulfilled, (state, { payload }) => {
+            .addCase(Team.GetAllTeamOfAuthUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.auth_teams = payload.teams;
             })
-            .addCase(Team.GetAllTeamOfUser.rejected, (state, _) => {
+            .addCase(Team.GetAllTeamOfAuthUser.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
             })
 
 
         builder
-            .addCase(Team.GetDefaultTeamOfUser.pending, (state, _) => {
+            .addCase(Team.GetDefaultTeamOfAuthUser.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(Team.GetDefaultTeamOfUser.fulfilled, (state, { payload }) => {
+            .addCase(Team.GetDefaultTeamOfAuthUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.auth_default_team = payload.team;
 
                 // ---
                 setLocalTeam(payload.team);
             })
-            .addCase(Team.GetDefaultTeamOfUser.rejected, (state, _) => {
+            .addCase(Team.GetDefaultTeamOfAuthUser.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
             })
 
         builder
-            .addCase(Team.SetDefaultTeamOfUser.pending, (state, _) => {
+            .addCase(Team.SetDefaultTeamOfAuthUser.pending, (state, _) => {
                 state.loading = true;
             })
-            .addCase(Team.SetDefaultTeamOfUser.fulfilled, (state, { payload }) => {
+            .addCase(Team.SetDefaultTeamOfAuthUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.auth_default_team = payload.team;
 
                 // ---
                 setLocalTeam(payload.team);
             })
-            .addCase(Team.SetDefaultTeamOfUser.rejected, (state, _) => {
+            .addCase(Team.SetDefaultTeamOfAuthUser.rejected, (state, _) => {
                 state.loading = false;
                 state.notFound = true;
             })
@@ -164,7 +164,8 @@ const TeamSlice = createSlice({
             })
             .addCase(Team.GetAllTeamsOfUser.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.user_teams = payload.teams;
+                state.user_teams = payload.teams ? payload.teams : [];
+
             })
             .addCase(Team.GetAllTeamsOfUser.rejected, (state, _) => {
                 state.loading = false;

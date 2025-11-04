@@ -11,4 +11,5 @@ export interface AuthUser {
     system_role: string;
     preference: Object;
     is_active: boolean;
+    reset_pass: boolean;
 }
